@@ -1,5 +1,11 @@
 # Third-party notices
 
+## Archivo font
+
+The report uses the Archivo variable font from the Archivo Project Authors.
+The font is distributed under the SIL Open Font License 1.1. See
+`assets/fonts/OFL.txt` for the licence text.
+
 ## GOV.UK guidance
 
 The `govuk-style` skill is an original Agent Skill based on the following public guidance:

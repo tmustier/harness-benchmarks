@@ -6,6 +6,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const dataDir = path.join(root, "data");
 const siteDir = path.join(root, "site");
 const siteDataDir = path.join(siteDir, "data");
+const siteAssetsDir = path.join(siteDir, "assets");
 
 const studies = JSON.parse(fs.readFileSync(path.join(dataDir, "studies.json"), "utf8"));
 const observations = JSON.parse(fs.readFileSync(path.join(dataDir, "observations.json"), "utf8"));
@@ -205,13 +206,13 @@ const html = `<!doctype html>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="A review of public studies that compare coding-agent harnesses while holding the model constant.">
-  <title>Harness benchmarks</title>
+  <title>The harness (still) matters</title>
   <style>${css}</style>
   <link rel="stylesheet" href="report.css">
 </head>
 <body>
-  <header class="topbar"><div class="wrap"><a href="#main">Harness benchmarks</a></div></header>
-  <section class="hero"><div class="wrap"><p class="eyebrow">Evidence review</p><h1>The harness is part of the evaluated system</h1><p class="lede">Public studies show that the coding-agent harness changes performance, cost, token use and runtime. They do not identify one harness that wins across every model and task.</p><p class="date">Evidence captured on 12 July 2026</p></div></section>
+  <header class="topbar"><div class="wrap"><a href="#main">The harness (still) matters</a></div></header>
+  <section class="hero"><div class="wrap"><p class="eyebrow">Evidence review</p><h1>The harness (still) matters</h1><p class="lede">Public studies show that the coding-agent harness changes performance, cost, token use and runtime. They do not identify one harness that wins across every model and task.</p><p class="date">Evidence captured on 12 July 2026</p></div></section>
   <main id="main">
     <section class="overview"><div class="wrap">
       <div class="overview-header"><h2>13 benchmarks, ordered by how much they can tell us</h2><p class="overview-takeaway">The evidence is consistent on one point: changing the harness can change quality, cost and speed. It is not consistent on which harness wins.</p></div>
@@ -220,7 +221,7 @@ const html = `<!doctype html>
     </div></section>
     <div class="wrap">${orderedStudies.map(studySection).join("\n")}</div>
     <section class="appendix"><div class="wrap">
-      <section><h2>Evidence matrix</h2><p>Twelve studies contain at least one matched-model harness comparison. Portkey is an efficiency diagnostic, not a quality benchmark.</p><div class="table-wrap"><table><thead><tr><th>No.</th><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody>${studyRows}</tbody></table></div><p><a href="https://github.com/Nexcade/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></section>
+      <section><h2>Evidence matrix</h2><p>Twelve studies contain at least one matched-model harness comparison. Portkey is an efficiency diagnostic, not a quality benchmark.</p><div class="table-wrap"><table><thead><tr><th>No.</th><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody>${studyRows}</tbody></table></div><p><a href="https://github.com/tmustier/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></section>
       <section><h2>Data and source access</h2><p>External datasets remain under their publishers' terms. This repository stores derived observations and links to the original data.</p><div class="table-wrap"><table><thead><tr><th>Source</th><th>Access</th><th>Licence note</th><th>Links</th></tr></thead><tbody>${sourceRows}</tbody></table></div></section>
     </div></section>
   </main>
@@ -229,8 +230,10 @@ const html = `<!doctype html>
 </html>`;
 
 fs.mkdirSync(siteDataDir, { recursive: true });
+fs.mkdirSync(siteAssetsDir, { recursive: true });
 fs.writeFileSync(path.join(siteDir, "index.html"), html);
 fs.copyFileSync(path.join(root, "styles", "report.css"), path.join(siteDir, "report.css"));
+fs.copyFileSync(path.join(root, "assets", "fonts", "Archivo-latin-VF.woff2"), path.join(siteAssetsDir, "Archivo-latin-VF.woff2"));
 for (const name of ["studies.json", "observations.json", "claims.json", "external-datasets.json"]) {
   fs.copyFileSync(path.join(dataDir, name), path.join(siteDataDir, name));
 }

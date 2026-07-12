@@ -1,4 +1,4 @@
-# Harness benchmarks
+# The harness (still) matters
 
 The coding-agent harness changes performance, cost, token use and runtime. No public study identifies one harness that wins across every model and task.
 
