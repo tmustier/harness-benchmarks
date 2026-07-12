@@ -13,38 +13,55 @@
 @page{size:A4 landscape;margin:10mm}
 @media print{body{font-size:8.5pt;line-height:1.32}.wrap{width:100%;max-width:none}.topbar{display:none}.hero{padding:13mm 0 8mm}.hero h1{font-size:27pt}.hero .lede{font-size:14pt;max-width:190mm}.hero .date{margin-top:7mm}.summary,.method{padding:7mm 0}.summary h2,.method h2,.sources h2{font-size:21pt}.summary-grid{gap:6mm}.summary-grid h3{font-size:12pt}.method table,.sources table{font-size:7.2pt}.study{break-before:page;break-after:page;padding:4mm 0 0;border-bottom:0;zoom:.74;width:135%}.study h2{font-size:21pt}.study-lead{font-size:11.5pt;margin:3mm 0 4mm}.study-meta{margin:0 0 4mm}.study-meta div{padding:2.5mm 3mm 2.5mm 0}.study-meta dt{font-size:7pt}.study-meta dd{font-size:7.8pt}.chart-block{break-inside:avoid;margin:2mm 0}.chart-svg{max-height:82mm}.chart-key{font-size:6.8pt;margin-top:1mm}.chart-key th,.chart-key td{padding:1mm 2mm 1mm 0}.point-key{width:5mm;height:5mm;font-size:6pt}.paired-charts{gap:5mm;break-inside:avoid}.paired-charts h3{font-size:10pt}.paired-charts .chart-svg{max-height:73mm}.caveat{padding:2.5mm 3mm;margin:3mm 0;border-left-width:2mm}.caveat h3{font-size:9pt}.caveat p,.source-line,.chart-caption{font-size:7.5pt}.sources{break-before:page;padding-top:4mm}.site-footer{display:none}a{color:inherit;text-decoration:none}}
 </style>
+  <link rel="stylesheet" href="report.css">
 </head>
 <body>
   <header class="topbar"><div class="wrap"><a href="#main">Harness benchmarks</a></div></header>
   <section class="hero"><div class="wrap"><p class="eyebrow">Evidence review</p><h1>The harness is part of the evaluated system</h1><p class="lede">Public studies show that the coding-agent harness changes performance, cost, token use and runtime. They do not identify one harness that wins across every model and task.</p><p class="date">Evidence captured on 12 July 2026</p></div></section>
   <main id="main">
-    <section class="summary"><div class="wrap"><h2>What the evidence supports</h2><div class="summary-grid"><section><h3>Harnesses are not neutral</h3><p>Context, tools, retries, timeouts and caching change the system's behaviour.</p></section><section><h3>The ranking changes</h3><p>Pi, native harnesses, OpenCode, Cursor and research scaffolds each win somewhere.</p></section><section><h3>Test the combination</h3><p>The useful unit is model, harness, task and budget together.</p></section></div></div></section>
-    <section class="method"><div class="wrap"><h2>The evidence base</h2><p>This review includes 13 public evaluations. Twelve contain at least one matched-model harness comparison. Portkey is included as an efficiency diagnostic, not a quality benchmark.</p><div class="table-wrap"><table><thead><tr><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody><tr><td><a href="#databricks">Databricks coding-agent benchmark</a></td><td>Recent human-written pull requests from a multi-million-line internal codebase</td><td>yes</td><td>yes</td><td>not clear</td><td>yes</td></tr><tr><td><a href="#warden">Warden benchmark</a></td><td>Known-vulnerability recognition in files tied to historical Sentry vulnerabilities</td><td>yes</td><td>yes</td><td>no</td><td>yes</td></tr><tr><td><a href="#latchbio-scbench-long">scBench-Long</a></td><td>Long biological analysis workflows</td><td>yes</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td><a href="#openbench">OpenBench M4.5</a></td><td>Three repository coding tasks with executable checkers</td><td>yes</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td><a href="#drugdiscoverybench">DrugDiscoveryBench</a></td><td>Expert-curated drug-discovery and life-sciences workflows</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr><tr><td><a href="#artificial-analysis">Coding Agent Index</a></td><td>321 tasks across DeepSWE, Terminal-Bench v2 and SWE-Atlas-QnA</td><td>yes</td><td>no</td><td>yes</td><td>yes</td></tr><tr><td><a href="#endor">Agent Security League</a></td><td>Real vulnerability-fixing tasks with hidden functional and security tests</td><td>yes</td><td>no</td><td>no</td><td>no</td></tr><tr><td><a href="#xor">Vulnerability-Agent-Bench</a></td><td>Real vulnerability repairs in isolated containers</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td><a href="#wildclawbench">WildClawBench</a></td><td>Bilingual, multimodal and long-horizon agent tasks</td><td>yes</td><td>no</td><td>not clear</td><td>yes</td></tr><tr><td><a href="#harnessbench">HarnessBench</a></td><td>Recent bug-fix issues from 9 open-source repositories</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td><a href="#corebench-hard">CORE-Bench Hard</a></td><td>Scientific reproducibility tasks</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td><a href="#acode-cli">A-CODE-CLI</a></td><td>Ten full-stack web development scenarios</td><td>yes</td><td>no</td><td>yes</td><td>yes</td></tr><tr><td><a href="#portkey-harness-tax">Harness Tax</a></td><td>Two trivial prompts routed through a gateway</td><td>no</td><td>yes</td><td>no</td><td>no</td></tr></tbody></table></div><p><a href="https://github.com/Nexcade/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></div></section>
+    <section class="overview"><div class="wrap">
+      <div class="overview-header"><h2>13 benchmarks, ordered by how much they can tell us</h2><p class="overview-takeaway">The evidence is consistent on one point: changing the harness can change quality, cost and speed. It is not consistent on which harness wins.</p></div>
+      <ul class="overview-findings"><li><strong>Harnesses are not neutral</strong>Tools, context, retries and timeouts change the evaluated system.</li><li><strong>The ranking changes</strong>No harness wins across every model and task.</li><li><strong>Test the combination</strong>Evaluate model, harness, task and budget together.</li></ul>
+      <div class="overview-groups"><section class="overview-group"><p class="overview-number">1</p><h3>Operational and broad evidence</h3><p>Start here: larger, more operational or more extensively reported comparisons.</p><ol><li><a href="#databricks"><span>01</span>Databricks coding-agent benchmark</a></li><li><a href="#warden"><span>02</span>Warden benchmark</a></li><li><a href="#artificial-analysis"><span>03</span>Coding Agent Index</a></li><li><a href="#drugdiscoverybench"><span>04</span>DrugDiscoveryBench</a></li><li><a href="#endor"><span>05</span>Agent Security League</a></li></ol></section><section class="overview-group"><p class="overview-number">2</p><h3>Focused domain evidence</h3><p>Strong task-specific evidence, but conclusions may not transfer outside the domain.</p><ol><li><a href="#latchbio-scbench-long"><span>06</span>scBench-Long</a></li><li><a href="#xor"><span>07</span>Vulnerability-Agent-Bench</a></li><li><a href="#wildclawbench"><span>08</span>WildClawBench</a></li><li><a href="#corebench-hard"><span>09</span>CORE-Bench Hard</a></li></ol></section><section class="overview-group"><p class="overview-number">3</p><h3>Small and diagnostic evidence</h3><p>Useful signals with limited task counts or no direct measure of coding quality.</p><ol><li><a href="#harnessbench"><span>10</span>HarnessBench</a></li><li><a href="#acode-cli"><span>11</span>A-CODE-CLI</a></li><li><a href="#openbench"><span>12</span>OpenBench M4.5</a></li><li><a href="#portkey-harness-tax"><span>13</span>Harness Tax</a></li></ol></section></div>
+    </div></section>
     <div class="wrap"><article class="study" id="databricks">
-    <p class="eyebrow">Study 01</p>
-    <h2>Databricks coding-agent benchmark</h2>
-    <p class="study-lead">Pi used about one-third as much context per turn. Some equal-quality matched runs differed by more than 2 times in cost.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Recent human-written pull requests from a multi-million-line internal codebase</dd></div>
-      <div><dt>Tasks</dt><dd>not published</dd></div>
-      <div><dt>Repeated trials</dt><dd>not clear</dd></div>
-      <div><dt>Grader</dt><dd>Repository tests reviewed by engineers</dd></div>
-    </dl>
-    <figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 234" role="img" aria-label="Reported relative cost and context"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="200" /><text x="255" y="226" text-anchor="middle">0×</text><line x1="368" y1="18" x2="368" y2="200" /><text x="368" y="226" text-anchor="middle">0.7×</text><line x1="481" y1="18" x2="481" y2="200" /><text x="481" y="226" text-anchor="middle">1.4×</text><line x1="594" y1="18" x2="594" y2="200" /><text x="594" y="226" text-anchor="middle">2.1×</text><line x1="707" y1="18" x2="707" y2="200" /><text x="707" y="226" text-anchor="middle">2.8×</text><line x1="820" y1="18" x2="820" y2="200" /><text x="820" y="226" text-anchor="middle">3.5×</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">Cost ratio · Lower-cost harness</text><rect x="255" y="35" width="161.42857142857144" height="16" fill="#505a5f" /><line class="ci" x1="NaN" y1="43" x2="NaN" y2="43" /><line class="ci" x1="NaN" y1="37" x2="NaN" y2="49" /><line class="ci" x1="NaN" y1="37" x2="NaN" y2="49" /><text x="425.42857142857144" y="47" class="bar-value">1.00×</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">Cost ratio · Higher-cost harness</text><rect x="255" y="79" width="322.8571428571429" height="16" fill="#505a5f" /><line class="ci" x1="NaN" y1="87" x2="NaN" y2="87" /><line class="ci" x1="NaN" y1="81" x2="NaN" y2="93" /><line class="ci" x1="NaN" y1="81" x2="NaN" y2="93" /><text x="586.8571428571429" y="91" class="bar-value">2.00×</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">Context ratio · Pi</text><rect x="255" y="123" width="161.42857142857144" height="16" fill="#1d70b8" /><line class="ci" x1="NaN" y1="131" x2="NaN" y2="131" /><line class="ci" x1="NaN" y1="125" x2="NaN" y2="137" /><line class="ci" x1="NaN" y1="125" x2="NaN" y2="137" /><text x="425.42857142857144" y="135" class="bar-value">1.00×</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">Context ratio · Native harness</text><rect x="255" y="167" width="484.2857142857142" height="16" fill="#505a5f" /><line class="ci" x1="NaN" y1="175" x2="NaN" y2="175" /><line class="ci" x1="NaN" y1="169" x2="NaN" y2="181" /><line class="ci" x1="NaN" y1="169" x2="NaN" y2="181" /><text x="748.2857142857142" y="179" class="bar-value">3.00×</text></g></svg></figure><p class="chart-caption">The source reports ‘more than 2 times’ for cost and ‘about 3 times’ for context. These are directional ratios, not exact run-level values.</p>
-    <aside class="caveat"><h3>What this does not prove</h3><p>The source does not publish task count, matched rows, run-level data or uncertainty.</p></aside>
-    <p class="source-line"><a href="https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase">Databricks result source</a></p>
+    <header class="study-header">
+      <p class="study-position"><span>01</span> Operational and broad evidence</p>
+      <h2>Databricks evaluated recent internal pull requests: Pi used about one-third as much context, and equal-quality runs sometimes differed by more than 2 times in cost.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>Databricks replayed recent human-written pull requests from its multi-million-line internal codebase. Engineers reviewed whether each agent's changes passed repository tests and matched the intended change.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>Not published</dd></div>
+          <div><dt>Repeated trials</dt><dd>not clear</dd></div>
+          <div><dt>Grader</dt><dd>Repository tests reviewed by engineers</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>Pi used about one-third as much context per turn. Some equal-quality matched runs differed by more than 2 times in cost.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>The source does not publish task count, matched rows, run-level data or uncertainty.</p></section>
+        <p class="source-line"><a href="https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase">Databricks results</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 234" role="img" aria-label="Reported relative cost and context"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="200" /><text x="255" y="226" text-anchor="middle">0×</text><line x1="368" y1="18" x2="368" y2="200" /><text x="368" y="226" text-anchor="middle">0.7×</text><line x1="481" y1="18" x2="481" y2="200" /><text x="481" y="226" text-anchor="middle">1.4×</text><line x1="594" y1="18" x2="594" y2="200" /><text x="594" y="226" text-anchor="middle">2.1×</text><line x1="707" y1="18" x2="707" y2="200" /><text x="707" y="226" text-anchor="middle">2.8×</text><line x1="820" y1="18" x2="820" y2="200" /><text x="820" y="226" text-anchor="middle">3.5×</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">Cost ratio · Lower-cost harness</text><rect x="255" y="35" width="161.42857142857144" height="16" fill="#505a5f" /><line class="ci" x1="NaN" y1="43" x2="NaN" y2="43" /><line class="ci" x1="NaN" y1="37" x2="NaN" y2="49" /><line class="ci" x1="NaN" y1="37" x2="NaN" y2="49" /><text x="425.42857142857144" y="47" class="bar-value">1.00×</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">Cost ratio · Higher-cost harness</text><rect x="255" y="79" width="322.8571428571429" height="16" fill="#505a5f" /><line class="ci" x1="NaN" y1="87" x2="NaN" y2="87" /><line class="ci" x1="NaN" y1="81" x2="NaN" y2="93" /><line class="ci" x1="NaN" y1="81" x2="NaN" y2="93" /><text x="586.8571428571429" y="91" class="bar-value">2.00×</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">Context ratio · Pi</text><rect x="255" y="123" width="161.42857142857144" height="16" fill="#1d70b8" /><line class="ci" x1="NaN" y1="131" x2="NaN" y2="131" /><line class="ci" x1="NaN" y1="125" x2="NaN" y2="137" /><line class="ci" x1="NaN" y1="125" x2="NaN" y2="137" /><text x="425.42857142857144" y="135" class="bar-value">1.00×</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">Context ratio · Native harness</text><rect x="255" y="167" width="484.2857142857142" height="16" fill="#505a5f" /><line class="ci" x1="NaN" y1="175" x2="NaN" y2="175" /><line class="ci" x1="NaN" y1="169" x2="NaN" y2="181" /><line class="ci" x1="NaN" y1="169" x2="NaN" y2="181" /><text x="748.2857142857142" y="179" class="bar-value">3.00×</text></g></svg></figure><p class="chart-caption">The source reports ‘more than 2 times’ for cost and ‘about 3 times’ for context. These are directional ratios, not exact run-level values.</p></section>
+    </div>
   </article>
 <article class="study" id="warden">
-    <p class="eyebrow">Study 02</p>
-    <h2>Warden benchmark</h2>
-    <p class="study-lead">Pi cost less and found a similar or larger share of the known corpus for the matched Claude models.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Known-vulnerability recognition in files tied to historical Sentry vulnerabilities</dd></div>
-      <div><dt>Tasks</dt><dd>86</dd></div>
-      <div><dt>Repeated trials</dt><dd>no</dd></div>
-      <div><dt>Grader</dt><dd>Known-corpus recall</dd></div>
-    </dl>
-    <figure class="chart-block">
+    <header class="study-header">
+      <p class="study-position"><span>02</span> Operational and broad evidence</p>
+      <h2>Sentry tested 86 known vulnerabilities: Pi found a similar or larger share while costing about one-quarter to one-fifth as much as Claude SDK.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>Sentry gave agents files connected to 86 historical vulnerabilities and measured how many known findings they recovered. The published table compares matched Claude models running in Pi and Claude SDK.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>86</dd></div>
+          <div><dt>Repeated trials</dt><dd>no</dd></div>
+          <div><dt>Grader</dt><dd>Known-corpus recall</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>Pi cost less and found a similar or larger share of the known corpus for the matched Claude models.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>The comparator is Claude SDK, not the Claude Code command-line product. The benchmark does not measure whole-repository discovery.</p></section>
+        <p class="source-line"><a href="https://warden.sentry.dev/benchmarking/">Sentry results</a><br><a href="https://warden.sentry.dev/benchmarking/">Dataset or repository</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block">
     <svg class="chart-svg" viewBox="0 0 900 430" role="img" aria-labelledby="scatter-title-warden scatter-desc-warden">
       <title id="scatter-title-warden">Warden benchmark: performance and cost per task</title>
       <desc id="scatter-desc-warden">Performance from 0 to 100% plotted against cost per task from 0 to 1.5 US dollars.</desc>
@@ -65,64 +82,28 @@
     <text x="565.3866666666667" y="303.076" text-anchor="middle" class="point-number">4</text>
   </g>
     </svg>
-    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Performance</th><th>Cost per task</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#1d70b8">1</span></td><td>Claude Sonnet 4.6</td><td>Pi</td><td>29.1%</td><td>$0.23</td></tr><tr><td><span class="point-key" style="background:#d4351c">2</span></td><td>Claude Sonnet 4.6</td><td>Claude SDK</td><td>27.9%</td><td>$1.20</td></tr><tr><td><span class="point-key" style="background:#1d70b8">3</span></td><td>Claude Opus 4.8</td><td>Pi</td><td>24.4%</td><td>$0.25</td></tr><tr><td><span class="point-key" style="background:#d4351c">4</span></td><td>Claude Opus 4.8</td><td>Claude SDK</td><td>19.8%</td><td>$0.93</td></tr></tbody></table>
-  </figure>
-    <aside class="caveat"><h3>What this does not prove</h3><p>The comparator is Claude SDK, not the Claude Code command-line product. The benchmark does not measure whole-repository discovery.</p></aside>
-    <p class="source-line"><a href="https://warden.sentry.dev/benchmarking/">Sentry result source</a> · <a href="https://warden.sentry.dev/benchmarking/">Dataset or repository</a></p>
-  </article>
-<article class="study" id="latchbio-scbench-long">
-    <p class="eyebrow">Study 03</p>
-    <h2>scBench-Long</h2>
-    <p class="study-lead">Claude Code led Pi on Opus 4.8 while Codex and Pi tied on GPT-5.5. The reported intervals overlap widely.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Long biological analysis workflows</dd></div>
-      <div><dt>Tasks</dt><dd>21</dd></div>
-      <div><dt>Repeated trials</dt><dd>yes</dd></div>
-      <div><dt>Grader</dt><dd>Deterministic biological graders</dd></div>
-    </dl>
-    <figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 234" role="img" aria-label="scBench-Long: pass rate"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="200" /><text x="255" y="226" text-anchor="middle">0%</text><line x1="368" y1="18" x2="368" y2="200" /><text x="368" y="226" text-anchor="middle">20%</text><line x1="481" y1="18" x2="481" y2="200" /><text x="481" y="226" text-anchor="middle">40%</text><line x1="594" y1="18" x2="594" y2="200" /><text x="594" y="226" text-anchor="middle">60%</text><line x1="707" y1="18" x2="707" y2="200" /><text x="707" y="226" text-anchor="middle">80%</text><line x1="820" y1="18" x2="820" y2="200" /><text x="820" y="226" text-anchor="middle">100%</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">Claude Opus 4.8 · Claude Code</text><rect x="255" y="35" width="143.51" height="16" fill="#d4351c" /><line class="ci" x1="304.946" y1="43" x2="492.01750000000004" y2="43" /><line class="ci" x1="304.946" y1="37" x2="304.946" y2="49" /><line class="ci" x1="492.01750000000004" y1="37" x2="492.01750000000004" y2="49" /><text x="407.51" y="47" class="bar-value">25.4%</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">Claude Opus 4.8 · Pi</text><rect x="255" y="79" width="116.55949999999996" height="16" fill="#1d70b8" /><line class="ci" x1="288.109" y1="87" x2="455.0665" y2="87" /><line class="ci" x1="288.109" y1="81" x2="288.109" y2="93" /><line class="ci" x1="455.0665" y1="81" x2="455.0665" y2="93" /><text x="380.55949999999996" y="91" class="bar-value">20.6%</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="123" width="89.66550000000001" height="16" fill="#00703c" /><line class="ci" x1="265.1135" y1="131" x2="424.274" y2="131" /><line class="ci" x1="265.1135" y1="125" x2="265.1135" y2="137" /><line class="ci" x1="424.274" y1="125" x2="424.274" y2="137" /><text x="353.6655" y="135" class="bar-value">15.9%</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">GPT-5.5 · Pi</text><rect x="255" y="167" width="89.66550000000001" height="16" fill="#1d70b8" /><line class="ci" x1="269.8595" y1="175" x2="419.528" y2="175" /><line class="ci" x1="269.8595" y1="169" x2="269.8595" y2="181" /><line class="ci" x1="419.528" y1="169" x2="419.528" y2="181" /><text x="353.6655" y="179" class="bar-value">15.9%</text></g></svg></figure>
-    <aside class="caveat"><h3>What this does not prove</h3><p>The public summary does not expose cost. The confidence intervals are wide.</p></aside>
-    <p class="source-line"><a href="https://benchmarks.bio/scbench-long">LatchBio result source</a> · <a href="https://benchmarks.bio/data/scbench-long/index.json">Dataset or repository</a></p>
-  </article>
-<article class="study" id="openbench">
-    <p class="eyebrow">Study 04</p>
-    <h2>OpenBench M4.5</h2>
-    <p class="study-lead">All clean harnesses passed every task. Pi and Cursor used less time and fewer tokens.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Three repository coding tasks with executable checkers</dd></div>
-      <div><dt>Tasks</dt><dd>3</dd></div>
-      <div><dt>Repeated trials</dt><dd>yes</dd></div>
-      <div><dt>Grader</dt><dd>Executable checkers with partial-credit support</dd></div>
-    </dl>
-    <div class="paired-charts"><section><h3>Mean wall time</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 234" role="img" aria-label="Mean wall time per solve"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="200" /><text x="255" y="226" text-anchor="middle">0s</text><line x1="368" y1="18" x2="368" y2="200" /><text x="368" y="226" text-anchor="middle">40s</text><line x1="481" y1="18" x2="481" y2="200" /><text x="481" y="226" text-anchor="middle">80s</text><line x1="594" y1="18" x2="594" y2="200" /><text x="594" y="226" text-anchor="middle">120s</text><line x1="707" y1="18" x2="707" y2="200" /><text x="707" y="226" text-anchor="middle">160s</text><line x1="820" y1="18" x2="820" y2="200" /><text x="820" y="226" text-anchor="middle">200s</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">GPT-5.5 · Pi</text><rect x="255" y="35" width="128.82" height="16" fill="#1d70b8" /><text x="392.82" y="47" class="bar-value">45.6s</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">GPT-5.5 · Cursor</text><rect x="255" y="79" width="137.86" height="16" fill="#f47738" /><text x="401.86" y="91" class="bar-value">48.8s</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="123" width="306.23" height="16" fill="#00703c" /><text x="570.23" y="135" class="bar-value">108.4s</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">GPT-5.5 · OpenCode</text><rect x="255" y="167" width="494.93999999999994" height="16" fill="#6f72af" /><text x="758.9399999999999" y="179" class="bar-value">175.2s</text></g></svg></figure></section><section><h3>Tokens per solve</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 234" role="img" aria-label="Tokens per solve"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="200" /><text x="255" y="226" text-anchor="middle">0</text><line x1="368" y1="18" x2="368" y2="200" /><text x="368" y="226" text-anchor="middle">20000</text><line x1="481" y1="18" x2="481" y2="200" /><text x="481" y="226" text-anchor="middle">40000</text><line x1="594" y1="18" x2="594" y2="200" /><text x="594" y="226" text-anchor="middle">60000</text><line x1="707" y1="18" x2="707" y2="200" /><text x="707" y="226" text-anchor="middle">80000</text><line x1="820" y1="18" x2="820" y2="200" /><text x="820" y="226" text-anchor="middle">100000</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">GPT-5.5 · Pi</text><rect x="255" y="35" width="98.84109999999998" height="16" fill="#1d70b8" /><text x="362.8411" y="47" class="bar-value">17494</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">GPT-5.5 · Cursor</text><rect x="255" y="79" width="120.7405" height="16" fill="#f47738" /><text x="384.7405" y="91" class="bar-value">21370</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">GPT-5.5 · OpenCode</text><rect x="255" y="123" width="251.2668" height="16" fill="#6f72af" /><text x="515.2668" y="135" class="bar-value">44472</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="167" width="428.14570000000003" height="16" fill="#00703c" /><text x="692.1457" y="179" class="bar-value">75778</text></g></svg></figure></section></div>
-    <aside class="caveat"><h3>What this does not prove</h3><p>The tasks were too easy to separate frontier harnesses on correctness.</p></aside>
-    <p class="source-line"><a href="https://github.com/minghinmatthewlam/openbench">OpenBench result source</a> · <a href="https://github.com/minghinmatthewlam/openbench/tree/main/data">Dataset or repository</a></p>
-  </article>
-<article class="study" id="drugdiscoverybench">
-    <p class="eyebrow">Study 05</p>
-    <h2>DrugDiscoveryBench</h2>
-    <p class="study-lead">GPT-5.5 performed best in mini-SWE-agent. Codex was neither the best nor worst harness for that model.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Expert-curated drug-discovery and life-sciences workflows</dd></div>
-      <div><dt>Tasks</dt><dd>82</dd></div>
-      <div><dt>Repeated trials</dt><dd>yes</dd></div>
-      <div><dt>Grader</dt><dd>Expert-authored rubrics scored by an LLM judge</dd></div>
-    </dl>
-    <figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 410" role="img" aria-label="DrugDiscoveryBench: pass rate"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="376" /><text x="255" y="402" text-anchor="middle">0%</text><line x1="368" y1="18" x2="368" y2="376" /><text x="368" y="402" text-anchor="middle">20%</text><line x1="481" y1="18" x2="481" y2="376" /><text x="481" y="402" text-anchor="middle">40%</text><line x1="594" y1="18" x2="594" y2="376" /><text x="594" y="402" text-anchor="middle">60%</text><line x1="707" y1="18" x2="707" y2="376" /><text x="707" y="402" text-anchor="middle">80%</text><line x1="820" y1="18" x2="820" y2="376" /><text x="820" y="402" text-anchor="middle">100%</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">GPT-5.5 · mini-SWE-agent</text><rect x="255" y="35" width="291.53999999999996" height="16" fill="#28a197" /><text x="555.54" y="47" class="bar-value">51.6%</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">GPT-5.5 · Pi</text><rect x="255" y="79" width="251.425" height="16" fill="#1d70b8" /><text x="515.425" y="91" class="bar-value">44.5%</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="123" width="248.03499999999997" height="16" fill="#00703c" /><text x="512.035" y="135" class="bar-value">43.9%</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">GPT-5.5 · OpenCode</text><rect x="255" y="167" width="229.39" height="16" fill="#6f72af" /><text x="493.39" y="179" class="bar-value">40.6%</text></g><g><text x="243" y="223" text-anchor="end" class="bar-label">Gemini 3.5 Flash · Gemini CLI</text><rect x="255" y="211" width="282.5" height="16" fill="#912b88" /><text x="546.5" y="223" class="bar-value">50%</text></g><g><text x="243" y="267" text-anchor="end" class="bar-label">Gemini 3.5 Flash · Pi</text><rect x="255" y="255" width="265.54999999999995" height="16" fill="#1d70b8" /><text x="529.55" y="267" class="bar-value">47%</text></g><g><text x="243" y="311" text-anchor="end" class="bar-label">GLM 5.2 · OpenCode</text><rect x="255" y="299" width="213.56999999999994" height="16" fill="#6f72af" /><text x="477.56999999999994" y="311" class="bar-value">37.8%</text></g><g><text x="243" y="355" text-anchor="end" class="bar-label">GLM 5.2 · Pi</text><rect x="255" y="343" width="137.86" height="16" fill="#1d70b8" /><text x="401.86" y="355" class="bar-value">24.4%</text></g></svg></figure>
-    <aside class="caveat"><h3>What this does not prove</h3><p>The paper plots cost but does not publish a table of exact cost points. The outcome depends on an LLM judge.</p></aside>
-    <p class="source-line"><a href="https://github.com/scaleapi/DrugDiscoveryBench">Scale AI result source</a> · <a href="https://github.com/scaleapi/DrugDiscoveryBench">Dataset or repository</a></p>
+    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Result · cost</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#1d70b8">1</span></td><td>Claude Sonnet 4.6</td><td>Pi</td><td>29.1% · $0.23</td></tr><tr><td><span class="point-key" style="background:#d4351c">2</span></td><td>Claude Sonnet 4.6</td><td>Claude SDK</td><td>27.9% · $1.20</td></tr><tr><td><span class="point-key" style="background:#1d70b8">3</span></td><td>Claude Opus 4.8</td><td>Pi</td><td>24.4% · $0.25</td></tr><tr><td><span class="point-key" style="background:#d4351c">4</span></td><td>Claude Opus 4.8</td><td>Claude SDK</td><td>19.8% · $0.93</td></tr></tbody></table>
+  </figure></section>
+    </div>
   </article>
 <article class="study" id="artificial-analysis">
-    <p class="eyebrow">Study 06</p>
-    <h2>Coding Agent Index</h2>
-    <p class="study-lead">OpenCode led the captured Opus 4.7 medium comparison. Claude Code was cheaper and faster.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>321 tasks across DeepSWE, Terminal-Bench v2 and SWE-Atlas-QnA</dd></div>
-      <div><dt>Tasks</dt><dd>321</dd></div>
-      <div><dt>Repeated trials</dt><dd>yes</dd></div>
-      <div><dt>Grader</dt><dd>Program checks, test suites and rubric scoring</dd></div>
-    </dl>
-    <figure class="chart-block">
+    <header class="study-header">
+      <p class="study-position"><span>03</span> Operational and broad evidence</p>
+      <h2>Artificial Analysis combined 321 coding tasks: OpenCode scored higher with Opus 4.7, while Claude Code was cheaper and faster.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>Artificial Analysis combines 321 tasks from DeepSWE, Terminal-Bench v2 and SWE-Atlas-QnA. It repeats each configuration and reports a composite score alongside cost and runtime.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>321</dd></div>
+          <div><dt>Repeated trials</dt><dd>yes</dd></div>
+          <div><dt>Grader</dt><dd>Program checks, test suites and rubric scoring</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>OpenCode led the captured Opus 4.7 medium comparison. Claude Code was cheaper and faster.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>The index averages 3 different benchmark families. The live results and harness versions can change.</p></section>
+        <p class="source-line"><a href="https://artificialanalysis.ai/agents/coding-agents">Artificial Analysis results</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block">
     <svg class="chart-svg" viewBox="0 0 900 430" role="img" aria-labelledby="scatter-title-artificial-analysis scatter-desc-artificial-analysis">
       <title id="scatter-title-artificial-analysis">Coding Agent Index: performance and cost per task</title>
       <desc id="scatter-desc-artificial-analysis">Performance from 0 to 100% plotted against cost per task from 0 to 3.5 US dollars.</desc>
@@ -140,36 +121,124 @@
     <text x="741.9428571428572" y="151.9562" text-anchor="middle" class="point-number">3</text>
   </g>
     </svg>
-    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Performance</th><th>Cost per task</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#d4351c">1</span></td><td>Claude Opus 4.7</td><td>Claude Code</td><td>56.9%</td><td>$1.68</td></tr><tr><td><span class="point-key" style="background:#f47738">2</span></td><td>Claude Opus 4.7</td><td>Cursor CLI</td><td>60.2%</td><td>$2.68</td></tr><tr><td><span class="point-key" style="background:#6f72af">3</span></td><td>Claude Opus 4.7</td><td>OpenCode</td><td>64.5%</td><td>$2.93</td></tr></tbody></table>
-  </figure>
-    <aside class="caveat"><h3>What this does not prove</h3><p>The index averages 3 different benchmark families. The live results and harness versions can change.</p></aside>
-    <p class="source-line"><a href="https://artificialanalysis.ai/agents/coding-agents">Artificial Analysis result source</a></p>
+    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Result · cost</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#d4351c">1</span></td><td>Claude Opus 4.7</td><td>Claude Code</td><td>56.9% · $1.68</td></tr><tr><td><span class="point-key" style="background:#f47738">2</span></td><td>Claude Opus 4.7</td><td>Cursor CLI</td><td>60.2% · $2.68</td></tr><tr><td><span class="point-key" style="background:#6f72af">3</span></td><td>Claude Opus 4.7</td><td>OpenCode</td><td>64.5% · $2.93</td></tr></tbody></table>
+  </figure></section>
+    </div>
+  </article>
+<article class="study" id="drugdiscoverybench">
+    <header class="study-header">
+      <p class="study-position"><span>04</span> Operational and broad evidence</p>
+      <h2>DrugDiscoveryBench repeated 82 expert workflows: mini-SWE-agent led the matched GPT-5.5 comparison, while Codex placed in the middle.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>Scale AI ran 82 expert-curated drug-discovery and life-sciences workflows 3 times. An LLM judge scored each result against expert-authored rubrics and reference answers.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>82</dd></div>
+          <div><dt>Repeated trials</dt><dd>yes</dd></div>
+          <div><dt>Grader</dt><dd>Expert-authored rubrics scored by an LLM judge</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>GPT-5.5 performed best in mini-SWE-agent. Codex was neither the best nor worst harness for that model.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>The paper plots cost but does not publish a table of exact cost points. The outcome depends on an LLM judge.</p></section>
+        <p class="source-line"><a href="https://github.com/scaleapi/DrugDiscoveryBench">Scale AI results</a><br><a href="https://github.com/scaleapi/DrugDiscoveryBench">Dataset or repository</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 410" role="img" aria-label="DrugDiscoveryBench: pass rate"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="376" /><text x="255" y="402" text-anchor="middle">0%</text><line x1="368" y1="18" x2="368" y2="376" /><text x="368" y="402" text-anchor="middle">20%</text><line x1="481" y1="18" x2="481" y2="376" /><text x="481" y="402" text-anchor="middle">40%</text><line x1="594" y1="18" x2="594" y2="376" /><text x="594" y="402" text-anchor="middle">60%</text><line x1="707" y1="18" x2="707" y2="376" /><text x="707" y="402" text-anchor="middle">80%</text><line x1="820" y1="18" x2="820" y2="376" /><text x="820" y="402" text-anchor="middle">100%</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">GPT-5.5 · mini-SWE-agent</text><rect x="255" y="35" width="291.53999999999996" height="16" fill="#28a197" /><text x="555.54" y="47" class="bar-value">51.6%</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">GPT-5.5 · Pi</text><rect x="255" y="79" width="251.425" height="16" fill="#1d70b8" /><text x="515.425" y="91" class="bar-value">44.5%</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="123" width="248.03499999999997" height="16" fill="#00703c" /><text x="512.035" y="135" class="bar-value">43.9%</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">GPT-5.5 · OpenCode</text><rect x="255" y="167" width="229.39" height="16" fill="#6f72af" /><text x="493.39" y="179" class="bar-value">40.6%</text></g><g><text x="243" y="223" text-anchor="end" class="bar-label">Gemini 3.5 Flash · Gemini CLI</text><rect x="255" y="211" width="282.5" height="16" fill="#912b88" /><text x="546.5" y="223" class="bar-value">50%</text></g><g><text x="243" y="267" text-anchor="end" class="bar-label">Gemini 3.5 Flash · Pi</text><rect x="255" y="255" width="265.54999999999995" height="16" fill="#1d70b8" /><text x="529.55" y="267" class="bar-value">47%</text></g><g><text x="243" y="311" text-anchor="end" class="bar-label">GLM 5.2 · OpenCode</text><rect x="255" y="299" width="213.56999999999994" height="16" fill="#6f72af" /><text x="477.56999999999994" y="311" class="bar-value">37.8%</text></g><g><text x="243" y="355" text-anchor="end" class="bar-label">GLM 5.2 · Pi</text><rect x="255" y="343" width="137.86" height="16" fill="#1d70b8" /><text x="401.86" y="355" class="bar-value">24.4%</text></g></svg></figure></section>
+    </div>
   </article>
 <article class="study" id="endor">
-    <p class="eyebrow">Study 07</p>
-    <h2>Agent Security League</h2>
-    <p class="study-lead">Cursor led Claude Code for Opus 4.7 and 4.8. Claude Code led Cursor for Sonnet 5.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Real vulnerability-fixing tasks with hidden functional and security tests</dd></div>
-      <div><dt>Tasks</dt><dd>200</dd></div>
-      <div><dt>Repeated trials</dt><dd>no</dd></div>
-      <div><dt>Grader</dt><dd>Hidden functional and security tests</dd></div>
-    </dl>
-    <div class="paired-charts"><section><h3>Functional pass rate</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 322" role="img" aria-label="Functional pass rate"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="288" /><text x="255" y="314" text-anchor="middle">0%</text><line x1="368" y1="18" x2="368" y2="288" /><text x="368" y="314" text-anchor="middle">20%</text><line x1="481" y1="18" x2="481" y2="288" /><text x="481" y="314" text-anchor="middle">40%</text><line x1="594" y1="18" x2="594" y2="288" /><text x="594" y="314" text-anchor="middle">60%</text><line x1="707" y1="18" x2="707" y2="288" /><text x="707" y="314" text-anchor="middle">80%</text><line x1="820" y1="18" x2="820" y2="288" /><text x="820" y="314" text-anchor="middle">100%</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">Claude Opus 4.7 · Cursor</text><rect x="255" y="35" width="451.43499999999995" height="16" fill="#f47738" /><text x="715.435" y="47" class="bar-value">79.9%</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">Claude Opus 4.7 · Claude Code</text><rect x="255" y="79" width="432.225" height="16" fill="#d4351c" /><text x="696.225" y="91" class="bar-value">76.5%</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">Claude Opus 4.8 · Cursor</text><rect x="255" y="123" width="426.01" height="16" fill="#f47738" /><text x="690.01" y="135" class="bar-value">75.4%</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">Claude Opus 4.8 · Claude Code</text><rect x="255" y="167" width="416.405" height="16" fill="#d4351c" /><text x="680.405" y="179" class="bar-value">73.7%</text></g><g><text x="243" y="223" text-anchor="end" class="bar-label">Claude Sonnet 5 · Cursor</text><rect x="255" y="211" width="356.515" height="16" fill="#f47738" /><text x="620.515" y="223" class="bar-value">63.1%</text></g><g><text x="243" y="267" text-anchor="end" class="bar-label">Claude Sonnet 5 · Claude Code</text><rect x="255" y="255" width="470.08000000000004" height="16" fill="#d4351c" /><text x="734.08" y="267" class="bar-value">83.2%</text></g></svg></figure></section><section><h3>Security pass rate</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 322" role="img" aria-label="Security pass rate"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="288" /><text x="255" y="314" text-anchor="middle">0%</text><line x1="368" y1="18" x2="368" y2="288" /><text x="368" y="314" text-anchor="middle">20%</text><line x1="481" y1="18" x2="481" y2="288" /><text x="481" y="314" text-anchor="middle">40%</text><line x1="594" y1="18" x2="594" y2="288" /><text x="594" y="314" text-anchor="middle">60%</text><line x1="707" y1="18" x2="707" y2="288" /><text x="707" y="314" text-anchor="middle">80%</text><line x1="820" y1="18" x2="820" y2="288" /><text x="820" y="314" text-anchor="middle">100%</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">Claude Opus 4.7 · Cursor</text><rect x="255" y="35" width="103.95999999999998" height="16" fill="#f47738" /><text x="367.96" y="47" class="bar-value">18.4%</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">Claude Opus 4.7 · Claude Code</text><rect x="255" y="79" width="94.92000000000002" height="16" fill="#d4351c" /><text x="358.92" y="91" class="bar-value">16.8%</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">Claude Opus 4.8 · Cursor</text><rect x="255" y="123" width="116.95499999999998" height="16" fill="#f47738" /><text x="380.955" y="135" class="bar-value">20.7%</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">Claude Opus 4.8 · Claude Code</text><rect x="255" y="167" width="81.92500000000001" height="16" fill="#d4351c" /><text x="345.925" y="179" class="bar-value">14.5%</text></g><g><text x="243" y="223" text-anchor="end" class="bar-label">Claude Sonnet 5 · Cursor</text><rect x="255" y="211" width="88.13999999999999" height="16" fill="#f47738" /><text x="352.14" y="223" class="bar-value">15.6%</text></g><g><text x="243" y="267" text-anchor="end" class="bar-label">Claude Sonnet 5 · Claude Code</text><rect x="255" y="255" width="110.74000000000001" height="16" fill="#d4351c" /><text x="374.74" y="267" class="bar-value">19.6%</text></g></svg></figure></section></div>
-    <aside class="caveat"><h3>What this does not prove</h3><p>There are no repeated trials or task-level costs. Timeouts explain part of the reversal.</p></aside>
-    <p class="source-line"><a href="https://www.endorlabs.com/learn/claude-sonnet-5-with-cursor-strong-reasoning-throttled-by-the-harness">Endor Labs result source</a></p>
+    <header class="study-header">
+      <p class="study-position"><span>05</span> Operational and broad evidence</p>
+      <h2>Endor Labs tested 200 vulnerability repairs: Cursor led for Opus, but Claude Code led for Sonnet 5.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>Endor Labs asked each configuration to repair 200 real vulnerabilities. Hidden tests separately measured whether the software still worked and whether the vulnerability was fixed.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>200</dd></div>
+          <div><dt>Repeated trials</dt><dd>no</dd></div>
+          <div><dt>Grader</dt><dd>Hidden functional and security tests</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>Cursor led Claude Code for Opus 4.7 and 4.8. Claude Code led Cursor for Sonnet 5.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>There are no repeated trials or task-level costs. Timeouts explain part of the reversal.</p></section>
+        <p class="source-line"><a href="https://www.endorlabs.com/learn/claude-sonnet-5-with-cursor-strong-reasoning-throttled-by-the-harness">Endor Labs results</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block"><div class="metric-key"><span><i class="functional"></i>Functional pass rate</span><span><i class="security"></i>Security pass rate</span></div><svg class="chart-svg" viewBox="0 0 900 404" role="img" aria-label="Functional and security pass rates"><g class="chart-grid"><line x1="265" y1="42" x2="265" y2="372" /><text x="265" y="396" text-anchor="middle">0%</text><line x1="379.2" y1="42" x2="379.2" y2="372" /><text x="379.2" y="396" text-anchor="middle">20%</text><line x1="493.4" y1="42" x2="493.4" y2="372" /><text x="493.4" y="396" text-anchor="middle">40%</text><line x1="607.5999999999999" y1="42" x2="607.5999999999999" y2="372" /><text x="607.5999999999999" y="396" text-anchor="middle">60%</text><line x1="721.8" y1="42" x2="721.8" y2="372" /><text x="721.8" y="396" text-anchor="middle">80%</text><line x1="836" y1="42" x2="836" y2="372" /><text x="836" y="396" text-anchor="middle">100%</text></g><g>
+      <text x="253" y="68" text-anchor="end" class="bar-label">Claude Opus 4.7 · Cursor</text>
+      <rect x="265" y="50" width="456.22900000000004" height="12" fill="#1d70b8" />
+      <text x="729.229" y="60" class="bar-value">79.9%</text>
+      <rect x="265" y="69" width="105.06399999999996" height="12" fill="#6f72af" />
+      <text x="378.06399999999996" y="79" class="bar-value">18.4%</text>
+    </g><g>
+      <text x="253" y="123" text-anchor="end" class="bar-label">Claude Opus 4.7 · Claude Code</text>
+      <rect x="265" y="105" width="436.81500000000005" height="12" fill="#1d70b8" />
+      <text x="709.815" y="115" class="bar-value">76.5%</text>
+      <rect x="265" y="124" width="95.928" height="12" fill="#6f72af" />
+      <text x="368.928" y="134" class="bar-value">16.8%</text>
+    </g><g>
+      <text x="253" y="178" text-anchor="end" class="bar-label">Claude Opus 4.8 · Cursor</text>
+      <rect x="265" y="160" width="430.534" height="12" fill="#1d70b8" />
+      <text x="703.534" y="170" class="bar-value">75.4%</text>
+      <rect x="265" y="179" width="118.197" height="12" fill="#6f72af" />
+      <text x="391.197" y="189" class="bar-value">20.7%</text>
+    </g><g>
+      <text x="253" y="233" text-anchor="end" class="bar-label">Claude Opus 4.8 · Claude Code</text>
+      <rect x="265" y="215" width="420.827" height="12" fill="#1d70b8" />
+      <text x="693.827" y="225" class="bar-value">73.7%</text>
+      <rect x="265" y="234" width="82.79499999999996" height="12" fill="#6f72af" />
+      <text x="355.79499999999996" y="244" class="bar-value">14.5%</text>
+    </g><g>
+      <text x="253" y="288" text-anchor="end" class="bar-label">Claude Sonnet 5 · Cursor</text>
+      <rect x="265" y="270" width="360.30099999999993" height="12" fill="#1d70b8" />
+      <text x="633.3009999999999" y="280" class="bar-value">63.1%</text>
+      <rect x="265" y="289" width="89.07600000000002" height="12" fill="#6f72af" />
+      <text x="362.076" y="299" class="bar-value">15.6%</text>
+    </g><g>
+      <text x="253" y="343" text-anchor="end" class="bar-label">Claude Sonnet 5 · Claude Code</text>
+      <rect x="265" y="325" width="475.0720000000001" height="12" fill="#1d70b8" />
+      <text x="748.0720000000001" y="335" class="bar-value">83.2%</text>
+      <rect x="265" y="344" width="111.916" height="12" fill="#6f72af" />
+      <text x="384.916" y="354" class="bar-value">19.6%</text>
+    </g></svg></figure></section>
+    </div>
+  </article>
+<article class="study" id="latchbio-scbench-long">
+    <header class="study-header">
+      <p class="study-position"><span>06</span> Focused domain evidence</p>
+      <h2>scBench-Long repeated 21 biological workflows: the apparent harness differences are smaller than the reported uncertainty.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>LatchBio ran 21 long biological analysis workflows 3 times for each model and harness combination. Deterministic biological graders checked whether the analyses reached the required outputs.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>21</dd></div>
+          <div><dt>Repeated trials</dt><dd>yes</dd></div>
+          <div><dt>Grader</dt><dd>Deterministic biological graders</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>Claude Code led Pi on Opus 4.8 while Codex and Pi tied on GPT-5.5. The reported intervals overlap widely.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>The public summary does not expose cost. The confidence intervals are wide.</p></section>
+        <p class="source-line"><a href="https://benchmarks.bio/scbench-long">LatchBio results</a><br><a href="https://benchmarks.bio/data/scbench-long/index.json">Dataset or repository</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 234" role="img" aria-label="scBench-Long: pass rate"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="200" /><text x="255" y="226" text-anchor="middle">0%</text><line x1="368" y1="18" x2="368" y2="200" /><text x="368" y="226" text-anchor="middle">20%</text><line x1="481" y1="18" x2="481" y2="200" /><text x="481" y="226" text-anchor="middle">40%</text><line x1="594" y1="18" x2="594" y2="200" /><text x="594" y="226" text-anchor="middle">60%</text><line x1="707" y1="18" x2="707" y2="200" /><text x="707" y="226" text-anchor="middle">80%</text><line x1="820" y1="18" x2="820" y2="200" /><text x="820" y="226" text-anchor="middle">100%</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">Claude Opus 4.8 · Claude Code</text><rect x="255" y="35" width="143.51" height="16" fill="#d4351c" /><line class="ci" x1="304.946" y1="43" x2="492.01750000000004" y2="43" /><line class="ci" x1="304.946" y1="37" x2="304.946" y2="49" /><line class="ci" x1="492.01750000000004" y1="37" x2="492.01750000000004" y2="49" /><text x="407.51" y="47" class="bar-value">25.4%</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">Claude Opus 4.8 · Pi</text><rect x="255" y="79" width="116.55949999999996" height="16" fill="#1d70b8" /><line class="ci" x1="288.109" y1="87" x2="455.0665" y2="87" /><line class="ci" x1="288.109" y1="81" x2="288.109" y2="93" /><line class="ci" x1="455.0665" y1="81" x2="455.0665" y2="93" /><text x="380.55949999999996" y="91" class="bar-value">20.6%</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="123" width="89.66550000000001" height="16" fill="#00703c" /><line class="ci" x1="265.1135" y1="131" x2="424.274" y2="131" /><line class="ci" x1="265.1135" y1="125" x2="265.1135" y2="137" /><line class="ci" x1="424.274" y1="125" x2="424.274" y2="137" /><text x="353.6655" y="135" class="bar-value">15.9%</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">GPT-5.5 · Pi</text><rect x="255" y="167" width="89.66550000000001" height="16" fill="#1d70b8" /><line class="ci" x1="269.8595" y1="175" x2="419.528" y2="175" /><line class="ci" x1="269.8595" y1="169" x2="269.8595" y2="181" /><line class="ci" x1="419.528" y1="169" x2="419.528" y2="181" /><text x="353.6655" y="179" class="bar-value">15.9%</text></g></svg></figure></section>
+    </div>
   </article>
 <article class="study" id="xor">
-    <p class="eyebrow">Study 08</p>
-    <h2>Vulnerability-Agent-Bench</h2>
-    <p class="study-lead">Claude Code and Codex led the corresponding OpenCode configurations on the published matched pairs.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Real vulnerability repairs in isolated containers</dd></div>
-      <div><dt>Tasks</dt><dd>136</dd></div>
-      <div><dt>Repeated trials</dt><dd>no</dd></div>
-      <div><dt>Grader</dt><dd>Vulnerability repair checks</dd></div>
-    </dl>
-    <figure class="chart-block">
+    <header class="study-header">
+      <p class="study-position"><span>07</span> Focused domain evidence</p>
+      <h2>XOR tested 136 vulnerability repairs: Claude Code and Codex beat OpenCode on all 3 published matched-model pairs.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>XOR ran agents in isolated containers on real vulnerability-repair tasks. Its public explorer reports pass rate and cost for matched model and harness configurations.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>136</dd></div>
+          <div><dt>Repeated trials</dt><dd>no</dd></div>
+          <div><dt>Grader</dt><dd>Vulnerability repair checks</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>Claude Code and Codex led the corresponding OpenCode configurations on the published matched pairs.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>The site alternates between 128 and 136 samples. Some reported cost differences need more explanation.</p></section>
+        <p class="source-line"><a href="https://www.xor.tech/resources/benchmarks/agents">XOR results</a><br><a href="https://wandb.ai/tobias_xor-xor/cve-bench">Dataset or repository</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block">
     <svg class="chart-svg" viewBox="0 0 900 430" role="img" aria-labelledby="scatter-title-xor scatter-desc-xor">
       <title id="scatter-title-xor">Vulnerability-Agent-Bench: performance and cost per task</title>
       <desc id="scatter-desc-xor">Performance from 0 to 100% plotted against cost per task from 0 to 25 US dollars.</desc>
@@ -196,22 +265,28 @@
     <text x="170.56" y="250.686" text-anchor="middle" class="point-number">6</text>
   </g>
     </svg>
-    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Performance</th><th>Cost per task</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#d4351c">1</span></td><td>Claude Opus 4.6</td><td>Claude Code</td><td>56.6%</td><td>$1.66</td></tr><tr><td><span class="point-key" style="background:#6f72af">2</span></td><td>Claude Opus 4.6</td><td>OpenCode</td><td>42.6%</td><td>$22.13</td></tr><tr><td><span class="point-key" style="background:#00703c">3</span></td><td>GPT-5.2</td><td>Codex</td><td>58.1%</td><td>$3.08</td></tr><tr><td><span class="point-key" style="background:#6f72af">4</span></td><td>GPT-5.2</td><td>OpenCode</td><td>46.3%</td><td>$3.08</td></tr><tr><td><span class="point-key" style="background:#00703c">5</span></td><td>GPT-5.2-Codex</td><td>Codex</td><td>46.3%</td><td>$3.08</td></tr><tr><td><span class="point-key" style="background:#6f72af">6</span></td><td>GPT-5.2-Codex</td><td>OpenCode</td><td>35.3%</td><td>$3.08</td></tr></tbody></table>
-  </figure>
-    <aside class="caveat"><h3>What this does not prove</h3><p>The site alternates between 128 and 136 samples. Some reported cost differences need more explanation.</p></aside>
-    <p class="source-line"><a href="https://www.xor.tech/resources/benchmarks/agents">XOR result source</a> · <a href="https://wandb.ai/tobias_xor-xor/cve-bench">Dataset or repository</a></p>
+    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Result · cost</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#d4351c">1</span></td><td>Claude Opus 4.6</td><td>Claude Code</td><td>56.6% · $1.66</td></tr><tr><td><span class="point-key" style="background:#6f72af">2</span></td><td>Claude Opus 4.6</td><td>OpenCode</td><td>42.6% · $22.13</td></tr><tr><td><span class="point-key" style="background:#00703c">3</span></td><td>GPT-5.2</td><td>Codex</td><td>58.1% · $3.08</td></tr><tr><td><span class="point-key" style="background:#6f72af">4</span></td><td>GPT-5.2</td><td>OpenCode</td><td>46.3% · $3.08</td></tr><tr><td><span class="point-key" style="background:#00703c">5</span></td><td>GPT-5.2-Codex</td><td>Codex</td><td>46.3% · $3.08</td></tr><tr><td><span class="point-key" style="background:#6f72af">6</span></td><td>GPT-5.2-Codex</td><td>OpenCode</td><td>35.3% · $3.08</td></tr></tbody></table>
+  </figure></section>
+    </div>
   </article>
 <article class="study" id="wildclawbench">
-    <p class="eyebrow">Study 09</p>
-    <h2>WildClawBench</h2>
-    <p class="study-lead">The best harness changed with the model. The source reports double-digit score changes from switching harness.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Bilingual, multimodal and long-horizon agent tasks</dd></div>
-      <div><dt>Tasks</dt><dd>60</dd></div>
-      <div><dt>Repeated trials</dt><dd>not clear</dd></div>
-      <div><dt>Grader</dt><dd>Deterministic checks, environment checks and model judges</dd></div>
-    </dl>
-    <figure class="chart-block">
+    <header class="study-header">
+      <p class="study-position"><span>08</span> Focused domain evidence</p>
+      <h2>WildClawBench tested 60 long-horizon tasks: changing the harness produced double-digit score shifts and changed the winner by model.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>InternLM evaluated 60 bilingual, multimodal and long-horizon tasks in harness-specific container images. Deterministic checks, environment checks and model judges contributed to the overall score.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>60</dd></div>
+          <div><dt>Repeated trials</dt><dd>not clear</dd></div>
+          <div><dt>Grader</dt><dd>Deterministic checks, environment checks and model judges</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>The best harness changed with the model. The source reports double-digit score changes from switching harness.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>Each harness image has different tools and prompt conventions. Repeat counts are not clear in the headline table.</p></section>
+        <p class="source-line"><a href="https://github.com/InternLM/WildClawBench">InternLM results</a><br><a href="https://huggingface.co/datasets/internlm/WildClawBench">Dataset or repository</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block">
     <svg class="chart-svg" viewBox="0 0 900 430" role="img" aria-labelledby="scatter-title-wildclawbench scatter-desc-wildclawbench">
       <title id="scatter-title-wildclawbench">WildClawBench: performance and cost per task</title>
       <desc id="scatter-desc-wildclawbench">Performance from 0 to 100% plotted against cost per task from 0 to 0.7 US dollars.</desc>
@@ -268,36 +343,28 @@
     <text x="197.71428571428572" y="244.602" text-anchor="middle" class="point-number">16</text>
   </g>
     </svg>
-    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Performance</th><th>Cost per task</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#12436d">1</span></td><td>GPT-5.4</td><td>OpenClaw</td><td>50.3%</td><td>$0.33</td></tr><tr><td><span class="point-key" style="background:#d4351c">2</span></td><td>GPT-5.4</td><td>Claude Code</td><td>48.4%</td><td>$0.61</td></tr><tr><td><span class="point-key" style="background:#00703c">3</span></td><td>GPT-5.4</td><td>Codex</td><td>56.8%</td><td>$0.57</td></tr><tr><td><span class="point-key" style="background:#4c2c92">4</span></td><td>GPT-5.4</td><td>Hermes Agent</td><td>50.7%</td><td>$0.44</td></tr><tr><td><span class="point-key" style="background:#12436d">5</span></td><td>GLM 5</td><td>OpenClaw</td><td>42.6%</td><td>$0.19</td></tr><tr><td><span class="point-key" style="background:#d4351c">6</span></td><td>GLM 5</td><td>Claude Code</td><td>31%</td><td>$0.21</td></tr><tr><td><span class="point-key" style="background:#00703c">7</span></td><td>GLM 5</td><td>Codex</td><td>38.9%</td><td>$0.13</td></tr><tr><td><span class="point-key" style="background:#4c2c92">8</span></td><td>GLM 5</td><td>Hermes Agent</td><td>46.4%</td><td>$0.44</td></tr><tr><td><span class="point-key" style="background:#12436d">9</span></td><td>MiMo V2 Pro</td><td>OpenClaw</td><td>40.2%</td><td>$0.44</td></tr><tr><td><span class="point-key" style="background:#d4351c">10</span></td><td>MiMo V2 Pro</td><td>Claude Code</td><td>29.9%</td><td>$0.15</td></tr><tr><td><span class="point-key" style="background:#00703c">11</span></td><td>MiMo V2 Pro</td><td>Codex</td><td>35.3%</td><td>$0.15</td></tr><tr><td><span class="point-key" style="background:#4c2c92">12</span></td><td>MiMo V2 Pro</td><td>Hermes Agent</td><td>48.1%</td><td>$0.26</td></tr><tr><td><span class="point-key" style="background:#12436d">13</span></td><td>MiniMax M2.7</td><td>OpenClaw</td><td>33.8%</td><td>$0.12</td></tr><tr><td><span class="point-key" style="background:#d4351c">14</span></td><td>MiniMax M2.7</td><td>Claude Code</td><td>32%</td><td>$0.09</td></tr><tr><td><span class="point-key" style="background:#00703c">15</span></td><td>MiniMax M2.7</td><td>Codex</td><td>35.8%</td><td>$0.06</td></tr><tr><td><span class="point-key" style="background:#4c2c92">16</span></td><td>MiniMax M2.7</td><td>Hermes Agent</td><td>37.1%</td><td>$0.11</td></tr></tbody></table>
-  </figure>
-    <aside class="caveat"><h3>What this does not prove</h3><p>Each harness image has different tools and prompt conventions. Repeat counts are not clear in the headline table.</p></aside>
-    <p class="source-line"><a href="https://github.com/InternLM/WildClawBench">InternLM result source</a> · <a href="https://huggingface.co/datasets/internlm/WildClawBench">Dataset or repository</a></p>
-  </article>
-<article class="study" id="harnessbench">
-    <p class="eyebrow">Study 10</p>
-    <h2>HarnessBench</h2>
-    <p class="study-lead">Several conditions finished within one task of the observed leader. Runtime differences were clearer than pass-rate differences.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Recent bug-fix issues from 9 open-source repositories</dd></div>
-      <div><dt>Tasks</dt><dd>27</dd></div>
-      <div><dt>Repeated trials</dt><dd>no</dd></div>
-      <div><dt>Grader</dt><dd>Hidden core and regression tests</dd></div>
-    </dl>
-    <figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 234" role="img" aria-label="HarnessBench: pass rate"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="200" /><text x="255" y="226" text-anchor="middle">0%</text><line x1="368" y1="18" x2="368" y2="200" /><text x="368" y="226" text-anchor="middle">20%</text><line x1="481" y1="18" x2="481" y2="200" /><text x="481" y="226" text-anchor="middle">40%</text><line x1="594" y1="18" x2="594" y2="200" /><text x="594" y="226" text-anchor="middle">60%</text><line x1="707" y1="18" x2="707" y2="200" /><text x="707" y="226" text-anchor="middle">80%</text><line x1="820" y1="18" x2="820" y2="200" /><text x="820" y="226" text-anchor="middle">100%</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="35" width="460.4749999999999" height="16" fill="#00703c" /><text x="724.4749999999999" y="47" class="bar-value">81.5%</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="79" width="439.56999999999994" height="16" fill="#00703c" /><text x="703.5699999999999" y="91" class="bar-value">77.8%</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">GPT-5.5 · Cursor</text><rect x="255" y="123" width="439.56999999999994" height="16" fill="#f47738" /><text x="703.5699999999999" y="135" class="bar-value">77.8%</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">Claude Opus 4.7 · Cursor</text><rect x="255" y="167" width="439.56999999999994" height="16" fill="#f47738" /><text x="703.5699999999999" y="179" class="bar-value">77.8%</text></g></svg></figure>
-    <aside class="caveat"><h3>What this does not prove</h3><p>The author states that the 27-task pass-rate differences are not statistically significant.</p></aside>
-    <p class="source-line"><a href="https://github.com/nyosegawa/harness-bench">Nyosegawa result source</a> · <a href="https://github.com/nyosegawa/harness-bench">Dataset or repository</a></p>
+    <div class="chart-key-grid"><table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Result · cost</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#12436d">1</span></td><td>GPT-5.4</td><td>OpenClaw</td><td>50.3% · $0.33</td></tr><tr><td><span class="point-key" style="background:#d4351c">2</span></td><td>GPT-5.4</td><td>Claude Code</td><td>48.4% · $0.61</td></tr><tr><td><span class="point-key" style="background:#00703c">3</span></td><td>GPT-5.4</td><td>Codex</td><td>56.8% · $0.57</td></tr><tr><td><span class="point-key" style="background:#4c2c92">4</span></td><td>GPT-5.4</td><td>Hermes Agent</td><td>50.7% · $0.44</td></tr><tr><td><span class="point-key" style="background:#12436d">5</span></td><td>GLM 5</td><td>OpenClaw</td><td>42.6% · $0.19</td></tr><tr><td><span class="point-key" style="background:#d4351c">6</span></td><td>GLM 5</td><td>Claude Code</td><td>31% · $0.21</td></tr><tr><td><span class="point-key" style="background:#00703c">7</span></td><td>GLM 5</td><td>Codex</td><td>38.9% · $0.13</td></tr><tr><td><span class="point-key" style="background:#4c2c92">8</span></td><td>GLM 5</td><td>Hermes Agent</td><td>46.4% · $0.44</td></tr></tbody></table><table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Result · cost</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#12436d">9</span></td><td>MiMo V2 Pro</td><td>OpenClaw</td><td>40.2% · $0.44</td></tr><tr><td><span class="point-key" style="background:#d4351c">10</span></td><td>MiMo V2 Pro</td><td>Claude Code</td><td>29.9% · $0.15</td></tr><tr><td><span class="point-key" style="background:#00703c">11</span></td><td>MiMo V2 Pro</td><td>Codex</td><td>35.3% · $0.15</td></tr><tr><td><span class="point-key" style="background:#4c2c92">12</span></td><td>MiMo V2 Pro</td><td>Hermes Agent</td><td>48.1% · $0.26</td></tr><tr><td><span class="point-key" style="background:#12436d">13</span></td><td>MiniMax M2.7</td><td>OpenClaw</td><td>33.8% · $0.12</td></tr><tr><td><span class="point-key" style="background:#d4351c">14</span></td><td>MiniMax M2.7</td><td>Claude Code</td><td>32% · $0.09</td></tr><tr><td><span class="point-key" style="background:#00703c">15</span></td><td>MiniMax M2.7</td><td>Codex</td><td>35.8% · $0.06</td></tr><tr><td><span class="point-key" style="background:#4c2c92">16</span></td><td>MiniMax M2.7</td><td>Hermes Agent</td><td>37.1% · $0.11</td></tr></tbody></table></div>
+  </figure></section>
+    </div>
   </article>
 <article class="study" id="corebench-hard">
-    <p class="eyebrow">Study 11</p>
-    <h2>CORE-Bench Hard</h2>
-    <p class="study-lead">Claude Code more than doubled the verified success of CORE-Agent for Claude Opus 4.5 while costing less.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Scientific reproducibility tasks</dd></div>
-      <div><dt>Tasks</dt><dd>45</dd></div>
-      <div><dt>Repeated trials</dt><dd>no</dd></div>
-      <div><dt>Grader</dt><dd>Research artifact reproduction</dd></div>
-    </dl>
-    <figure class="chart-block">
+    <header class="study-header">
+      <p class="study-position"><span>09</span> Focused domain evidence</p>
+      <h2>CORE-Bench Hard tested 45 scientific reproductions: Claude Code more than doubled verified success while costing less than CORE-Agent.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>Princeton HAL asked agents to reproduce 45 research artefacts. The leaderboard verifies whether each system recreated the required scientific result and reports total cost.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>45</dd></div>
+          <div><dt>Repeated trials</dt><dd>no</dd></div>
+          <div><dt>Grader</dt><dd>Research artifact reproduction</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>Claude Code more than doubled the verified success of CORE-Agent for Claude Opus 4.5 while costing less.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>There is one run per configuration. The systems differ across retrieval, tools and context policy.</p></section>
+        <p class="source-line"><a href="https://hal.cs.princeton.edu/corebench_hard">Princeton HAL results</a><br><a href="https://github.com/princeton-pli/hal-harness">Dataset or repository</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block">
     <svg class="chart-svg" viewBox="0 0 900 430" role="img" aria-labelledby="scatter-title-corebench-hard scatter-desc-corebench-hard">
       <title id="scatter-title-corebench-hard">CORE-Bench Hard: performance and cost per task</title>
       <desc id="scatter-desc-corebench-hard">Performance from 0 to 100% plotted against cost per task from 0 to 4 US dollars.</desc>
@@ -312,22 +379,48 @@
     <text x="750.48" y="227.2964" text-anchor="middle" class="point-number">2</text>
   </g>
     </svg>
-    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Performance</th><th>Cost per task</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#d4351c">1</span></td><td>Claude Opus 4.5</td><td>Claude Code</td><td>77.8%</td><td>$1.94</td></tr><tr><td><span class="point-key" style="background:#b58840">2</span></td><td>Claude Opus 4.5</td><td>CORE-Agent</td><td>42.2%</td><td>$3.39</td></tr></tbody></table>
-  </figure>
-    <aside class="caveat"><h3>What this does not prove</h3><p>There is one run per configuration. The systems differ across retrieval, tools and context policy.</p></aside>
-    <p class="source-line"><a href="https://hal.cs.princeton.edu/corebench_hard">Princeton HAL result source</a> · <a href="https://github.com/princeton-pli/hal-harness">Dataset or repository</a></p>
+    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Result · cost</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#d4351c">1</span></td><td>Claude Opus 4.5</td><td>Claude Code</td><td>77.8% · $1.94</td></tr><tr><td><span class="point-key" style="background:#b58840">2</span></td><td>Claude Opus 4.5</td><td>CORE-Agent</td><td>42.2% · $3.39</td></tr></tbody></table>
+  </figure></section>
+    </div>
+  </article>
+<article class="study" id="harnessbench">
+    <header class="study-header">
+      <p class="study-position"><span>10</span> Small and diagnostic evidence</p>
+      <h2>HarnessBench tested 27 recent bug fixes: several configurations finished within one task of the leader, but runtime differed more clearly.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>HarnessBench selected 27 recent bug-fix issues from 9 open-source repositories. Hidden tests checked the core fix and regressions, with one run for each configuration.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>27</dd></div>
+          <div><dt>Repeated trials</dt><dd>no</dd></div>
+          <div><dt>Grader</dt><dd>Hidden core and regression tests</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>Several conditions finished within one task of the observed leader. Runtime differences were clearer than pass-rate differences.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>The author states that the 27-task pass-rate differences are not statistically significant.</p></section>
+        <p class="source-line"><a href="https://github.com/nyosegawa/harness-bench">Nyosegawa results</a><br><a href="https://github.com/nyosegawa/harness-bench">Dataset or repository</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 234" role="img" aria-label="HarnessBench: pass rate"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="200" /><text x="255" y="226" text-anchor="middle">0%</text><line x1="368" y1="18" x2="368" y2="200" /><text x="368" y="226" text-anchor="middle">20%</text><line x1="481" y1="18" x2="481" y2="200" /><text x="481" y="226" text-anchor="middle">40%</text><line x1="594" y1="18" x2="594" y2="200" /><text x="594" y="226" text-anchor="middle">60%</text><line x1="707" y1="18" x2="707" y2="200" /><text x="707" y="226" text-anchor="middle">80%</text><line x1="820" y1="18" x2="820" y2="200" /><text x="820" y="226" text-anchor="middle">100%</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="35" width="460.4749999999999" height="16" fill="#00703c" /><text x="724.4749999999999" y="47" class="bar-value">81.5%</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="79" width="439.56999999999994" height="16" fill="#00703c" /><text x="703.5699999999999" y="91" class="bar-value">77.8%</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">GPT-5.5 · Cursor</text><rect x="255" y="123" width="439.56999999999994" height="16" fill="#f47738" /><text x="703.5699999999999" y="135" class="bar-value">77.8%</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">Claude Opus 4.7 · Cursor</text><rect x="255" y="167" width="439.56999999999994" height="16" fill="#f47738" /><text x="703.5699999999999" y="179" class="bar-value">77.8%</text></g></svg></figure></section>
+    </div>
   </article>
 <article class="study" id="acode-cli">
-    <p class="eyebrow">Study 12</p>
-    <h2>A-CODE-CLI</h2>
-    <p class="study-lead">OpenCode had a small backend lead over Claude Code and cost less in the matched Sonnet 4.6 comparison.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Ten full-stack web development scenarios</dd></div>
-      <div><dt>Tasks</dt><dd>10</dd></div>
-      <div><dt>Repeated trials</dt><dd>yes</dd></div>
-      <div><dt>Grader</dt><dd>Backend checks and Playwright user-interface checks</dd></div>
-    </dl>
-    <figure class="chart-block">
+    <header class="study-header">
+      <p class="study-position"><span>11</span> Small and diagnostic evidence</p>
+      <h2>A-CODE-CLI repeated 10 web scenarios: OpenCode had a 2.4-point backend lead and cost 44% less than Claude Code.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>AIMultiple ran 10 full-stack web development scenarios 3 times with Claude Sonnet 4.6. Backend checks and Playwright tests measured correctness and user-interface behaviour.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>10</dd></div>
+          <div><dt>Repeated trials</dt><dd>yes</dd></div>
+          <div><dt>Grader</dt><dd>Backend checks and Playwright user-interface checks</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>OpenCode had a small backend lead over Claude Code and cost less in the matched Sonnet 4.6 comparison.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>The benchmark has only 10 scenarios. Only one example task is public.</p></section>
+        <p class="source-line"><a href="https://aimultiple.com/agentic-cli">AIMultiple results</a><br><a href="https://github.com/aimultiple-benchmark/agent-benchmark-example-task">Dataset or repository</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block">
     <svg class="chart-svg" viewBox="0 0 900 430" role="img" aria-labelledby="scatter-title-acode-cli scatter-desc-acode-cli">
       <title id="scatter-title-acode-cli">A-CODE-CLI: performance and cost per task</title>
       <desc id="scatter-desc-acode-cli">Performance from 0 to 100% plotted against cost per task from 0 to 2.5 US dollars.</desc>
@@ -342,26 +435,54 @@
     <text x="657.6" y="116.83799999999997" text-anchor="middle" class="point-number">2</text>
   </g>
     </svg>
-    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Performance</th><th>Cost per task</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#6f72af">1</span></td><td>Claude Sonnet 4.6</td><td>OpenCode</td><td>77.3%</td><td>$1.03</td></tr><tr><td><span class="point-key" style="background:#d4351c">2</span></td><td>Claude Sonnet 4.6</td><td>Claude Code</td><td>74.9%</td><td>$1.83</td></tr></tbody></table>
-  </figure>
-    <aside class="caveat"><h3>What this does not prove</h3><p>The benchmark has only 10 scenarios. Only one example task is public.</p></aside>
-    <p class="source-line"><a href="https://aimultiple.com/agentic-cli">AIMultiple result source</a> · <a href="https://github.com/aimultiple-benchmark/agent-benchmark-example-task">Dataset or repository</a></p>
+    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Result · cost</th></tr></thead><tbody><tr><td><span class="point-key" style="background:#6f72af">1</span></td><td>Claude Sonnet 4.6</td><td>OpenCode</td><td>77.3% · $1.03</td></tr><tr><td><span class="point-key" style="background:#d4351c">2</span></td><td>Claude Sonnet 4.6</td><td>Claude Code</td><td>74.9% · $1.83</td></tr></tbody></table>
+  </figure></section>
+    </div>
+  </article>
+<article class="study" id="openbench">
+    <header class="study-header">
+      <p class="study-position"><span>12</span> Small and diagnostic evidence</p>
+      <h2>OpenBench repeated 3 coding tasks: every harness passed, so the useful difference was efficiency rather than correctness.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>OpenBench ran 3 repository coding tasks 3 times with GPT-5.5 at medium effort. Executable checkers awarded partial credit, while the study also recorded wall time and token use.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>3</dd></div>
+          <div><dt>Repeated trials</dt><dd>yes</dd></div>
+          <div><dt>Grader</dt><dd>Executable checkers with partial-credit support</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>All clean harnesses passed every task. Pi and Cursor used less time and fewer tokens.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>The tasks were too easy to separate frontier harnesses on correctness.</p></section>
+        <p class="source-line"><a href="https://github.com/minghinmatthewlam/openbench">OpenBench results</a><br><a href="https://github.com/minghinmatthewlam/openbench/tree/main/data">Dataset or repository</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><div class="paired-charts"><section><h3>Mean wall time</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 234" role="img" aria-label="Mean wall time per solve"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="200" /><text x="255" y="226" text-anchor="middle">0s</text><line x1="368" y1="18" x2="368" y2="200" /><text x="368" y="226" text-anchor="middle">40s</text><line x1="481" y1="18" x2="481" y2="200" /><text x="481" y="226" text-anchor="middle">80s</text><line x1="594" y1="18" x2="594" y2="200" /><text x="594" y="226" text-anchor="middle">120s</text><line x1="707" y1="18" x2="707" y2="200" /><text x="707" y="226" text-anchor="middle">160s</text><line x1="820" y1="18" x2="820" y2="200" /><text x="820" y="226" text-anchor="middle">200s</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">GPT-5.5 · Pi</text><rect x="255" y="35" width="128.82" height="16" fill="#1d70b8" /><text x="392.82" y="47" class="bar-value">45.6s</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">GPT-5.5 · Cursor</text><rect x="255" y="79" width="137.86" height="16" fill="#f47738" /><text x="401.86" y="91" class="bar-value">48.8s</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="123" width="306.23" height="16" fill="#00703c" /><text x="570.23" y="135" class="bar-value">108.4s</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">GPT-5.5 · OpenCode</text><rect x="255" y="167" width="494.93999999999994" height="16" fill="#6f72af" /><text x="758.9399999999999" y="179" class="bar-value">175.2s</text></g></svg></figure></section><section><h3>Tokens per solve</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 234" role="img" aria-label="Tokens per solve"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="200" /><text x="255" y="226" text-anchor="middle">0</text><line x1="368" y1="18" x2="368" y2="200" /><text x="368" y="226" text-anchor="middle">20000</text><line x1="481" y1="18" x2="481" y2="200" /><text x="481" y="226" text-anchor="middle">40000</text><line x1="594" y1="18" x2="594" y2="200" /><text x="594" y="226" text-anchor="middle">60000</text><line x1="707" y1="18" x2="707" y2="200" /><text x="707" y="226" text-anchor="middle">80000</text><line x1="820" y1="18" x2="820" y2="200" /><text x="820" y="226" text-anchor="middle">100000</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">GPT-5.5 · Pi</text><rect x="255" y="35" width="98.84109999999998" height="16" fill="#1d70b8" /><text x="362.8411" y="47" class="bar-value">17494</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">GPT-5.5 · Cursor</text><rect x="255" y="79" width="120.7405" height="16" fill="#f47738" /><text x="384.7405" y="91" class="bar-value">21370</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">GPT-5.5 · OpenCode</text><rect x="255" y="123" width="251.2668" height="16" fill="#6f72af" /><text x="515.2668" y="135" class="bar-value">44472</text></g><g><text x="243" y="179" text-anchor="end" class="bar-label">GPT-5.5 · Codex</text><rect x="255" y="167" width="428.14570000000003" height="16" fill="#00703c" /><text x="692.1457" y="179" class="bar-value">75778</text></g></svg></figure></section></div></section>
+    </div>
   </article>
 <article class="study" id="portkey-harness-tax">
-    <p class="eyebrow">Study 13</p>
-    <h2>Harness Tax</h2>
-    <p class="study-lead">The fixed input payload ranged from about 2,600 tokens for Pi to 27,000 for Claude Code.</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>Two trivial prompts routed through a gateway</dd></div>
-      <div><dt>Tasks</dt><dd>2</dd></div>
-      <div><dt>Repeated trials</dt><dd>no</dd></div>
-      <div><dt>Grader</dt><dd>Input-token capture</dd></div>
-    </dl>
-    <figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 190" role="img" aria-label="Input prompt tokens"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="156" /><text x="255" y="182" text-anchor="middle">0</text><line x1="368" y1="18" x2="368" y2="156" /><text x="368" y="182" text-anchor="middle">6000</text><line x1="481" y1="18" x2="481" y2="156" /><text x="481" y="182" text-anchor="middle">12000</text><line x1="594" y1="18" x2="594" y2="156" /><text x="594" y="182" text-anchor="middle">18000</text><line x1="707" y1="18" x2="707" y2="156" /><text x="707" y="182" text-anchor="middle">24000</text><line x1="820" y1="18" x2="820" y2="156" /><text x="820" y="182" text-anchor="middle">30000</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">Pi · Pi</text><rect x="255" y="35" width="48.9666666666667" height="16" fill="#1d70b8" /><line class="ci" x1="NaN" y1="43" x2="NaN" y2="43" /><line class="ci" x1="NaN" y1="37" x2="NaN" y2="49" /><line class="ci" x1="NaN" y1="37" x2="NaN" y2="49" /><text x="312.9666666666667" y="47" class="bar-value">2600</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">Codex · Codex</text><rect x="255" y="79" width="282.5" height="16" fill="#00703c" /><line class="ci" x1="NaN" y1="87" x2="NaN" y2="87" /><line class="ci" x1="NaN" y1="81" x2="NaN" y2="93" /><line class="ci" x1="NaN" y1="81" x2="NaN" y2="93" /><text x="546.5" y="91" class="bar-value">15000</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">Claude Code · Claude Code</text><rect x="255" y="123" width="508.5" height="16" fill="#d4351c" /><line class="ci" x1="NaN" y1="131" x2="NaN" y2="131" /><line class="ci" x1="NaN" y1="125" x2="NaN" y2="137" /><line class="ci" x1="NaN" y1="125" x2="NaN" y2="137" /><text x="772.5" y="135" class="bar-value">27000</text></g></svg></figure><p class="chart-caption">This diagnostic measures fixed input overhead. It does not measure coding quality.</p>
-    <aside class="caveat"><h3>What this does not prove</h3><p>This is an overhead diagnostic. It does not measure coding quality or full-session economics.</p></aside>
-    <p class="source-line"><a href="https://portkey.ai/blog/the-harness-tax/">Portkey result source</a></p>
+    <header class="study-header">
+      <p class="study-position"><span>13</span> Small and diagnostic evidence</p>
+      <h2>Portkey measured 2 trivial requests: fixed input overhead ranged from about 2,600 tokens for Pi to 27,000 for Claude Code.</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>Portkey routed 2 trivial prompts through its gateway and recorded the input payload sent by each harness. The exercise isolates fixed prompt overhead rather than coding performance.</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>2</dd></div>
+          <div><dt>Repeated trials</dt><dd>no</dd></div>
+          <div><dt>Grader</dt><dd>Input-token capture</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>The fixed input payload ranged from about 2,600 tokens for Pi to 27,000 for Claude Code.</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>This is an overhead diagnostic. It does not measure coding quality or full-session economics.</p></section>
+        <p class="source-line"><a href="https://portkey.ai/blog/the-harness-tax/">Portkey results</a></p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><figure class="chart-block"><svg class="chart-svg" viewBox="0 0 900 190" role="img" aria-label="Input prompt tokens"><g class="chart-grid"><line x1="255" y1="18" x2="255" y2="156" /><text x="255" y="182" text-anchor="middle">0</text><line x1="368" y1="18" x2="368" y2="156" /><text x="368" y="182" text-anchor="middle">6000</text><line x1="481" y1="18" x2="481" y2="156" /><text x="481" y="182" text-anchor="middle">12000</text><line x1="594" y1="18" x2="594" y2="156" /><text x="594" y="182" text-anchor="middle">18000</text><line x1="707" y1="18" x2="707" y2="156" /><text x="707" y="182" text-anchor="middle">24000</text><line x1="820" y1="18" x2="820" y2="156" /><text x="820" y="182" text-anchor="middle">30000</text></g><g><text x="243" y="47" text-anchor="end" class="bar-label">Pi · Pi</text><rect x="255" y="35" width="48.9666666666667" height="16" fill="#1d70b8" /><line class="ci" x1="NaN" y1="43" x2="NaN" y2="43" /><line class="ci" x1="NaN" y1="37" x2="NaN" y2="49" /><line class="ci" x1="NaN" y1="37" x2="NaN" y2="49" /><text x="312.9666666666667" y="47" class="bar-value">2600</text></g><g><text x="243" y="91" text-anchor="end" class="bar-label">Codex · Codex</text><rect x="255" y="79" width="282.5" height="16" fill="#00703c" /><line class="ci" x1="NaN" y1="87" x2="NaN" y2="87" /><line class="ci" x1="NaN" y1="81" x2="NaN" y2="93" /><line class="ci" x1="NaN" y1="81" x2="NaN" y2="93" /><text x="546.5" y="91" class="bar-value">15000</text></g><g><text x="243" y="135" text-anchor="end" class="bar-label">Claude Code · Claude Code</text><rect x="255" y="123" width="508.5" height="16" fill="#d4351c" /><line class="ci" x1="NaN" y1="131" x2="NaN" y2="131" /><line class="ci" x1="NaN" y1="125" x2="NaN" y2="137" /><line class="ci" x1="NaN" y1="125" x2="NaN" y2="137" /><text x="772.5" y="135" class="bar-value">27000</text></g></svg></figure><p class="chart-caption">This diagnostic measures fixed input overhead. It does not measure coding quality.</p></section>
+    </div>
   </article></div>
-    <section class="sources"><div class="wrap"><h2>Data and source access</h2><p>External datasets remain under their publishers' terms. This repository stores derived observations and links to the original data.</p><div class="table-wrap"><table><thead><tr><th>Source</th><th>Access</th><th>Licence note</th><th>Links</th></tr></thead><tbody><tr><td>Benchmarking coding agents on Databricks' multi-million-line codebase</td><td>No public task-level dataset found</td><td>Not stated for benchmark data</td><td><a href="https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase">Results</a></td></tr><tr><td>Warden benchmark</td><td>Public aggregate table</td><td>Not stated for benchmark results</td><td><a href="https://warden.sentry.dev/benchmarking/">Results</a> · <a href="https://warden.sentry.dev/benchmarking/">Data</a></td></tr><tr><td>scBench-Long</td><td>Public JSON summary and public trajectories</td><td>Check the linked benchmark repository and dataset terms</td><td><a href="https://benchmarks.bio/scbench-long">Results</a> · <a href="https://benchmarks.bio/data/scbench-long/index.json">Data</a></td></tr><tr><td>OpenBench</td><td>Public repository with committed data for several milestones</td><td>MIT</td><td><a href="https://github.com/minghinmatthewlam/openbench/blob/main/RESULTS.md">Results</a> · <a href="https://github.com/minghinmatthewlam/openbench/tree/main/data">Data</a></td></tr><tr><td>DrugDiscoveryBench</td><td>Tasks and code are public; rubrics and reference answers are gated on Hugging Face</td><td>MIT for repository code and tasks; separate terms apply to bundled data and gated material</td><td><a href="https://static.scale.com/uploads/6691558a94899f2f65a87a75/DrugDiscoveryBench.pdf">Results</a> · <a href="https://github.com/scaleapi/DrugDiscoveryBench">Data</a></td></tr><tr><td>Artificial Analysis Coding Agent Index</td><td>Live public result page and methodology</td><td>Not stated for result data</td><td><a href="https://artificialanalysis.ai/agents/coding-agents">Results</a></td></tr><tr><td>Endor Labs Agent Security League</td><td>Public leaderboard and articles</td><td>Not stated for benchmark data</td><td><a href="https://www.endorlabs.com/research/ai-code-security-benchmark">Results</a></td></tr><tr><td>Vulnerability-Agent-Bench</td><td>Public explorer and linked Weights and Biases project</td><td>Not stated for benchmark data</td><td><a href="https://www.xor.tech/resources/benchmarks/agents">Results</a> · <a href="https://wandb.ai/tobias_xor-xor/cve-bench">Data</a></td></tr><tr><td>WildClawBench</td><td>Public code, tasks, runtime images and dataset</td><td>Check the repository and dataset cards</td><td><a href="https://github.com/InternLM/WildClawBench">Results</a> · <a href="https://huggingface.co/datasets/internlm/WildClawBench">Data</a></td></tr><tr><td>HarnessBench</td><td>Public code and results</td><td>Check the repository licence</td><td><a href="https://nyosegawa.com/en/posts/harness-bench/">Results</a> · <a href="https://github.com/nyosegawa/harness-bench">Data</a></td></tr><tr><td>CORE-Bench Hard</td><td>Public harness, leaderboard and encrypted traces</td><td>Check the repository licence</td><td><a href="https://hal.cs.princeton.edu/corebench_hard">Results</a> · <a href="https://github.com/princeton-pli/hal-harness">Data</a></td></tr><tr><td>A-CODE-CLI</td><td>Public report and one example task</td><td>Check the example repository licence</td><td><a href="https://aimultiple.com/agentic-cli">Results</a> · <a href="https://github.com/aimultiple-benchmark/agent-benchmark-example-task">Data</a></td></tr><tr><td>The harness tax</td><td>Public article with aggregate values</td><td>Not stated for request logs</td><td><a href="https://portkey.ai/blog/the-harness-tax/">Results</a></td></tr></tbody></table></div></div></section>
+    <section class="appendix"><div class="wrap">
+      <section><h2>Evidence matrix</h2><p>Twelve studies contain at least one matched-model harness comparison. Portkey is an efficiency diagnostic, not a quality benchmark.</p><div class="table-wrap"><table><thead><tr><th>No.</th><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody><tr><td>01</td><td><a href="#databricks">Databricks coding-agent benchmark</a></td><td>Recent human-written pull requests from a multi-million-line internal codebase</td><td>yes</td><td>yes</td><td>not clear</td><td>yes</td></tr><tr><td>02</td><td><a href="#warden">Warden benchmark</a></td><td>Known-vulnerability recognition in files tied to historical Sentry vulnerabilities</td><td>yes</td><td>yes</td><td>no</td><td>yes</td></tr><tr><td>03</td><td><a href="#artificial-analysis">Coding Agent Index</a></td><td>321 tasks across DeepSWE, Terminal-Bench v2 and SWE-Atlas-QnA</td><td>yes</td><td>no</td><td>yes</td><td>yes</td></tr><tr><td>04</td><td><a href="#drugdiscoverybench">DrugDiscoveryBench</a></td><td>Expert-curated drug-discovery and life-sciences workflows</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr><tr><td>05</td><td><a href="#endor">Agent Security League</a></td><td>Real vulnerability-fixing tasks with hidden functional and security tests</td><td>yes</td><td>no</td><td>no</td><td>no</td></tr><tr><td>06</td><td><a href="#latchbio-scbench-long">scBench-Long</a></td><td>Long biological analysis workflows</td><td>yes</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td>07</td><td><a href="#xor">Vulnerability-Agent-Bench</a></td><td>Real vulnerability repairs in isolated containers</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td>08</td><td><a href="#wildclawbench">WildClawBench</a></td><td>Bilingual, multimodal and long-horizon agent tasks</td><td>yes</td><td>no</td><td>not clear</td><td>yes</td></tr><tr><td>09</td><td><a href="#corebench-hard">CORE-Bench Hard</a></td><td>Scientific reproducibility tasks</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td>10</td><td><a href="#harnessbench">HarnessBench</a></td><td>Recent bug-fix issues from 9 open-source repositories</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td>11</td><td><a href="#acode-cli">A-CODE-CLI</a></td><td>Ten full-stack web development scenarios</td><td>yes</td><td>no</td><td>yes</td><td>yes</td></tr><tr><td>12</td><td><a href="#openbench">OpenBench M4.5</a></td><td>Three repository coding tasks with executable checkers</td><td>yes</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td>13</td><td><a href="#portkey-harness-tax">Harness Tax</a></td><td>Two trivial prompts routed through a gateway</td><td>no</td><td>yes</td><td>no</td><td>no</td></tr></tbody></table></div><p><a href="https://github.com/Nexcade/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></section>
+      <section><h2>Data and source access</h2><p>External datasets remain under their publishers' terms. This repository stores derived observations and links to the original data.</p><div class="table-wrap"><table><thead><tr><th>Source</th><th>Access</th><th>Licence note</th><th>Links</th></tr></thead><tbody><tr><td>Benchmarking coding agents on Databricks' multi-million-line codebase</td><td>No public task-level dataset found</td><td>Not stated for benchmark data</td><td><a href="https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase">Results</a></td></tr><tr><td>Warden benchmark</td><td>Public aggregate table</td><td>Not stated for benchmark results</td><td><a href="https://warden.sentry.dev/benchmarking/">Results</a> · <a href="https://warden.sentry.dev/benchmarking/">Data</a></td></tr><tr><td>scBench-Long</td><td>Public JSON summary and public trajectories</td><td>Check the linked benchmark repository and dataset terms</td><td><a href="https://benchmarks.bio/scbench-long">Results</a> · <a href="https://benchmarks.bio/data/scbench-long/index.json">Data</a></td></tr><tr><td>OpenBench</td><td>Public repository with committed data for several milestones</td><td>MIT</td><td><a href="https://github.com/minghinmatthewlam/openbench/blob/main/RESULTS.md">Results</a> · <a href="https://github.com/minghinmatthewlam/openbench/tree/main/data">Data</a></td></tr><tr><td>DrugDiscoveryBench</td><td>Tasks and code are public; rubrics and reference answers are gated on Hugging Face</td><td>MIT for repository code and tasks; separate terms apply to bundled data and gated material</td><td><a href="https://static.scale.com/uploads/6691558a94899f2f65a87a75/DrugDiscoveryBench.pdf">Results</a> · <a href="https://github.com/scaleapi/DrugDiscoveryBench">Data</a></td></tr><tr><td>Artificial Analysis Coding Agent Index</td><td>Live public result page and methodology</td><td>Not stated for result data</td><td><a href="https://artificialanalysis.ai/agents/coding-agents">Results</a></td></tr><tr><td>Endor Labs Agent Security League</td><td>Public leaderboard and articles</td><td>Not stated for benchmark data</td><td><a href="https://www.endorlabs.com/research/ai-code-security-benchmark">Results</a></td></tr><tr><td>Vulnerability-Agent-Bench</td><td>Public explorer and linked Weights and Biases project</td><td>Not stated for benchmark data</td><td><a href="https://www.xor.tech/resources/benchmarks/agents">Results</a> · <a href="https://wandb.ai/tobias_xor-xor/cve-bench">Data</a></td></tr><tr><td>WildClawBench</td><td>Public code, tasks, runtime images and dataset</td><td>Check the repository and dataset cards</td><td><a href="https://github.com/InternLM/WildClawBench">Results</a> · <a href="https://huggingface.co/datasets/internlm/WildClawBench">Data</a></td></tr><tr><td>HarnessBench</td><td>Public code and results</td><td>Check the repository licence</td><td><a href="https://nyosegawa.com/en/posts/harness-bench/">Results</a> · <a href="https://github.com/nyosegawa/harness-bench">Data</a></td></tr><tr><td>CORE-Bench Hard</td><td>Public harness, leaderboard and encrypted traces</td><td>Check the repository licence</td><td><a href="https://hal.cs.princeton.edu/corebench_hard">Results</a> · <a href="https://github.com/princeton-pli/hal-harness">Data</a></td></tr><tr><td>A-CODE-CLI</td><td>Public report and one example task</td><td>Check the example repository licence</td><td><a href="https://aimultiple.com/agentic-cli">Results</a> · <a href="https://github.com/aimultiple-benchmark/agent-benchmark-example-task">Data</a></td></tr><tr><td>The harness tax</td><td>Public article with aggregate values</td><td>Not stated for request logs</td><td><a href="https://portkey.ai/blog/the-harness-tax/">Results</a></td></tr></tbody></table></div></section>
+    </div></section>
   </main>
   <footer class="site-footer"><div class="wrap"><p>Original code and review content are MIT licensed. Cite the original studies when using their results.</p></div></footer>
 </body>

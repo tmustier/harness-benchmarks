@@ -16,11 +16,15 @@ const external = readJson("external-datasets.json");
 
 const errors = [];
 const studyIds = new Set();
+const sectionOrders = new Set();
 
 for (const study of studies) {
   if (!study.id || !study.name || !study.source_url) errors.push(`Study is missing a required field: ${JSON.stringify(study)}`);
+  if (!study.section || !study.slide_lead || !study.method_summary || !Number.isInteger(study.section_order)) errors.push(`Study is missing presentation metadata: ${study.id}`);
   if (studyIds.has(study.id)) errors.push(`Duplicate study id: ${study.id}`);
+  if (sectionOrders.has(study.section_order)) errors.push(`Duplicate section order: ${study.section_order}`);
   studyIds.add(study.id);
+  sectionOrders.add(study.section_order);
 }
 
 const sourceIds = new Set(external.map(item => item.source_id));

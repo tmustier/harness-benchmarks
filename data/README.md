@@ -9,6 +9,10 @@ This directory separates exact observations from source claims.
 - `claims.json` records ratio-only or diagnostic findings that do not fit the observation table
 - `external-datasets.json` links to raw data, repositories and access notes
 
+The `section`, `section_order`, `slide_lead` and `method_summary` fields in
+`studies.json` control the report sequence and give each benchmark page enough
+context to stand alone.
+
 ## Missing values
 
 `null` means that the source did not publish the value in a form we could record. It does not mean zero.

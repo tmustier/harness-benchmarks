@@ -11,6 +11,7 @@ const studies = JSON.parse(fs.readFileSync(path.join(dataDir, "studies.json"), "
 const observations = JSON.parse(fs.readFileSync(path.join(dataDir, "observations.json"), "utf8"));
 const claims = JSON.parse(fs.readFileSync(path.join(dataDir, "claims.json"), "utf8"));
 const external = JSON.parse(fs.readFileSync(path.join(dataDir, "external-datasets.json"), "utf8"));
+const orderedStudies = [...studies].sort((a, b) => a.section_order - b.section_order);
 
 const escapeHtml = value => String(value)
   .replace(/&/g, "&amp;")
@@ -66,7 +67,11 @@ function scatterChart(rows, title) {
     ...xTicks.map(tick => `<line x1="${x(tick)}" y1="${T}" x2="${x(tick)}" y2="${T + plotH}" /><text x="${x(tick)}" y="${T + plotH + 25}" text-anchor="middle">${format(tick, xMax < 5 ? 2 : 0)}</text>`),
     ...yTicks.map(tick => `<line x1="${L}" y1="${y(tick)}" x2="${L + plotW}" y2="${y(tick)}" /><text x="${L - 12}" y="${y(tick) + 4}" text-anchor="end">${tick}</text>`)
   ].join("");
-  const key = points.map((row, index) => `<tr><td><span class="point-key" style="background:${colourFor(row.harness)}">${index + 1}</span></td><td>${escapeHtml(row.model)}</td><td>${escapeHtml(row.harness)}</td><td>${format(row.performance_value)}%</td><td>$${format(row.cost_usd_per_task, 2)}</td></tr>`).join("");
+  const keyRows = points.map((row, index) => `<tr><td><span class="point-key" style="background:${colourFor(row.harness)}">${index + 1}</span></td><td>${escapeHtml(row.model)}</td><td>${escapeHtml(row.harness)}</td><td>${format(row.performance_value)}% · $${format(row.cost_usd_per_task, 2)}</td></tr>`);
+  const keyTable = rows => `<table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Result · cost</th></tr></thead><tbody>${rows.join("")}</tbody></table>`;
+  const key = keyRows.length > 8
+    ? `<div class="chart-key-grid">${keyTable(keyRows.slice(0, 8))}${keyTable(keyRows.slice(8))}</div>`
+    : keyTable(keyRows);
   return `<figure class="chart-block">
     <svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="scatter-title-${escapeHtml(rows[0].study_id)} scatter-desc-${escapeHtml(rows[0].study_id)}">
       <title id="scatter-title-${escapeHtml(rows[0].study_id)}">${escapeHtml(title)}</title>
@@ -76,7 +81,7 @@ function scatterChart(rows, title) {
       <text transform="translate(18 ${T + plotH / 2}) rotate(-90)" text-anchor="middle" class="axis-title">Performance in %</text>
       ${marks}
     </svg>
-    <table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Performance</th><th>Cost per task</th></tr></thead><tbody>${key}</tbody></table>
+    ${key}
   </figure>`;
 }
 
@@ -102,8 +107,22 @@ function openBenchCharts(rows) {
 }
 
 function endorCharts(rows) {
-  const securityRows = rows.map(row => ({ ...row, performance_value: row.secondary_value }));
-  return `<div class="paired-charts"><section><h3>Functional pass rate</h3>${barChart(rows, "Functional pass rate")}</section><section><h3>Security pass rate</h3>${barChart(securityRows, "Security pass rate")}</section></div>`;
+  const W = 900, rowH = 55, H = 74 + rows.length * rowH, L = 265, R = 64, T = 42, B = 32;
+  const plotW = W - L - R;
+  const x = value => L + value / 100 * plotW;
+  const ticks = [0, 20, 40, 60, 80, 100];
+  const grid = ticks.map(tick => `<line x1="${x(tick)}" y1="${T}" x2="${x(tick)}" y2="${H - B}" /><text x="${x(tick)}" y="${H - 8}" text-anchor="middle">${tick}%</text>`).join("");
+  const marks = rows.map((row, index) => {
+    const y = T + 8 + index * rowH;
+    return `<g>
+      <text x="${L - 12}" y="${y + 18}" text-anchor="end" class="bar-label">${escapeHtml(`${row.model} · ${row.harness}`)}</text>
+      <rect x="${L}" y="${y}" width="${x(row.performance_value) - L}" height="12" fill="#1d70b8" />
+      <text x="${x(row.performance_value) + 8}" y="${y + 10}" class="bar-value">${format(row.performance_value)}%</text>
+      <rect x="${L}" y="${y + 19}" width="${x(row.secondary_value) - L}" height="12" fill="#6f72af" />
+      <text x="${x(row.secondary_value) + 8}" y="${y + 29}" class="bar-value">${format(row.secondary_value)}%</text>
+    </g>`;
+  }).join("");
+  return `<figure class="chart-block"><div class="metric-key"><span><i class="functional"></i>Functional pass rate</span><span><i class="security"></i>Security pass rate</span></div><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Functional and security pass rates"><g class="chart-grid">${grid}</g>${marks}</svg></figure>`;
 }
 
 function claimChart(studyId) {
@@ -131,26 +150,43 @@ function chartFor(study) {
   return barChart(rows, `${study.name}: ${rows[0].performance_metric}`);
 }
 
-function studySection(study, index) {
+function studySection(study) {
   const source = external.find(item => item.source_id === study.id);
   const repeatText = study.repeated_trials === true ? "yes" : study.repeated_trials === false ? "no" : "not clear";
   return `<article class="study" id="${escapeHtml(study.id)}">
-    <p class="eyebrow">Study ${String(index + 1).padStart(2, "0")}</p>
-    <h2>${escapeHtml(study.name)}</h2>
-    <p class="study-lead">${escapeHtml(study.conclusion)}</p>
-    <dl class="study-meta">
-      <div><dt>Task surface</dt><dd>${escapeHtml(study.task_surface)}</dd></div>
-      <div><dt>Tasks</dt><dd>${study.task_count ?? "not published"}</dd></div>
-      <div><dt>Repeated trials</dt><dd>${repeatText}</dd></div>
-      <div><dt>Grader</dt><dd>${escapeHtml(study.grader)}</dd></div>
-    </dl>
-    ${chartFor(study)}
-    <aside class="caveat"><h3>What this does not prove</h3><p>${escapeHtml(study.limitation)}</p></aside>
-    <p class="source-line"><a href="${escapeHtml(study.source_url)}">${escapeHtml(study.publisher)} result source</a>${source?.dataset_url ? ` · <a href="${escapeHtml(source.dataset_url)}">Dataset or repository</a>` : ""}</p>
+    <header class="study-header">
+      <p class="study-position"><span>${String(study.section_order).padStart(2, "0")}</span> ${escapeHtml(study.section)}</p>
+      <h2>${escapeHtml(study.slide_lead)}</h2>
+    </header>
+    <div class="study-layout">
+      <aside class="study-context">
+        <section><h3>What they did</h3><p>${escapeHtml(study.method_summary)}</p></section>
+        <dl class="study-meta">
+          <div><dt>Tasks</dt><dd>${study.task_count ?? "Not published"}</dd></div>
+          <div><dt>Repeated trials</dt><dd>${repeatText}</dd></div>
+          <div><dt>Grader</dt><dd>${escapeHtml(study.grader)}</dd></div>
+        </dl>
+        <section><h3>What we observe</h3><p>${escapeHtml(study.conclusion)}</p></section>
+        <section class="study-limit"><h3>Limit</h3><p>${escapeHtml(study.limitation)}</p></section>
+        <p class="source-line"><a href="${escapeHtml(study.source_url)}">${escapeHtml(study.publisher)} results</a>${source?.dataset_url ? `<br><a href="${escapeHtml(source.dataset_url)}">Dataset or repository</a>` : ""}</p>
+      </aside>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3>${chartFor(study)}</section>
+    </div>
   </article>`;
 }
 
-const studyRows = studies.map(study => `<tr><td><a href="#${escapeHtml(study.id)}">${escapeHtml(study.name)}</a></td><td>${escapeHtml(study.task_surface)}</td><td>${study.matched_model_comparison ? "yes" : "no"}</td><td>${study.includes_pi ? "yes" : "no"}</td><td>${study.repeated_trials === true ? "yes" : study.repeated_trials === false ? "no" : "not clear"}</td><td>${study.reports_cost ? "yes" : "no"}</td></tr>`).join("");
+const studyRows = orderedStudies.map(study => `<tr><td>${String(study.section_order).padStart(2, "0")}</td><td><a href="#${escapeHtml(study.id)}">${escapeHtml(study.name)}</a></td><td>${escapeHtml(study.task_surface)}</td><td>${study.matched_model_comparison ? "yes" : "no"}</td><td>${study.includes_pi ? "yes" : "no"}</td><td>${study.repeated_trials === true ? "yes" : study.repeated_trials === false ? "no" : "not clear"}</td><td>${study.reports_cost ? "yes" : "no"}</td></tr>`).join("");
+
+const sectionNotes = {
+  "Operational and broad evidence": "Start here: larger, more operational or more extensively reported comparisons.",
+  "Focused domain evidence": "Strong task-specific evidence, but conclusions may not transfer outside the domain.",
+  "Small and diagnostic evidence": "Useful signals with limited task counts or no direct measure of coding quality."
+};
+
+const overviewGroups = Object.entries(sectionNotes).map(([section, note], index) => {
+  const items = orderedStudies.filter(study => study.section === section).map(study => `<li><a href="#${escapeHtml(study.id)}"><span>${String(study.section_order).padStart(2, "0")}</span>${escapeHtml(study.name)}</a></li>`).join("");
+  return `<section class="overview-group"><p class="overview-number">${index + 1}</p><h3>${escapeHtml(section)}</h3><p>${escapeHtml(note)}</p><ol>${items}</ol></section>`;
+}).join("");
 
 const sourceRows = external.map(item => `<tr><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.access)}</td><td>${escapeHtml(item.licence)}</td><td><a href="${escapeHtml(item.result_url)}">Results</a>${item.dataset_url ? ` · <a href="${escapeHtml(item.dataset_url)}">Data</a>` : ""}</td></tr>`).join("");
 
@@ -171,15 +207,22 @@ const html = `<!doctype html>
   <meta name="description" content="A review of public studies that compare coding-agent harnesses while holding the model constant.">
   <title>Harness benchmarks</title>
   <style>${css}</style>
+  <link rel="stylesheet" href="report.css">
 </head>
 <body>
   <header class="topbar"><div class="wrap"><a href="#main">Harness benchmarks</a></div></header>
   <section class="hero"><div class="wrap"><p class="eyebrow">Evidence review</p><h1>The harness is part of the evaluated system</h1><p class="lede">Public studies show that the coding-agent harness changes performance, cost, token use and runtime. They do not identify one harness that wins across every model and task.</p><p class="date">Evidence captured on 12 July 2026</p></div></section>
   <main id="main">
-    <section class="summary"><div class="wrap"><h2>What the evidence supports</h2><div class="summary-grid"><section><h3>Harnesses are not neutral</h3><p>Context, tools, retries, timeouts and caching change the system's behaviour.</p></section><section><h3>The ranking changes</h3><p>Pi, native harnesses, OpenCode, Cursor and research scaffolds each win somewhere.</p></section><section><h3>Test the combination</h3><p>The useful unit is model, harness, task and budget together.</p></section></div></div></section>
-    <section class="method"><div class="wrap"><h2>The evidence base</h2><p>This review includes 13 public evaluations. Twelve contain at least one matched-model harness comparison. Portkey is included as an efficiency diagnostic, not a quality benchmark.</p><div class="table-wrap"><table><thead><tr><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody>${studyRows}</tbody></table></div><p><a href="https://github.com/Nexcade/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></div></section>
-    <div class="wrap">${studies.map(studySection).join("\n")}</div>
-    <section class="sources"><div class="wrap"><h2>Data and source access</h2><p>External datasets remain under their publishers' terms. This repository stores derived observations and links to the original data.</p><div class="table-wrap"><table><thead><tr><th>Source</th><th>Access</th><th>Licence note</th><th>Links</th></tr></thead><tbody>${sourceRows}</tbody></table></div></div></section>
+    <section class="overview"><div class="wrap">
+      <div class="overview-header"><h2>13 benchmarks, ordered by how much they can tell us</h2><p class="overview-takeaway">The evidence is consistent on one point: changing the harness can change quality, cost and speed. It is not consistent on which harness wins.</p></div>
+      <ul class="overview-findings"><li><strong>Harnesses are not neutral</strong>Tools, context, retries and timeouts change the evaluated system.</li><li><strong>The ranking changes</strong>No harness wins across every model and task.</li><li><strong>Test the combination</strong>Evaluate model, harness, task and budget together.</li></ul>
+      <div class="overview-groups">${overviewGroups}</div>
+    </div></section>
+    <div class="wrap">${orderedStudies.map(studySection).join("\n")}</div>
+    <section class="appendix"><div class="wrap">
+      <section><h2>Evidence matrix</h2><p>Twelve studies contain at least one matched-model harness comparison. Portkey is an efficiency diagnostic, not a quality benchmark.</p><div class="table-wrap"><table><thead><tr><th>No.</th><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody>${studyRows}</tbody></table></div><p><a href="https://github.com/Nexcade/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></section>
+      <section><h2>Data and source access</h2><p>External datasets remain under their publishers' terms. This repository stores derived observations and links to the original data.</p><div class="table-wrap"><table><thead><tr><th>Source</th><th>Access</th><th>Licence note</th><th>Links</th></tr></thead><tbody>${sourceRows}</tbody></table></div></section>
+    </div></section>
   </main>
   <footer class="site-footer"><div class="wrap"><p>Original code and review content are MIT licensed. Cite the original studies when using their results.</p></div></footer>
 </body>
@@ -187,6 +230,7 @@ const html = `<!doctype html>
 
 fs.mkdirSync(siteDataDir, { recursive: true });
 fs.writeFileSync(path.join(siteDir, "index.html"), html);
+fs.copyFileSync(path.join(root, "styles", "report.css"), path.join(siteDir, "report.css"));
 for (const name of ["studies.json", "observations.json", "claims.json", "external-datasets.json"]) {
   fs.copyFileSync(path.join(dataDir, name), path.join(siteDataDir, name));
 }
