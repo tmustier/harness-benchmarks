@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: Harness benchmarks
+message: Cite this repository and the original benchmark sources when using the review or derived data.
+type: dataset
+authors:
+  - family-names: Mustier
+    given-names: Thomas
+repository-code: https://github.com/Nexcade/harness-benchmarks
+license: MIT
+date-released: 2026-07-12

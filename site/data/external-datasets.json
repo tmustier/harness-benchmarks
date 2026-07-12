@@ -1,0 +1,119 @@
+[
+  {
+    "source_id": "databricks",
+    "title": "Benchmarking coding agents on Databricks' multi-million-line codebase",
+    "result_url": "https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase",
+    "dataset_url": null,
+    "access": "No public task-level dataset found",
+    "licence": "Not stated for benchmark data",
+    "stored_here": false
+  },
+  {
+    "source_id": "warden",
+    "title": "Warden benchmark",
+    "result_url": "https://warden.sentry.dev/benchmarking/",
+    "dataset_url": "https://warden.sentry.dev/benchmarking/",
+    "access": "Public aggregate table",
+    "licence": "Not stated for benchmark results",
+    "stored_here": false
+  },
+  {
+    "source_id": "latchbio-scbench-long",
+    "title": "scBench-Long",
+    "result_url": "https://benchmarks.bio/scbench-long",
+    "dataset_url": "https://benchmarks.bio/data/scbench-long/index.json",
+    "access": "Public JSON summary and public trajectories",
+    "licence": "Check the linked benchmark repository and dataset terms",
+    "stored_here": false
+  },
+  {
+    "source_id": "openbench",
+    "title": "OpenBench",
+    "result_url": "https://github.com/minghinmatthewlam/openbench/blob/main/RESULTS.md",
+    "dataset_url": "https://github.com/minghinmatthewlam/openbench/tree/main/data",
+    "access": "Public repository with committed data for several milestones",
+    "licence": "MIT",
+    "stored_here": false
+  },
+  {
+    "source_id": "drugdiscoverybench",
+    "title": "DrugDiscoveryBench",
+    "result_url": "https://static.scale.com/uploads/6691558a94899f2f65a87a75/DrugDiscoveryBench.pdf",
+    "dataset_url": "https://github.com/scaleapi/DrugDiscoveryBench",
+    "access": "Tasks and code are public; rubrics and reference answers are gated on Hugging Face",
+    "licence": "MIT for repository code and tasks; separate terms apply to bundled data and gated material",
+    "stored_here": false
+  },
+  {
+    "source_id": "artificial-analysis",
+    "title": "Artificial Analysis Coding Agent Index",
+    "result_url": "https://artificialanalysis.ai/agents/coding-agents",
+    "dataset_url": null,
+    "access": "Live public result page and methodology",
+    "licence": "Not stated for result data",
+    "stored_here": false
+  },
+  {
+    "source_id": "endor",
+    "title": "Endor Labs Agent Security League",
+    "result_url": "https://www.endorlabs.com/research/ai-code-security-benchmark",
+    "dataset_url": null,
+    "access": "Public leaderboard and articles",
+    "licence": "Not stated for benchmark data",
+    "stored_here": false
+  },
+  {
+    "source_id": "xor",
+    "title": "Vulnerability-Agent-Bench",
+    "result_url": "https://www.xor.tech/resources/benchmarks/agents",
+    "dataset_url": "https://wandb.ai/tobias_xor-xor/cve-bench",
+    "access": "Public explorer and linked Weights and Biases project",
+    "licence": "Not stated for benchmark data",
+    "stored_here": false
+  },
+  {
+    "source_id": "wildclawbench",
+    "title": "WildClawBench",
+    "result_url": "https://github.com/InternLM/WildClawBench",
+    "dataset_url": "https://huggingface.co/datasets/internlm/WildClawBench",
+    "access": "Public code, tasks, runtime images and dataset",
+    "licence": "Check the repository and dataset cards",
+    "stored_here": false
+  },
+  {
+    "source_id": "harnessbench",
+    "title": "HarnessBench",
+    "result_url": "https://nyosegawa.com/en/posts/harness-bench/",
+    "dataset_url": "https://github.com/nyosegawa/harness-bench",
+    "access": "Public code and results",
+    "licence": "Check the repository licence",
+    "stored_here": false
+  },
+  {
+    "source_id": "corebench-hard",
+    "title": "CORE-Bench Hard",
+    "result_url": "https://hal.cs.princeton.edu/corebench_hard",
+    "dataset_url": "https://github.com/princeton-pli/hal-harness",
+    "access": "Public harness, leaderboard and encrypted traces",
+    "licence": "Check the repository licence",
+    "stored_here": false
+  },
+  {
+    "source_id": "acode-cli",
+    "title": "A-CODE-CLI",
+    "result_url": "https://aimultiple.com/agentic-cli",
+    "dataset_url": "https://github.com/aimultiple-benchmark/agent-benchmark-example-task",
+    "access": "Public report and one example task",
+    "licence": "Check the example repository licence",
+    "stored_here": false
+  },
+  {
+    "source_id": "portkey-harness-tax",
+    "title": "The harness tax",
+    "result_url": "https://portkey.ai/blog/the-harness-tax/",
+    "dataset_url": null,
+    "access": "Public article with aggregate values",
+    "licence": "Not stated for request logs",
+    "stored_here": false
+  }
+]

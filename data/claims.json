@@ -1,0 +1,47 @@
+[
+  {
+    "study_id": "databricks",
+    "claim": "Some matched-model runs differed by more than 2 times in cost while quality remained the same.",
+    "measure": "cost ratio",
+    "value": 2,
+    "comparison": "greater than",
+    "source_id": "databricks",
+    "captured_at": "2026-07-12"
+  },
+  {
+    "study_id": "databricks",
+    "claim": "Pi sent about 3 times less context per turn than the native harnesses in the matched comparison.",
+    "measure": "relative context per turn",
+    "value": 3,
+    "comparison": "about",
+    "source_id": "databricks",
+    "captured_at": "2026-07-12"
+  },
+  {
+    "study_id": "portkey-harness-tax",
+    "claim": "Pi sent about 2,600 input tokens for the test request.",
+    "measure": "input tokens per request",
+    "value": 2600,
+    "comparison": "about",
+    "source_id": "portkey-harness-tax",
+    "captured_at": "2026-07-12"
+  },
+  {
+    "study_id": "portkey-harness-tax",
+    "claim": "Codex sent about 15,000 input tokens for the test request.",
+    "measure": "input tokens per request",
+    "value": 15000,
+    "comparison": "about",
+    "source_id": "portkey-harness-tax",
+    "captured_at": "2026-07-12"
+  },
+  {
+    "study_id": "portkey-harness-tax",
+    "claim": "Claude Code sent about 27,000 input tokens for the test request.",
+    "measure": "input tokens per request",
+    "value": 27000,
+    "comparison": "about",
+    "source_id": "portkey-harness-tax",
+    "captured_at": "2026-07-12"
+  }
+]
