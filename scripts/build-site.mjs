@@ -74,14 +74,14 @@ function scatterChart(rows, title) {
     ? `<div class="chart-key-grid">${keyTable(keyRows.slice(0, 8))}${keyTable(keyRows.slice(8))}</div>`
     : keyTable(keyRows);
   return `<figure class="chart-block">
-    <svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="scatter-title-${escapeHtml(rows[0].study_id)} scatter-desc-${escapeHtml(rows[0].study_id)}">
+    <div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="scatter-title-${escapeHtml(rows[0].study_id)} scatter-desc-${escapeHtml(rows[0].study_id)}">
       <title id="scatter-title-${escapeHtml(rows[0].study_id)}">${escapeHtml(title)}</title>
       <desc id="scatter-desc-${escapeHtml(rows[0].study_id)}">Performance from 0 to 100% plotted against cost per task from 0 to ${xMax} US dollars.</desc>
       <g class="chart-grid">${grid}</g>
       <text x="${L + plotW / 2}" y="${H - 8}" text-anchor="middle" class="axis-title">Cost per task in US dollars</text>
       <text transform="translate(18 ${T + plotH / 2}) rotate(-90)" text-anchor="middle" class="axis-title">Performance in %</text>
       ${marks}
-    </svg>
+    </svg></div>
     ${key}
   </figure>`;
 }
@@ -100,7 +100,7 @@ function barChart(rows, title, valueField = "performance_value", max = 100, unit
       : "";
     return `<g><text x="${L - 12}" y="${y + 12}" text-anchor="end" class="bar-label">${escapeHtml(`${row.model} · ${row.harness}`)}</text><rect x="${L}" y="${y}" width="${Math.max(0, x(value) - L)}" height="16" fill="${colourFor(row.harness)}" />${ci}<text x="${Math.min(W - R + 8, x(value) + 9)}" y="${y + 12}" class="bar-value">${format(value, value < 10 ? 2 : 1)}${unit}</text></g>`;
   }).join("");
-  return `<figure class="chart-block"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(title)}"><g class="chart-grid">${grid}</g>${marks}</svg></figure>`;
+  return `<figure class="chart-block"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(title)}"><g class="chart-grid">${grid}</g>${marks}</svg></div></figure>`;
 }
 
 function openBenchCharts(rows) {
@@ -123,7 +123,7 @@ function endorCharts(rows) {
       <text x="${x(row.secondary_value) + 8}" y="${y + 29}" class="bar-value">${format(row.secondary_value)}%</text>
     </g>`;
   }).join("");
-  return `<figure class="chart-block"><div class="metric-key"><span><i class="functional"></i>Functional pass rate</span><span><i class="security"></i>Security pass rate</span></div><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Functional and security pass rates"><g class="chart-grid">${grid}</g>${marks}</svg></figure>`;
+  return `<figure class="chart-block"><div class="metric-key"><span><i class="functional"></i>Functional pass rate</span><span><i class="security"></i>Security pass rate</span></div><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Functional and security pass rates"><g class="chart-grid">${grid}</g>${marks}</svg></div></figure>`;
 }
 
 function claimChart(studyId) {
@@ -171,8 +171,9 @@ function studySection(study) {
         <section class="study-limit"><h3>Limit</h3><p>${escapeHtml(study.limitation)}</p></section>
         <p class="source-line"><a href="${escapeHtml(study.source_url)}">${escapeHtml(study.publisher)} results</a>${source?.dataset_url ? `<br><a href="${escapeHtml(source.dataset_url)}">Dataset or repository</a>` : ""}</p>
       </aside>
-      <section class="study-result" aria-label="Published results"><h3>Published results</h3>${chartFor(study)}</section>
+      <section class="study-result" aria-label="Published results"><h3>Published results</h3><p class="chart-scroll-hint">Swipe charts horizontally to see every label and value.</p>${chartFor(study)}</section>
     </div>
+    <p class="back-to-map"><a href="#benchmark-map">Back to benchmark map</a></p>
   </article>`;
 }
 
@@ -214,7 +215,7 @@ const html = `<!doctype html>
   <header class="topbar"><div class="wrap"><a href="#main">The harness (still) matters</a></div></header>
   <section class="hero"><div class="wrap"><p class="eyebrow">Evidence review</p><h1>The harness (still) matters</h1><p class="lede">Public studies show that the coding-agent harness changes performance, cost, token use and runtime. They do not identify one harness that wins across every model and task.</p><p class="date">Evidence captured on 12 July 2026</p></div></section>
   <main id="main">
-    <section class="overview"><div class="wrap">
+    <section class="overview" id="benchmark-map"><div class="wrap">
       <div class="overview-header"><h2>13 benchmarks, ordered by how much they can tell us</h2><p class="overview-takeaway">The evidence is consistent on one point: changing the harness can change quality, cost and speed. It is not consistent on which harness wins.</p></div>
       <ul class="overview-findings"><li><strong>Harnesses are not neutral</strong>Tools, context, retries and timeouts change the evaluated system.</li><li><strong>The ranking changes</strong>No harness wins across every model and task.</li><li><strong>Test the combination</strong>Evaluate model, harness, task and budget together.</li></ul>
       <div class="overview-groups">${overviewGroups}</div>
@@ -226,6 +227,21 @@ const html = `<!doctype html>
     </div></section>
   </main>
   <footer class="site-footer"><div class="wrap"><p>Original code and review content are MIT licensed. Cite the original studies when using their results.</p></div></footer>
+  <script>
+    if (window.location.hash) {
+      const scrollToHash = () => {
+        const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+        if (target) target.scrollIntoView({ block: "start", inline: "nearest" });
+      };
+      const loaded = document.readyState === "complete"
+        ? Promise.resolve()
+        : new Promise(resolve => window.addEventListener("load", resolve, { once: true }));
+      const fontsLoaded = document.fonts ? document.fonts.ready : Promise.resolve();
+      Promise.all([loaded, fontsLoaded]).then(() => {
+        window.requestAnimationFrame(() => window.requestAnimationFrame(scrollToHash));
+      });
+    }
+  </script>
 </body>
 </html>`;
 

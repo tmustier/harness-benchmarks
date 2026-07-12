@@ -22,8 +22,8 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font); font-size: 18px; line-height: 1.5; font-weight: 400; }
+html { max-width: 100%; overflow-x: clip; scroll-behavior: smooth; }
+body { width: 100%; max-width: 100%; margin: 0; overflow-x: clip; background: var(--paper); color: var(--ink); font-family: var(--font); font-size: 18px; line-height: 1.5; font-weight: 400; }
 a { color: var(--blue); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 a:hover { color: var(--blue-dark); }
 a:focus { outline: 3px solid transparent; background: var(--yellow); box-shadow: 0 -2px var(--yellow), 0 4px var(--ink); color: var(--ink); text-decoration: none; }
@@ -72,7 +72,10 @@ main { padding-bottom: 80px; }
 .source-line { font-size: 14px; line-height: 1.7; margin: 18px 0 0; }
 .study-result { min-width: 0; border-top: 8px solid var(--blue); padding-top: 17px; }
 .study-result > h3 { color: var(--blue); margin-bottom: 10px; }
-.chart-block { margin: 10px 0 0; }
+.chart-block { min-width: 0; max-width: 100%; margin: 10px 0 0; }
+.chart-scroll { min-width: 0; max-width: 100%; }
+.chart-scroll-hint { display: none; }
+.back-to-map { display: none; }
 .chart-svg { display: block; width: 100%; height: auto; overflow: visible; }
 .chart-grid line { stroke: #b1b4b6; stroke-width: 1; }
 .chart-grid text, .axis-title, .bar-label, .bar-value { fill: #505a5f; font-family: var(--font); font-size: 13px; }
@@ -120,14 +123,78 @@ td { border-bottom: 1px solid var(--line); padding: 10px 10px 10px 0; vertical-a
   .study-meta, .source-line { grid-column: 1 / -1; }
 }
 
-@media (max-width: 560px) {
-  .wrap { width: min(var(--max), calc(100% - 28px)); }
-  .hero h1 { font-size: 39px; }
-  .overview h2 { font-size: 35px; }
+@media (max-width: 700px) {
   .study-context { display: block; }
-  .study h2 { font-size: 30px; }
-  .study-position { align-items: flex-start; }
-  .study-position span { flex: none; }
+  .chart-scroll-hint { display: block; margin: 0 0 8px; color: var(--muted); font-size: 14px; line-height: 1.3; }
+  .chart-scroll { width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-width: thin; scrollbar-color: var(--line) transparent; -webkit-overflow-scrolling: touch; }
+  .chart-scroll .chart-svg { width: 680px; min-width: 680px; max-height: none; }
+  .chart-key-grid { grid-template-columns: 1fr; gap: 0; }
+  .chart-key { table-layout: fixed; font-size: 13px; }
+  .chart-key th, .chart-key td { padding: 8px 6px 8px 0; overflow-wrap: anywhere; }
+  .chart-key th:first-child, .chart-key td:first-child { width: 46px; }
+  .chart-key th:last-child, .chart-key td:last-child { width: 92px; }
+  .metric-key { flex-wrap: wrap; gap: 8px 18px; }
+  .table-wrap { position: relative; max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; -webkit-overflow-scrolling: touch; }
+  .table-wrap table { min-width: 760px; }
+}
+
+@media (max-width: 560px) {
+  body { font-size: 16px; line-height: 1.45; }
+  .wrap { width: min(var(--max), calc(100% - 32px)); }
+  .topbar { border-top-width: 7px; padding: 13px 0; }
+  .topbar a { display: inline-block; padding: 2px 0; font-size: 16px; }
+  .hero { padding: 44px 0 46px; }
+  .eyebrow { margin-bottom: 10px; font-size: 16px; }
+  .hero h1 { max-width: 100%; font-size: 38px; line-height: 1.02; letter-spacing: -1px; }
+  .hero .lede { margin-top: 24px; font-size: 20px; line-height: 1.4; }
+  .hero .date { margin-top: 26px; font-size: 15px; }
+  main { padding-bottom: 48px; }
+  .overview { padding: 42px 0 50px; }
+  .overview-header { gap: 18px; margin-bottom: 30px; }
+  .overview h2, .appendix h2 { font-size: 32px; line-height: 1.08; }
+  .overview-takeaway { font-size: 19px; line-height: 1.4; }
+  .overview-findings { gap: 20px; margin-bottom: 40px; }
+  .overview-findings li { padding-top: 10px; }
+  .overview-findings strong { font-size: 19px; }
+  .overview-groups { gap: 40px; }
+  .overview-group { border-top-width: 6px; padding-top: 12px; }
+  .overview-number { font-size: 30px; }
+  .overview-group h3 { font-size: 22px; }
+  .overview-group > p:not(.overview-number) { font-size: 15px; }
+  .overview-group a { grid-template-columns: 36px 1fr; min-height: 44px; padding: 11px 0; font-size: 16px; align-items: center; }
+  .study { padding: 42px 0 50px; scroll-margin-top: 12px; }
+  .study-header { margin-bottom: 24px; }
+  .study-position { align-items: flex-start; gap: 10px; margin-bottom: 14px; font-size: 15px; line-height: 1.25; }
+  .study-position span { flex: none; width: 44px; height: 34px; font-size: 18px; }
+  .study h2 { max-width: 100%; font-size: 28px; line-height: 1.12; letter-spacing: -0.3px; }
+  .study-layout { gap: 28px; }
+  .study-context, .study-result { border-top-width: 6px; padding-top: 14px; }
+  .study-context section { margin-bottom: 20px; }
+  .study-context h3, .study-result > h3 { font-size: 19px; }
+  .study-context p { font-size: 16px; line-height: 1.45; }
+  .study-meta { margin-bottom: 20px; }
+  .study-meta div { grid-template-columns: 100px 1fr; padding: 10px 0; }
+  .study-meta dt, .study-meta dd { font-size: 14px; }
+  .study-limit { border-left-width: 6px; padding: 12px 12px 12px 14px; }
+  .source-line { margin-top: 20px; font-size: 15px; }
+  .study-result > h3 { margin-bottom: 6px; }
+  .chart-block { margin-top: 8px; }
+  .chart-scroll .chart-svg { width: 640px; min-width: 640px; }
+  .chart-caption { font-size: 13px; line-height: 1.4; }
+  .back-to-map { display: block; margin: 34px 0 0; padding-top: 16px; border-top: 1px solid var(--line); font-size: 16px; }
+  #benchmark-map { scroll-margin-top: 12px; }
+  .appendix { padding: 48px 0; }
+  .appendix section + section { margin-top: 48px; }
+  .appendix p { font-size: 16px; }
+  .site-footer { padding: 28px 0; }
+  .site-footer p { font-size: 14px; }
+}
+
+@media (max-width: 360px) {
+  .hero h1 { font-size: 35px; }
+  .overview h2, .appendix h2 { font-size: 29px; }
+  .study h2 { font-size: 26px; }
+  .chart-scroll .chart-svg { width: 600px; min-width: 600px; }
 }
 
 @page { size: A4 landscape; margin: 10mm; }
@@ -171,6 +238,8 @@ td { border-bottom: 1px solid var(--line); padding: 10px 10px 10px 0; vertical-a
   .source-line { font-size: 6.7pt; line-height: 1.5; margin-top: 2.5mm; }
   .study-result > h3 { margin-bottom: 1mm; }
   .chart-block { margin: 1mm 0 0; }
+  .chart-scroll { overflow: visible; }
+  .chart-scroll-hint { display: none; }
   .chart-svg { max-height: 104mm; }
   .chart-key { font-size: 6.5pt; margin-top: 1mm; }
   .chart-key-grid { grid-template-columns: 1fr 1fr; gap: 3mm; }
