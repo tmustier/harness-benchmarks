@@ -21,6 +21,7 @@ const sectionOrders = new Set();
 for (const study of studies) {
   if (!study.id || !study.name || !study.source_url) errors.push(`Study is missing a required field: ${JSON.stringify(study)}`);
   if (!study.section || !study.slide_lead || !study.method_summary || !Number.isInteger(study.section_order)) errors.push(`Study is missing presentation metadata: ${study.id}`);
+  if (!/^2026-\d{2}-\d{2}$/.test(study.published) || !study.date_basis) errors.push(`Study needs an exact 2026 publication date and date basis: ${study.id}`);
   if (studyIds.has(study.id)) errors.push(`Duplicate study id: ${study.id}`);
   if (sectionOrders.has(study.section_order)) errors.push(`Duplicate section order: ${study.section_order}`);
   studyIds.add(study.id);

@@ -21,6 +21,11 @@ const escapeHtml = value => String(value)
   .replace(/"/g, "&quot;");
 
 const format = (value, digits = 1) => Number(value).toFixed(digits).replace(/\.0$/, "");
+const formatStudyDate = value => {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })
+    .format(new Date(Date.UTC(year, month - 1, day)));
+};
 const rowsFor = id => observations.filter(row => row.study_id === id);
 const claimsFor = id => claims.filter(row => row.study_id === id);
 
@@ -156,7 +161,7 @@ function studySection(study) {
   const repeatText = study.repeated_trials === true ? "yes" : study.repeated_trials === false ? "no" : "not clear";
   return `<article class="study" id="${escapeHtml(study.id)}">
     <header class="study-header">
-      <p class="study-position"><span>${String(study.section_order).padStart(2, "0")}</span> ${escapeHtml(study.section)}</p>
+      <p class="study-position"><span>${String(study.section_order).padStart(2, "0")}</span><span class="study-section">${escapeHtml(study.section)}</span><time datetime="${escapeHtml(study.published)}">${escapeHtml(formatStudyDate(study.published))}</time></p>
       <h2>${escapeHtml(study.slide_lead)}</h2>
     </header>
     <div class="study-layout">
@@ -186,7 +191,7 @@ const sectionNotes = {
 };
 
 const overviewGroups = Object.entries(sectionNotes).map(([section, note], index) => {
-  const items = orderedStudies.filter(study => study.section === section).map(study => `<li><a href="#${escapeHtml(study.id)}"><span>${String(study.section_order).padStart(2, "0")}</span>${escapeHtml(study.name)}</a></li>`).join("");
+  const items = orderedStudies.filter(study => study.section === section).map(study => `<li><a href="#${escapeHtml(study.id)}"><span>${String(study.section_order).padStart(2, "0")}</span><span>${escapeHtml(study.name)}</span><time datetime="${escapeHtml(study.published)}">${escapeHtml(formatStudyDate(study.published))}</time></a></li>`).join("");
   return `<section class="overview-group"><p class="overview-number">${index + 1}</p><h3>${escapeHtml(section)}</h3><p>${escapeHtml(note)}</p><ol>${items}</ol></section>`;
 }).join("");
 
@@ -215,6 +220,16 @@ const html = `<!doctype html>
   <header class="topbar"><div class="wrap"><a href="#main">The harness (still) matters</a></div></header>
   <section class="hero"><div class="wrap"><p class="eyebrow">Evidence review</p><h1>The harness (still) matters</h1><p class="lede">Public studies show that the coding-agent harness changes performance, cost, token use and runtime. They do not identify one harness that wins across every model and task.</p><p class="date">Evidence captured on 12 July 2026</p></div></section>
   <main id="main">
+    <section class="current-observations"><div class="wrap">
+      <header class="current-observations-header"><p class="eyebrow">Executive summary</p><h2>Current observations</h2><p>The public evidence supports testing harnesses. It does not support choosing one universal winner.</p></header>
+      <div class="current-observations-grid">
+        <section><p class="observation-number">01</p><h3>The harness changes the result</h3><p>Matched-model comparisons show differences in quality, cost, token use and runtime. These differences can be large.</p></section>
+        <section><p class="observation-number">02</p><h3>No harness wins every comparison</h3><p>Rankings change by model and task. A harness that helps one model can hold back another.</p></section>
+        <section><p class="observation-number">03</p><h3>Efficiency can differ when quality does not</h3><p>Several studies find similar task success but much larger differences in cost, context use or completion time.</p></section>
+        <section><p class="observation-number">04</p><h3>The evidence is useful, but still limited</h3><p>Many studies use small task sets, single runs or live leaderboards. Few publish enough data to estimate uncertainty.</p></section>
+      </div>
+      <section class="current-recommendation"><h3>Current recommendation</h3><p>Test at least 2 harnesses with the same model on work that resembles your own. Measure quality, cost and time. Repeat the test when the model or harness changes.</p></section>
+    </div></section>
     <section class="overview" id="benchmark-map"><div class="wrap">
       <div class="overview-header"><h2>13 benchmarks, ordered by how much they can tell us</h2><p class="overview-takeaway">The evidence is consistent on one point: changing the harness can change quality, cost and speed. It is not consistent on which harness wins.</p></div>
       <ul class="overview-findings"><li><strong>Harnesses are not neutral</strong>Tools, context, retries and timeouts change the evaluated system.</li><li><strong>The ranking changes</strong>No harness wins across every model and task.</li><li><strong>Test the combination</strong>Evaluate model, harness, task and budget together.</li></ul>
@@ -222,7 +237,7 @@ const html = `<!doctype html>
     </div></section>
     <div class="wrap">${orderedStudies.map(studySection).join("\n")}</div>
     <section class="appendix"><div class="wrap">
-      <section><h2>Evidence matrix</h2><p>Twelve studies contain at least one matched-model harness comparison. Portkey is an efficiency diagnostic, not a quality benchmark.</p><div class="table-wrap"><table><thead><tr><th>No.</th><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody>${studyRows}</tbody></table></div><p><a href="https://github.com/tmustier/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></section>
+      <section><h2>Evidence matrix</h2><p>Twelve studies contain at least one matched-model harness comparison. Portkey is an efficiency diagnostic, not a quality benchmark.</p><p class="date-note">Dates are the publication or public-release date of the comparison used here. For live leaderboards, they mark when the referenced comparison first appeared.</p><div class="table-wrap"><table><thead><tr><th>No.</th><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody>${studyRows}</tbody></table></div><p><a href="https://github.com/tmustier/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></section>
       <section><h2>Data and source access</h2><p>External datasets remain under their publishers' terms. This repository stores derived observations and links to the original data.</p><div class="table-wrap"><table><thead><tr><th>Source</th><th>Access</th><th>Licence note</th><th>Links</th></tr></thead><tbody>${sourceRows}</tbody></table></div></section>
     </div></section>
   </main>

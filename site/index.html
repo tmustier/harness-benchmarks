@@ -19,14 +19,24 @@
   <header class="topbar"><div class="wrap"><a href="#main">The harness (still) matters</a></div></header>
   <section class="hero"><div class="wrap"><p class="eyebrow">Evidence review</p><h1>The harness (still) matters</h1><p class="lede">Public studies show that the coding-agent harness changes performance, cost, token use and runtime. They do not identify one harness that wins across every model and task.</p><p class="date">Evidence captured on 12 July 2026</p></div></section>
   <main id="main">
+    <section class="current-observations"><div class="wrap">
+      <header class="current-observations-header"><p class="eyebrow">Executive summary</p><h2>Current observations</h2><p>The public evidence supports testing harnesses. It does not support choosing one universal winner.</p></header>
+      <div class="current-observations-grid">
+        <section><p class="observation-number">01</p><h3>The harness changes the result</h3><p>Matched-model comparisons show differences in quality, cost, token use and runtime. These differences can be large.</p></section>
+        <section><p class="observation-number">02</p><h3>No harness wins every comparison</h3><p>Rankings change by model and task. A harness that helps one model can hold back another.</p></section>
+        <section><p class="observation-number">03</p><h3>Efficiency can differ when quality does not</h3><p>Several studies find similar task success but much larger differences in cost, context use or completion time.</p></section>
+        <section><p class="observation-number">04</p><h3>The evidence is useful, but still limited</h3><p>Many studies use small task sets, single runs or live leaderboards. Few publish enough data to estimate uncertainty.</p></section>
+      </div>
+      <section class="current-recommendation"><h3>Current recommendation</h3><p>Test at least 2 harnesses with the same model on work that resembles your own. Measure quality, cost and time. Repeat the test when the model or harness changes.</p></section>
+    </div></section>
     <section class="overview" id="benchmark-map"><div class="wrap">
       <div class="overview-header"><h2>13 benchmarks, ordered by how much they can tell us</h2><p class="overview-takeaway">The evidence is consistent on one point: changing the harness can change quality, cost and speed. It is not consistent on which harness wins.</p></div>
       <ul class="overview-findings"><li><strong>Harnesses are not neutral</strong>Tools, context, retries and timeouts change the evaluated system.</li><li><strong>The ranking changes</strong>No harness wins across every model and task.</li><li><strong>Test the combination</strong>Evaluate model, harness, task and budget together.</li></ul>
-      <div class="overview-groups"><section class="overview-group"><p class="overview-number">1</p><h3>Operational and broad evidence</h3><p>Start here: larger, more operational or more extensively reported comparisons.</p><ol><li><a href="#databricks"><span>01</span>Databricks coding-agent benchmark</a></li><li><a href="#warden"><span>02</span>Warden benchmark</a></li><li><a href="#artificial-analysis"><span>03</span>Coding Agent Index</a></li><li><a href="#drugdiscoverybench"><span>04</span>DrugDiscoveryBench</a></li><li><a href="#endor"><span>05</span>Agent Security League</a></li></ol></section><section class="overview-group"><p class="overview-number">2</p><h3>Focused domain evidence</h3><p>Strong task-specific evidence, but conclusions may not transfer outside the domain.</p><ol><li><a href="#latchbio-scbench-long"><span>06</span>scBench-Long</a></li><li><a href="#xor"><span>07</span>Vulnerability-Agent-Bench</a></li><li><a href="#wildclawbench"><span>08</span>WildClawBench</a></li><li><a href="#corebench-hard"><span>09</span>CORE-Bench Hard</a></li></ol></section><section class="overview-group"><p class="overview-number">3</p><h3>Small and diagnostic evidence</h3><p>Useful signals with limited task counts or no direct measure of coding quality.</p><ol><li><a href="#harnessbench"><span>10</span>HarnessBench</a></li><li><a href="#acode-cli"><span>11</span>A-CODE-CLI</a></li><li><a href="#openbench"><span>12</span>OpenBench M4.5</a></li><li><a href="#portkey-harness-tax"><span>13</span>Harness Tax</a></li></ol></section></div>
+      <div class="overview-groups"><section class="overview-group"><p class="overview-number">1</p><h3>Operational and broad evidence</h3><p>Start here: larger, more operational or more extensively reported comparisons.</p><ol><li><a href="#databricks"><span>01</span><span>Databricks coding-agent benchmark</span><time datetime="2026-07-08">8 Jul</time></a></li><li><a href="#warden"><span>02</span><span>Warden benchmark</span><time datetime="2026-06-05">5 Jun</time></a></li><li><a href="#artificial-analysis"><span>03</span><span>Coding Agent Index</span><time datetime="2026-05-11">11 May</time></a></li><li><a href="#drugdiscoverybench"><span>04</span><span>DrugDiscoveryBench</span><time datetime="2026-06-29">29 Jun</time></a></li><li><a href="#endor"><span>05</span><span>Agent Security League</span><time datetime="2026-07-09">9 Jul</time></a></li></ol></section><section class="overview-group"><p class="overview-number">2</p><h3>Focused domain evidence</h3><p>Strong task-specific evidence, but conclusions may not transfer outside the domain.</p><ol><li><a href="#latchbio-scbench-long"><span>06</span><span>scBench-Long</span><time datetime="2026-06-25">25 Jun</time></a></li><li><a href="#xor"><span>07</span><span>Vulnerability-Agent-Bench</span><time datetime="2026-02-01">1 Feb</time></a></li><li><a href="#wildclawbench"><span>08</span><span>WildClawBench</span><time datetime="2026-05-11">11 May</time></a></li><li><a href="#corebench-hard"><span>09</span><span>CORE-Bench Hard</span><time datetime="2026-06-23">23 Jun</time></a></li></ol></section><section class="overview-group"><p class="overview-number">3</p><h3>Small and diagnostic evidence</h3><p>Useful signals with limited task counts or no direct measure of coding quality.</p><ol><li><a href="#harnessbench"><span>10</span><span>HarnessBench</span><time datetime="2026-05-08">8 May</time></a></li><li><a href="#acode-cli"><span>11</span><span>A-CODE-CLI</span><time datetime="2026-06-29">29 Jun</time></a></li><li><a href="#openbench"><span>12</span><span>OpenBench M4.5</span><time datetime="2026-07-03">3 Jul</time></a></li><li><a href="#portkey-harness-tax"><span>13</span><span>Harness Tax</span><time datetime="2026-04-13">13 Apr</time></a></li></ol></section></div>
     </div></section>
     <div class="wrap"><article class="study" id="databricks">
     <header class="study-header">
-      <p class="study-position"><span>01</span> Operational and broad evidence</p>
+      <p class="study-position"><span>01</span><span class="study-section">Operational and broad evidence</span><time datetime="2026-07-08">8 Jul</time></p>
       <h2>Databricks evaluated recent internal pull requests: Pi used about one-third as much context, and equal-quality runs sometimes differed by more than 2 times in cost.</h2>
     </header>
     <div class="study-layout">
@@ -47,7 +57,7 @@
   </article>
 <article class="study" id="warden">
     <header class="study-header">
-      <p class="study-position"><span>02</span> Operational and broad evidence</p>
+      <p class="study-position"><span>02</span><span class="study-section">Operational and broad evidence</span><time datetime="2026-06-05">5 Jun</time></p>
       <h2>Sentry tested 86 known vulnerabilities: Pi found a similar or larger share while costing about one-quarter to one-fifth as much as Claude SDK.</h2>
     </header>
     <div class="study-layout">
@@ -90,7 +100,7 @@
   </article>
 <article class="study" id="artificial-analysis">
     <header class="study-header">
-      <p class="study-position"><span>03</span> Operational and broad evidence</p>
+      <p class="study-position"><span>03</span><span class="study-section">Operational and broad evidence</span><time datetime="2026-05-11">11 May</time></p>
       <h2>Artificial Analysis combined 321 coding tasks: OpenCode scored higher with Opus 4.7, while Claude Code was cheaper and faster.</h2>
     </header>
     <div class="study-layout">
@@ -130,7 +140,7 @@
   </article>
 <article class="study" id="drugdiscoverybench">
     <header class="study-header">
-      <p class="study-position"><span>04</span> Operational and broad evidence</p>
+      <p class="study-position"><span>04</span><span class="study-section">Operational and broad evidence</span><time datetime="2026-06-29">29 Jun</time></p>
       <h2>DrugDiscoveryBench repeated 82 expert workflows: mini-SWE-agent led the matched GPT-5.5 comparison, while Codex placed in the middle.</h2>
     </header>
     <div class="study-layout">
@@ -151,7 +161,7 @@
   </article>
 <article class="study" id="endor">
     <header class="study-header">
-      <p class="study-position"><span>05</span> Operational and broad evidence</p>
+      <p class="study-position"><span>05</span><span class="study-section">Operational and broad evidence</span><time datetime="2026-07-09">9 Jul</time></p>
       <h2>Endor Labs tested 200 vulnerability repairs: Cursor led for Opus, but Claude Code led for Sonnet 5.</h2>
     </header>
     <div class="study-layout">
@@ -208,7 +218,7 @@
   </article>
 <article class="study" id="latchbio-scbench-long">
     <header class="study-header">
-      <p class="study-position"><span>06</span> Focused domain evidence</p>
+      <p class="study-position"><span>06</span><span class="study-section">Focused domain evidence</span><time datetime="2026-06-25">25 Jun</time></p>
       <h2>scBench-Long repeated 21 biological workflows: the apparent harness differences are smaller than the reported uncertainty.</h2>
     </header>
     <div class="study-layout">
@@ -229,7 +239,7 @@
   </article>
 <article class="study" id="xor">
     <header class="study-header">
-      <p class="study-position"><span>07</span> Focused domain evidence</p>
+      <p class="study-position"><span>07</span><span class="study-section">Focused domain evidence</span><time datetime="2026-02-01">1 Feb</time></p>
       <h2>XOR tested 136 vulnerability repairs: Claude Code and Codex beat OpenCode on all 3 published matched-model pairs.</h2>
     </header>
     <div class="study-layout">
@@ -278,7 +288,7 @@
   </article>
 <article class="study" id="wildclawbench">
     <header class="study-header">
-      <p class="study-position"><span>08</span> Focused domain evidence</p>
+      <p class="study-position"><span>08</span><span class="study-section">Focused domain evidence</span><time datetime="2026-05-11">11 May</time></p>
       <h2>WildClawBench tested 60 long-horizon tasks: changing the harness produced double-digit score shifts and changed the winner by model.</h2>
     </header>
     <div class="study-layout">
@@ -357,7 +367,7 @@
   </article>
 <article class="study" id="corebench-hard">
     <header class="study-header">
-      <p class="study-position"><span>09</span> Focused domain evidence</p>
+      <p class="study-position"><span>09</span><span class="study-section">Focused domain evidence</span><time datetime="2026-06-23">23 Jun</time></p>
       <h2>CORE-Bench Hard tested 45 scientific reproductions: Claude Code more than doubled verified success while costing less than CORE-Agent.</h2>
     </header>
     <div class="study-layout">
@@ -394,7 +404,7 @@
   </article>
 <article class="study" id="harnessbench">
     <header class="study-header">
-      <p class="study-position"><span>10</span> Small and diagnostic evidence</p>
+      <p class="study-position"><span>10</span><span class="study-section">Small and diagnostic evidence</span><time datetime="2026-05-08">8 May</time></p>
       <h2>HarnessBench tested 27 recent bug fixes: several configurations finished within one task of the leader, but runtime differed more clearly.</h2>
     </header>
     <div class="study-layout">
@@ -415,7 +425,7 @@
   </article>
 <article class="study" id="acode-cli">
     <header class="study-header">
-      <p class="study-position"><span>11</span> Small and diagnostic evidence</p>
+      <p class="study-position"><span>11</span><span class="study-section">Small and diagnostic evidence</span><time datetime="2026-06-29">29 Jun</time></p>
       <h2>A-CODE-CLI repeated 10 web scenarios: OpenCode had a 2.4-point backend lead and cost 44% less than Claude Code.</h2>
     </header>
     <div class="study-layout">
@@ -452,7 +462,7 @@
   </article>
 <article class="study" id="openbench">
     <header class="study-header">
-      <p class="study-position"><span>12</span> Small and diagnostic evidence</p>
+      <p class="study-position"><span>12</span><span class="study-section">Small and diagnostic evidence</span><time datetime="2026-07-03">3 Jul</time></p>
       <h2>OpenBench repeated 3 coding tasks: every harness passed, so the useful difference was efficiency rather than correctness.</h2>
     </header>
     <div class="study-layout">
@@ -473,7 +483,7 @@
   </article>
 <article class="study" id="portkey-harness-tax">
     <header class="study-header">
-      <p class="study-position"><span>13</span> Small and diagnostic evidence</p>
+      <p class="study-position"><span>13</span><span class="study-section">Small and diagnostic evidence</span><time datetime="2026-04-13">13 Apr</time></p>
       <h2>Portkey measured 2 trivial requests: fixed input overhead ranged from about 2,600 tokens for Pi to 27,000 for Claude Code.</h2>
     </header>
     <div class="study-layout">
@@ -493,7 +503,7 @@
     <p class="back-to-map"><a href="#benchmark-map">Back to benchmark map</a></p>
   </article></div>
     <section class="appendix"><div class="wrap">
-      <section><h2>Evidence matrix</h2><p>Twelve studies contain at least one matched-model harness comparison. Portkey is an efficiency diagnostic, not a quality benchmark.</p><div class="table-wrap"><table><thead><tr><th>No.</th><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody><tr><td>01</td><td><a href="#databricks">Databricks coding-agent benchmark</a></td><td>Recent human-written pull requests from a multi-million-line internal codebase</td><td>yes</td><td>yes</td><td>not clear</td><td>yes</td></tr><tr><td>02</td><td><a href="#warden">Warden benchmark</a></td><td>Known-vulnerability recognition in files tied to historical Sentry vulnerabilities</td><td>yes</td><td>yes</td><td>no</td><td>yes</td></tr><tr><td>03</td><td><a href="#artificial-analysis">Coding Agent Index</a></td><td>321 tasks across DeepSWE, Terminal-Bench v2 and SWE-Atlas-QnA</td><td>yes</td><td>no</td><td>yes</td><td>yes</td></tr><tr><td>04</td><td><a href="#drugdiscoverybench">DrugDiscoveryBench</a></td><td>Expert-curated drug-discovery and life-sciences workflows</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr><tr><td>05</td><td><a href="#endor">Agent Security League</a></td><td>Real vulnerability-fixing tasks with hidden functional and security tests</td><td>yes</td><td>no</td><td>no</td><td>no</td></tr><tr><td>06</td><td><a href="#latchbio-scbench-long">scBench-Long</a></td><td>Long biological analysis workflows</td><td>yes</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td>07</td><td><a href="#xor">Vulnerability-Agent-Bench</a></td><td>Real vulnerability repairs in isolated containers</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td>08</td><td><a href="#wildclawbench">WildClawBench</a></td><td>Bilingual, multimodal and long-horizon agent tasks</td><td>yes</td><td>no</td><td>not clear</td><td>yes</td></tr><tr><td>09</td><td><a href="#corebench-hard">CORE-Bench Hard</a></td><td>Scientific reproducibility tasks</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td>10</td><td><a href="#harnessbench">HarnessBench</a></td><td>Recent bug-fix issues from 9 open-source repositories</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td>11</td><td><a href="#acode-cli">A-CODE-CLI</a></td><td>Ten full-stack web development scenarios</td><td>yes</td><td>no</td><td>yes</td><td>yes</td></tr><tr><td>12</td><td><a href="#openbench">OpenBench M4.5</a></td><td>Three repository coding tasks with executable checkers</td><td>yes</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td>13</td><td><a href="#portkey-harness-tax">Harness Tax</a></td><td>Two trivial prompts routed through a gateway</td><td>no</td><td>yes</td><td>no</td><td>no</td></tr></tbody></table></div><p><a href="https://github.com/tmustier/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></section>
+      <section><h2>Evidence matrix</h2><p>Twelve studies contain at least one matched-model harness comparison. Portkey is an efficiency diagnostic, not a quality benchmark.</p><p class="date-note">Dates are the publication or public-release date of the comparison used here. For live leaderboards, they mark when the referenced comparison first appeared.</p><div class="table-wrap"><table><thead><tr><th>No.</th><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody><tr><td>01</td><td><a href="#databricks">Databricks coding-agent benchmark</a></td><td>Recent human-written pull requests from a multi-million-line internal codebase</td><td>yes</td><td>yes</td><td>not clear</td><td>yes</td></tr><tr><td>02</td><td><a href="#warden">Warden benchmark</a></td><td>Known-vulnerability recognition in files tied to historical Sentry vulnerabilities</td><td>yes</td><td>yes</td><td>no</td><td>yes</td></tr><tr><td>03</td><td><a href="#artificial-analysis">Coding Agent Index</a></td><td>321 tasks across DeepSWE, Terminal-Bench v2 and SWE-Atlas-QnA</td><td>yes</td><td>no</td><td>yes</td><td>yes</td></tr><tr><td>04</td><td><a href="#drugdiscoverybench">DrugDiscoveryBench</a></td><td>Expert-curated drug-discovery and life-sciences workflows</td><td>yes</td><td>yes</td><td>yes</td><td>yes</td></tr><tr><td>05</td><td><a href="#endor">Agent Security League</a></td><td>Real vulnerability-fixing tasks with hidden functional and security tests</td><td>yes</td><td>no</td><td>no</td><td>no</td></tr><tr><td>06</td><td><a href="#latchbio-scbench-long">scBench-Long</a></td><td>Long biological analysis workflows</td><td>yes</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td>07</td><td><a href="#xor">Vulnerability-Agent-Bench</a></td><td>Real vulnerability repairs in isolated containers</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td>08</td><td><a href="#wildclawbench">WildClawBench</a></td><td>Bilingual, multimodal and long-horizon agent tasks</td><td>yes</td><td>no</td><td>not clear</td><td>yes</td></tr><tr><td>09</td><td><a href="#corebench-hard">CORE-Bench Hard</a></td><td>Scientific reproducibility tasks</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td>10</td><td><a href="#harnessbench">HarnessBench</a></td><td>Recent bug-fix issues from 9 open-source repositories</td><td>yes</td><td>no</td><td>no</td><td>yes</td></tr><tr><td>11</td><td><a href="#acode-cli">A-CODE-CLI</a></td><td>Ten full-stack web development scenarios</td><td>yes</td><td>no</td><td>yes</td><td>yes</td></tr><tr><td>12</td><td><a href="#openbench">OpenBench M4.5</a></td><td>Three repository coding tasks with executable checkers</td><td>yes</td><td>yes</td><td>yes</td><td>no</td></tr><tr><td>13</td><td><a href="#portkey-harness-tax">Harness Tax</a></td><td>Two trivial prompts routed through a gateway</td><td>no</td><td>yes</td><td>no</td><td>no</td></tr></tbody></table></div><p><a href="https://github.com/tmustier/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></section>
       <section><h2>Data and source access</h2><p>External datasets remain under their publishers' terms. This repository stores derived observations and links to the original data.</p><div class="table-wrap"><table><thead><tr><th>Source</th><th>Access</th><th>Licence note</th><th>Links</th></tr></thead><tbody><tr><td>Benchmarking coding agents on Databricks' multi-million-line codebase</td><td>No public task-level dataset found</td><td>Not stated for benchmark data</td><td><a href="https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase">Results</a></td></tr><tr><td>Warden benchmark</td><td>Public aggregate table</td><td>Not stated for benchmark results</td><td><a href="https://warden.sentry.dev/benchmarking/">Results</a> · <a href="https://warden.sentry.dev/benchmarking/">Data</a></td></tr><tr><td>scBench-Long</td><td>Public JSON summary and public trajectories</td><td>Check the linked benchmark repository and dataset terms</td><td><a href="https://benchmarks.bio/scbench-long">Results</a> · <a href="https://benchmarks.bio/data/scbench-long/index.json">Data</a></td></tr><tr><td>OpenBench</td><td>Public repository with committed data for several milestones</td><td>MIT</td><td><a href="https://github.com/minghinmatthewlam/openbench/blob/main/RESULTS.md">Results</a> · <a href="https://github.com/minghinmatthewlam/openbench/tree/main/data">Data</a></td></tr><tr><td>DrugDiscoveryBench</td><td>Tasks and code are public; rubrics and reference answers are gated on Hugging Face</td><td>MIT for repository code and tasks; separate terms apply to bundled data and gated material</td><td><a href="https://static.scale.com/uploads/6691558a94899f2f65a87a75/DrugDiscoveryBench.pdf">Results</a> · <a href="https://github.com/scaleapi/DrugDiscoveryBench">Data</a></td></tr><tr><td>Artificial Analysis Coding Agent Index</td><td>Live public result page and methodology</td><td>Not stated for result data</td><td><a href="https://artificialanalysis.ai/agents/coding-agents">Results</a></td></tr><tr><td>Endor Labs Agent Security League</td><td>Public leaderboard and articles</td><td>Not stated for benchmark data</td><td><a href="https://www.endorlabs.com/research/ai-code-security-benchmark">Results</a></td></tr><tr><td>Vulnerability-Agent-Bench</td><td>Public explorer and linked Weights and Biases project</td><td>Not stated for benchmark data</td><td><a href="https://www.xor.tech/resources/benchmarks/agents">Results</a> · <a href="https://wandb.ai/tobias_xor-xor/cve-bench">Data</a></td></tr><tr><td>WildClawBench</td><td>Public code, tasks, runtime images and dataset</td><td>Check the repository and dataset cards</td><td><a href="https://github.com/InternLM/WildClawBench">Results</a> · <a href="https://huggingface.co/datasets/internlm/WildClawBench">Data</a></td></tr><tr><td>HarnessBench</td><td>Public code and results</td><td>Check the repository licence</td><td><a href="https://nyosegawa.com/en/posts/harness-bench/">Results</a> · <a href="https://github.com/nyosegawa/harness-bench">Data</a></td></tr><tr><td>CORE-Bench Hard</td><td>Public harness, leaderboard and encrypted traces</td><td>Check the repository licence</td><td><a href="https://hal.cs.princeton.edu/corebench_hard">Results</a> · <a href="https://github.com/princeton-pli/hal-harness">Data</a></td></tr><tr><td>A-CODE-CLI</td><td>Public report and one example task</td><td>Check the example repository licence</td><td><a href="https://aimultiple.com/agentic-cli">Results</a> · <a href="https://github.com/aimultiple-benchmark/agent-benchmark-example-task">Data</a></td></tr><tr><td>The harness tax</td><td>Public article with aggregate values</td><td>Not stated for request logs</td><td><a href="https://portkey.ai/blog/the-harness-tax/">Results</a></td></tr></tbody></table></div></section>
     </div></section>
   </main>
