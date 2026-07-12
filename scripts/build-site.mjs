@@ -221,18 +221,17 @@ const html = `<!doctype html>
   <section class="hero"><div class="wrap"><p class="eyebrow">Evidence review</p><h1>The harness (still) matters</h1><p class="lede">Public studies show that the coding-agent harness changes performance, cost, token use and runtime. They do not identify one harness that wins across every model and task.</p><p class="date">Evidence captured on 12 July 2026</p></div></section>
   <main id="main">
     <section class="current-observations"><div class="wrap">
-      <header class="current-observations-header"><p class="eyebrow">Executive summary</p><h2>Current observations</h2><p>The public evidence supports testing harnesses. It does not support choosing one universal winner.</p></header>
-      <div class="current-observations-grid">
-        <section><p class="observation-number">01</p><h3>The harness changes the result</h3><p>Matched-model comparisons show differences in quality, cost, token use and runtime. These differences can be large.</p></section>
-        <section><p class="observation-number">02</p><h3>No harness wins every comparison</h3><p>Rankings change by model and task. A harness that helps one model can hold back another.</p></section>
-        <section><p class="observation-number">03</p><h3>Efficiency can differ when quality does not</h3><p>Several studies find similar task success but much larger differences in cost, context use or completion time.</p></section>
-        <section><p class="observation-number">04</p><h3>The evidence is useful, but still limited</h3><p>Many studies use small task sets, single runs or live leaderboards. Few publish enough data to estimate uncertainty.</p></section>
-      </div>
-      <section class="current-recommendation"><h3>Current recommendation</h3><p>Test at least 2 harnesses with the same model on work that resembles your own. Measure quality, cost and time. Repeat the test when the model or harness changes.</p></section>
+      <header class="current-observations-header"><p class="eyebrow">Executive summary</p><h2>Current observations</h2></header>
+      <ul class="current-observations-list">
+        <li><strong>Harness choice can materially change results.</strong> Studies that hold the model fixed find differences in quality, cost, token use and runtime.</li>
+        <li><strong>No harness wins across all models and tasks.</strong> Different harnesses lead on different models, tasks and measures. Some gaps are too uncertain to call.</li>
+        <li><strong>Efficiency differences are often clearer than quality differences.</strong> Similar success rates can hide large differences in cost, context use and completion time.</li>
+        <li><strong>The evidence is useful but still limited.</strong> Several benchmarks use small task sets, single runs or live leaderboards. Few publish enough data to estimate uncertainty.</li>
+        <li><strong>Teams should test harnesses on their own work.</strong> Compare at least 2 harnesses with the same model. Measure quality, cost and time. Repeat the test when either changes.</li>
+      </ul>
     </div></section>
     <section class="overview" id="benchmark-map"><div class="wrap">
-      <div class="overview-header"><h2>13 benchmarks, ordered by how much they can tell us</h2><p class="overview-takeaway">The evidence is consistent on one point: changing the harness can change quality, cost and speed. It is not consistent on which harness wins.</p></div>
-      <ul class="overview-findings"><li><strong>Harnesses are not neutral</strong>Tools, context, retries and timeouts change the evaluated system.</li><li><strong>The ranking changes</strong>No harness wins across every model and task.</li><li><strong>Test the combination</strong>Evaluate model, harness, task and budget together.</li></ul>
+      <div class="overview-header"><h2>Currently, we know of 13 benchmarks that evaluate multiple coding-agent harnesses</h2></div>
       <div class="overview-groups">${overviewGroups}</div>
     </div></section>
     <div class="wrap">${orderedStudies.map(studySection).join("\n")}</div>

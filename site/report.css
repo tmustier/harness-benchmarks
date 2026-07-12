@@ -38,26 +38,16 @@ a:focus { outline: 3px solid transparent; background: var(--yellow); box-shadow:
 main { padding-bottom: 80px; }
 
 .current-observations { padding: 64px 0 70px; border-bottom: 4px solid var(--ink); }
-.current-observations-header { display: grid; grid-template-columns: 1.05fr 1fr; column-gap: 60px; align-items: end; margin-bottom: 42px; }
-.current-observations-header .eyebrow { grid-column: 1 / -1; }
+.current-observations-header { margin-bottom: 34px; }
 .current-observations h2 { margin: 0; font-size: 48px; line-height: 1.08; font-weight: 650; font-stretch: 105%; }
-.current-observations-header > p:last-child { margin: 0; font-size: 24px; line-height: 1.35; }
-.current-observations-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 34px 48px; }
-.current-observations-grid section { display: grid; grid-template-columns: 48px 1fr; column-gap: 16px; border-top: 5px solid var(--ink); padding-top: 14px; }
-.current-observations-grid .observation-number { grid-row: 1 / span 2; margin: 0; color: var(--blue); font-size: 18px; font-weight: 500; }
-.current-observations-grid h3 { margin: 0 0 7px; font-size: 22px; line-height: 1.2; font-weight: 500; }
-.current-observations-grid section > p:last-child { margin: 0; font-size: 17px; line-height: 1.45; }
-.current-recommendation { display: grid; grid-template-columns: 210px 1fr; gap: 28px; margin-top: 42px; border-left: 8px solid var(--blue); background: var(--wash); padding: 20px 24px; }
-.current-recommendation h3 { margin: 0; font-size: 20px; line-height: 1.3; font-weight: 500; }
-.current-recommendation p { max-width: 850px; margin: 0; font-size: 18px; line-height: 1.45; }
+.current-observations-list { max-width: 1080px; margin: 0; padding-left: 30px; font-size: 20px; line-height: 1.45; }
+.current-observations-list li { padding: 12px 0 12px 8px; }
+.current-observations-list li::marker { color: var(--blue); font-size: 1.25em; }
+.current-observations-list strong { font-weight: 500; }
 
 .overview { padding: 56px 0 64px; border-bottom: 4px solid var(--ink); }
-.overview-header { display: grid; grid-template-columns: 1.3fr 1fr; gap: 60px; align-items: end; margin-bottom: 40px; }
+.overview-header { max-width: 1040px; margin-bottom: 42px; }
 .overview h2, .appendix h2 { font-size: 42px; line-height: 1.12; font-weight: 650; font-stretch: 105%; margin: 0; }
-.overview-takeaway { font-size: 23px; line-height: 1.35; margin: 0; }
-.overview-findings { display: flex; gap: 22px; margin: 0 0 40px; padding: 0; list-style: none; }
-.overview-findings li { flex: 1; border-top: 5px solid var(--ink); padding-top: 12px; }
-.overview-findings strong { display: block; font-size: 21px; font-weight: 500; }
 .overview-groups { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 30px; }
 .overview-group { border-top: 8px solid var(--blue); padding-top: 14px; }
 .overview-number { font-size: 34px; line-height: 1; color: var(--blue); font-weight: 500; margin: 0 0 10px; }
@@ -134,10 +124,8 @@ td { border-bottom: 1px solid var(--line); padding: 10px 10px 10px 0; vertical-a
   .hero { padding: 55px 0; }
   .hero h1 { font-size: 48px; }
   .hero .lede { font-size: 23px; }
-  .current-observations-header, .overview-header, .study-layout { grid-template-columns: 1fr; gap: 24px; }
-  .current-observations-header .eyebrow { grid-column: auto; margin-bottom: -14px; }
+  .study-layout { grid-template-columns: 1fr; gap: 24px; }
   .overview-groups { grid-template-columns: 1fr; }
-  .overview-findings { display: grid; grid-template-columns: 1fr; }
   .study h2 { font-size: 34px; }
   .study-context { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   .study-meta, .source-line { grid-column: 1 / -1; }
@@ -170,25 +158,13 @@ td { border-bottom: 1px solid var(--line); padding: 10px 10px 10px 0; vertical-a
   .hero .date { margin-top: 26px; font-size: 15px; }
   main { padding-bottom: 48px; }
   .current-observations { padding: 42px 0 50px; }
-  .current-observations-header { gap: 14px; margin-bottom: 34px; }
-  .current-observations-header .eyebrow { margin-bottom: 0; }
+  .current-observations-header { margin-bottom: 24px; }
   .current-observations h2 { font-size: 34px; line-height: 1.08; }
-  .current-observations-header > p:last-child { font-size: 19px; line-height: 1.4; }
-  .current-observations-grid { grid-template-columns: 1fr; gap: 28px; }
-  .current-observations-grid section { grid-template-columns: 38px 1fr; column-gap: 12px; border-top-width: 4px; padding-top: 12px; }
-  .current-observations-grid .observation-number { font-size: 16px; }
-  .current-observations-grid h3 { font-size: 20px; }
-  .current-observations-grid section > p:last-child { font-size: 16px; }
-  .current-recommendation { grid-template-columns: 1fr; gap: 8px; margin-top: 34px; border-left-width: 6px; padding: 16px 18px; }
-  .current-recommendation h3 { font-size: 19px; }
-  .current-recommendation p { font-size: 16px; }
+  .current-observations-list { padding-left: 24px; font-size: 17px; line-height: 1.45; }
+  .current-observations-list li { padding: 10px 0 10px 5px; }
   .overview { padding: 42px 0 50px; }
-  .overview-header { gap: 18px; margin-bottom: 30px; }
+  .overview-header { margin-bottom: 34px; }
   .overview h2, .appendix h2 { font-size: 32px; line-height: 1.08; }
-  .overview-takeaway { font-size: 19px; line-height: 1.4; }
-  .overview-findings { gap: 20px; margin-bottom: 40px; }
-  .overview-findings li { padding-top: 10px; }
-  .overview-findings strong { font-size: 19px; }
   .overview-groups { gap: 40px; }
   .overview-group { border-top-width: 6px; padding-top: 12px; }
   .overview-number { font-size: 30px; }
@@ -244,25 +220,14 @@ td { border-bottom: 1px solid var(--line); padding: 10px 10px 10px 0; vertical-a
   .hero .lede { font-size: 15pt; max-width: 210mm; }
   .hero .date { margin-top: 10mm; }
   .current-observations { height: 190mm; padding: 6mm 0 0; border: 0; break-after: page; overflow: hidden; }
-  .current-observations-header { grid-template-columns: 1.05fr 1fr; gap: 10mm; margin-bottom: 8mm; }
-  .current-observations-header .eyebrow { grid-column: 1 / -1; margin-bottom: -8mm; font-size: 8pt; }
+  .current-observations-header { margin-bottom: 7mm; }
+  .current-observations-header .eyebrow { font-size: 8pt; }
   .current-observations h2 { font-size: 24pt; }
-  .current-observations-header > p:last-child { font-size: 12pt; }
-  .current-observations-grid { grid-template-columns: 1fr 1fr; gap: 7mm 9mm; }
-  .current-observations-grid section { grid-template-columns: 10mm 1fr; gap: 3mm; border-top-width: 1.5mm; padding-top: 2.5mm; }
-  .current-observations-grid .observation-number { font-size: 8.5pt; }
-  .current-observations-grid h3 { margin-bottom: 1mm; font-size: 11pt; }
-  .current-observations-grid section > p:last-child { font-size: 8.5pt; line-height: 1.35; }
-  .current-recommendation { grid-template-columns: 38mm 1fr; gap: 5mm; margin-top: 8mm; border-left-width: 2mm; padding: 4mm 5mm; }
-  .current-recommendation h3 { font-size: 9.5pt; }
-  .current-recommendation p { font-size: 8.5pt; line-height: 1.35; }
+  .current-observations-list { max-width: 235mm; padding-left: 7mm; font-size: 11pt; line-height: 1.38; }
+  .current-observations-list li { padding: 2mm 0 2mm 1mm; }
   .overview { height: 190mm; padding: 5mm 0 0; border: 0; break-after: page; overflow: hidden; }
-  .overview-header { grid-template-columns: 1.3fr 1fr; gap: 10mm; margin-bottom: 6mm; }
+  .overview-header { max-width: 225mm; margin-bottom: 9mm; }
   .overview h2 { font-size: 22pt; }
-  .overview-takeaway { font-size: 11pt; }
-  .overview-findings { display: flex; gap: 5mm; margin-bottom: 6mm; }
-  .overview-findings li { padding-top: 2mm; }
-  .overview-findings strong { font-size: 10pt; }
   .overview-groups { grid-template-columns: 1.2fr 1fr 1fr; gap: 6mm; }
   .overview-group { padding-top: 2.5mm; border-top-width: 2mm; }
   .overview-number { font-size: 16pt; margin-bottom: 1mm; }
