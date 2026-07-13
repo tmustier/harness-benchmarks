@@ -1,8 +1,8 @@
 # The harness (still) matters
 
-The coding-agent harness changes performance, cost, token use and runtime. No public study identifies one harness that wins across every model and task.
+The agent harness changes performance, cost, token use and runtime. No public study identifies one harness that wins across every model and task.
 
-This repository brings the available evidence into one review. It records matched-model results where the source provides them. It links to raw datasets when redistribution is not possible.
+This repository brings the available coding and adjacent professional-agent evidence into one review. It records matched-model results where the source provides them. It links to raw datasets when redistribution is not possible.
 
 ## What this repository contains
 
@@ -11,6 +11,7 @@ This repository brings the available evidence into one review. It records matche
 - chart observations in `data/observations.json`
 - directional claims in `data/claims.json`
 - links and access notes for external datasets in `data/external-datasets.json`
+- sources screened but not counted in `data/screened-sources.json`
 - a reusable GOV.UK writing skill in `skills/govuk-style/`
 - a zero-dependency site builder in `scripts/build-site.mjs`
 
@@ -33,6 +34,8 @@ Then open `http://localhost:8000/site/`.
 ## Data policy
 
 We include derived observations when the source publishes exact values. Each row names its source and capture date.
+
+Pi is not an inclusion requirement. A quality comparison counts only when the published model and effort setting stay fixed while the harness or runtime changes.
 
 We reference an external dataset when:
 

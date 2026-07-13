@@ -13,6 +13,7 @@ const studies = readJson("studies.json");
 const observations = readJson("observations.json");
 const claims = readJson("claims.json");
 const external = readJson("external-datasets.json");
+const screened = readJson("screened-sources.json");
 
 const errors = [];
 const studyIds = new Set();
@@ -21,7 +22,7 @@ const sectionOrders = new Set();
 for (const study of studies) {
   if (!study.id || !study.name || !study.source_url) errors.push(`Study is missing a required field: ${JSON.stringify(study)}`);
   if (!study.section || !study.overview_summary || !study.slide_lead || !study.method_summary || !Number.isInteger(study.section_order)) errors.push(`Study is missing presentation metadata: ${study.id}`);
-  if (!/^2026-\d{2}-\d{2}$/.test(study.published) || !study.date_basis) errors.push(`Study needs an exact 2026 publication date and date basis: ${study.id}`);
+  if (!/^20\d{2}-\d{2}-\d{2}$/.test(study.published) || !study.date_basis) errors.push(`Study needs an exact publication date and date basis: ${study.id}`);
   if (studyIds.has(study.id)) errors.push(`Duplicate study id: ${study.id}`);
   if (sectionOrders.has(study.section_order)) errors.push(`Duplicate section order: ${study.section_order}`);
   studyIds.add(study.id);
@@ -42,6 +43,8 @@ for (const row of observations) {
   if (row.cost_usd_per_task !== null && (!Number.isFinite(row.cost_usd_per_task) || row.cost_usd_per_task < 0)) errors.push(`Cost must be null or non-negative: ${JSON.stringify(row)}`);
   if ((row.ci_low === null) !== (row.ci_high === null)) errors.push(`Confidence interval must have both bounds: ${JSON.stringify(row)}`);
   if (row.ci_low !== null && (row.ci_low > row.performance_value || row.ci_high < row.performance_value)) errors.push(`Confidence interval does not contain the estimate: ${JSON.stringify(row)}`);
+  if ((row.error_low === undefined) !== (row.error_high === undefined)) errors.push(`Published error range must have both bounds: ${JSON.stringify(row)}`);
+  if (row.error_low !== undefined && (row.error_low > row.performance_value || row.error_high < row.performance_value)) errors.push(`Published error range does not contain the estimate: ${JSON.stringify(row)}`);
   const key = [row.study_id, row.model, row.harness, row.effort, row.performance_metric].join("|");
   if (observationKeys.has(key)) errors.push(`Duplicate observation: ${key}`);
   observationKeys.add(key);
@@ -53,9 +56,14 @@ for (const claim of claims) {
   if (!claim.claim || !claim.measure || !Number.isFinite(claim.value)) errors.push(`Claim is missing required data: ${JSON.stringify(claim)}`);
 }
 
+for (const item of screened) {
+  if (!item.name || !item.url || !item.disposition || !item.reason) errors.push(`Screened source is missing required data: ${JSON.stringify(item)}`);
+  if (item.published !== null && !/^20\d{2}-\d{2}(?:-\d{2})?$/.test(item.published)) errors.push(`Screened source has an invalid date: ${JSON.stringify(item)}`);
+}
+
 if (errors.length) {
   console.error(errors.join("\n"));
   process.exit(1);
 }
 
-console.log(`Validated ${studies.length} studies, ${observations.length} observations and ${claims.length} claims.`);
+console.log(`Validated ${studies.length} studies, ${observations.length} observations, ${claims.length} claims and ${screened.length} screened sources.`);

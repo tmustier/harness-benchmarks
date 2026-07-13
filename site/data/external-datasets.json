@@ -49,8 +49,8 @@
     "title": "Artificial Analysis Coding Agent Index",
     "result_url": "https://artificialanalysis.ai/agents/coding-agents",
     "dataset_url": null,
-    "access": "Live public result page and methodology",
-    "licence": "Not stated for result data",
+    "access": "Live public result page and methodology; no stable bulk dataset found",
+    "licence": "Result-data licence not stated; site terms apply",
     "stored_here": false
   },
   {
@@ -114,6 +114,87 @@
     "dataset_url": null,
     "access": "Public article with aggregate values",
     "licence": "Not stated for request logs",
+    "stored_here": false
+  },
+  {
+    "source_id": "github-copilot",
+    "title": "GitHub Copilot agentic harness evaluation",
+    "result_url": "https://github.blog/ai-and-ml/github-copilot/evaluating-performance-and-efficiency-of-the-github-copilot-agentic-harness-across-models-and-tasks/",
+    "dataset_url": null,
+    "access": "Public methods and aggregate charts; no raw result rows found",
+    "licence": "Not stated for benchmark result data",
+    "stored_here": false
+  },
+  {
+    "source_id": "terminal-bench",
+    "title": "Terminal-Bench 2.1",
+    "result_url": "https://www.tbench.ai/leaderboard/terminal-bench/2.1",
+    "dataset_url": "https://github.com/harbor-framework/terminal-bench-2",
+    "access": "Public leaderboard, paper, experiments and submissions",
+    "licence": "Apache-2.0 repositories; paper CC BY 4.0",
+    "stored_here": false
+  },
+  {
+    "source_id": "agents-last-exam",
+    "title": "Agents' Last Exam",
+    "result_url": "https://arxiv.org/abs/2606.05405",
+    "dataset_url": "https://github.com/rdi-berkeley/agents-last-exam",
+    "access": "Public paper, HTML tables, code and data",
+    "licence": "Data and paper CC BY 4.0; software Apache-2.0",
+    "stored_here": false
+  },
+  {
+    "source_id": "claw-swe-bench",
+    "title": "Claw-SWE-Bench",
+    "result_url": "https://arxiv.org/abs/2606.12344",
+    "dataset_url": "https://github.com/opensquilla/claw-swe-bench",
+    "access": "Public paper, adapters, dataset and result artefacts",
+    "licence": "MIT repository; check dataset card for task data terms",
+    "stored_here": false
+  },
+  {
+    "source_id": "harness-bench-paper",
+    "title": "Harness-Bench: Measuring Harness Effects on LLM Agents",
+    "result_url": "https://www.harness-bench.ai/",
+    "dataset_url": "https://github.com/Qihoo360/harness-bench",
+    "access": "Public paper, tasks, code and aggregated JSON",
+    "licence": "Paper CC BY 4.0; repository has no licence file as captured",
+    "stored_here": false
+  },
+  {
+    "source_id": "harvey-lab",
+    "title": "Harvey LAB harness ablation with Applied Compute",
+    "result_url": "https://www.harvey.ai/blog/training-a-legal-agent-with-applied-compute",
+    "dataset_url": "https://github.com/harveyai/harvey-labs",
+    "access": "Public aggregate chart; baseline benchmark and harness are public, ablation split is not",
+    "licence": "MIT for public LAB repository; ablation result-data licence not stated",
+    "stored_here": false
+  },
+  {
+    "source_id": "csi-scaffolds",
+    "title": "Cybersecurity scaffold comparison",
+    "result_url": "https://aliasrobotics.com/scaffolds.php",
+    "dataset_url": null,
+    "access": "Public paper and project page; no dedicated experiment artefact found",
+    "licence": "Paper CC0; related code has mixed MIT and research-only terms",
+    "stored_here": false
+  },
+  {
+    "source_id": "scaffold-effect",
+    "title": "The Scaffold Effect",
+    "result_url": "https://synapsesocial.com/papers/69f1545d879cb923c49448be",
+    "dataset_url": "https://github.com/namanvats/scaffold-effects",
+    "access": "Public raw results, prompts and analysis",
+    "licence": "MIT repository",
+    "stored_here": false
+  },
+  {
+    "source_id": "hal-swe-mini",
+    "title": "HAL SWE-bench Verified Mini",
+    "result_url": "https://hal.cs.princeton.edu/swebench_verified_mini",
+    "dataset_url": "https://github.com/princeton-pli/hal-harness",
+    "access": "Public leaderboard and downloadable traces",
+    "licence": "Archived trace repository has no licence file as captured",
     "stored_here": false
   }
 ]

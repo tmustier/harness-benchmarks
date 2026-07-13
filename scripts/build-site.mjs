@@ -12,6 +12,7 @@ const studies = JSON.parse(fs.readFileSync(path.join(dataDir, "studies.json"), "
 const observations = JSON.parse(fs.readFileSync(path.join(dataDir, "observations.json"), "utf8"));
 const claims = JSON.parse(fs.readFileSync(path.join(dataDir, "claims.json"), "utf8"));
 const external = JSON.parse(fs.readFileSync(path.join(dataDir, "external-datasets.json"), "utf8"));
+const screened = JSON.parse(fs.readFileSync(path.join(dataDir, "screened-sources.json"), "utf8"));
 const orderedStudies = [...studies].sort((a, b) => a.section_order - b.section_order);
 
 const escapeHtml = value => String(value)
@@ -23,9 +24,22 @@ const escapeHtml = value => String(value)
 const format = (value, digits = 1) => Number(value).toFixed(digits).replace(/\.0$/, "");
 const formatStudyDate = value => {
   const [year, month, day] = value.split("-").map(Number);
-  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })
+  const options = { day: "numeric", month: "short", timeZone: "UTC" };
+  if (year !== 2026) options.year = "numeric";
+  return new Intl.DateTimeFormat("en-GB", options)
     .format(new Date(Date.UTC(year, month - 1, day)));
 };
+const formatLongDate = value => {
+  const [year, month, day] = value.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })
+    .format(new Date(Date.UTC(year, month - 1, day)));
+};
+const capturedAt = [...observations, ...claims]
+  .map(item => item.captured_at)
+  .filter(Boolean)
+  .sort()
+  .at(-1);
+const matchedStudyCount = studies.filter(study => study.matched_model_comparison).length;
 const rowsFor = id => observations.filter(row => row.study_id === id);
 const claimsFor = id => claims.filter(row => row.study_id === id);
 
@@ -34,6 +48,7 @@ const harnessColours = {
   "Claude Code": "#d4351c",
   "Claude SDK": "#d4351c",
   "Codex": "#00703c",
+  "Codex CLI": "#00703c",
   "OpenCode": "#6f72af",
   "Cursor": "#f47738",
   "Cursor CLI": "#f47738",
@@ -41,7 +56,21 @@ const harnessColours = {
   "Hermes Agent": "#4c2c92",
   "mini-SWE-agent": "#28a197",
   "Gemini CLI": "#912b88",
-  "CORE-Agent": "#b58840"
+  "CORE-Agent": "#b58840",
+  "Copilot CLI": "#6f2c91",
+  "Terminus 2": "#1d70b8",
+  "Applied Compute": "#1d70b8",
+  "Baseline LAB": "#505a5f",
+  "SWE-Agent": "#00703c",
+  "HAL Generalist": "#1d70b8",
+  "Goose": "#00703c",
+  "OpenHands-SDK": "#f47738",
+  "ALE-Claw": "#1d70b8",
+  "NanoBot": "#1d70b8",
+  "ZeroClaw": "#6f72af",
+  "GenericAgent": "#f47738",
+  "Moltis": "#912b88",
+  "NullClaw": "#28a197"
 };
 
 function colourFor(harness) {
@@ -91,6 +120,39 @@ function scatterChart(rows, title) {
   </figure>`;
 }
 
+function artificialAnalysisChart(rows) {
+  const groups = ["Claude Opus 4.7", "GPT-5.5"].map(model => ({
+    model,
+    rows: rows.filter(row => row.model === model && row.performance_metric === "Coding Agent Index")
+  }));
+  const W = 900, H = 450, L = 74, R = 44, panelH = 145, xMax = 3.25;
+  const plotW = W - L - R;
+  const x = value => L + value / xMax * plotW;
+  const y = (value, top) => top + panelH - value / 100 * panelH;
+  const xTicks = [0, 0.65, 1.3, 1.95, 2.6, 3.25];
+  const yTicks = [0, 25, 50, 75, 100];
+  const panels = groups.map((group, groupIndex) => {
+    const top = 42 + groupIndex * 205;
+    const grid = [
+      ...xTicks.map(tick => `<line x1="${x(tick)}" y1="${top}" x2="${x(tick)}" y2="${top + panelH}" /><text x="${x(tick)}" y="${top + panelH + 22}" text-anchor="middle">$${format(tick, 2)}</text>`),
+      ...yTicks.map(tick => `<line x1="${L}" y1="${y(tick, top)}" x2="${L + plotW}" y2="${y(tick, top)}" /><text x="${L - 10}" y="${y(tick, top) + 4}" text-anchor="end">${tick}</text>`)
+    ].join("");
+    const marks = group.rows.map((row, index) => {
+      const pointX = x(row.cost_usd_per_task);
+      const pointY = y(row.performance_value, top);
+      const offsets = group.model === "Claude Opus 4.7"
+        ? { "Claude Code": [12, 22, "start"], "Cursor CLI": [-12, 42, "end"], "OpenCode": [-12, -12, "end"] }
+        : { "Codex": [-12, -10, "end"], "Cursor CLI": [12, 24, "start"] };
+      const [dx, dy, anchor] = offsets[row.harness];
+      const labelX = pointX + dx;
+      const labelY = pointY + dy;
+      return `<g><circle cx="${pointX}" cy="${pointY}" r="8" fill="${colourFor(row.harness)}" stroke="#ffffff" stroke-width="2" /><text x="${labelX}" y="${labelY}" text-anchor="${anchor}" class="point-label">${escapeHtml(row.harness)} · ${format(row.performance_value)}% · $${format(row.cost_usd_per_task, 2)}</text></g>`;
+    }).join("");
+    return `<g><text x="${L}" y="${top - 14}" class="panel-title">${escapeHtml(group.model)} · medium effort</text><g class="chart-grid">${grid}</g>${marks}</g>`;
+  }).join("");
+  return `<figure class="chart-block"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="aa-title aa-desc"><title id="aa-title">Artificial Analysis performance against cost per task</title><desc id="aa-desc">Two zero-based scatter plots compare Coding Agent Index performance and API cost while holding Claude Opus 4.7 or GPT-5.5 fixed.</desc>${panels}<text transform="translate(18 214) rotate(-90)" text-anchor="middle" class="axis-title">Coding Agent Index, 0 to 100</text><text x="${L + plotW / 2}" y="447" text-anchor="middle" class="axis-title">API cost per task in US dollars</text></svg></div><p class="chart-caption">The live page also has a GPT-5.4 pair with only 2 of the current 3 component benchmarks. It is in the downloadable observations but excluded from these full-suite panels.</p></figure>`;
+}
+
 function barChart(rows, title, valueField = "performance_value", max = 100, unit = "%") {
   const W = 900, rowH = 44, H = 58 + rows.length * rowH, L = 255, R = 80, T = 18, B = 34;
   const plotW = W - L - R;
@@ -100,10 +162,13 @@ function barChart(rows, title, valueField = "performance_value", max = 100, unit
   const marks = rows.map((row, index) => {
     const value = row[valueField];
     const y = T + 17 + index * rowH;
-    const ci = valueField === "performance_value" && row.ci_low !== null
-      ? `<line class="ci" x1="${x(row.ci_low)}" y1="${y + 8}" x2="${x(row.ci_high)}" y2="${y + 8}" /><line class="ci" x1="${x(row.ci_low)}" y1="${y + 2}" x2="${x(row.ci_low)}" y2="${y + 14}" /><line class="ci" x1="${x(row.ci_high)}" y1="${y + 2}" x2="${x(row.ci_high)}" y2="${y + 14}" />`
+    const low = row.ci_low ?? row.error_low ?? null;
+    const high = row.ci_high ?? row.error_high ?? null;
+    const ci = valueField === "performance_value" && low !== null
+      ? `<line class="ci" x1="${x(low)}" y1="${y + 8}" x2="${x(high)}" y2="${y + 8}" /><line class="ci" x1="${x(low)}" y1="${y + 2}" x2="${x(low)}" y2="${y + 14}" /><line class="ci" x1="${x(high)}" y1="${y + 2}" x2="${x(high)}" y2="${y + 14}" />`
       : "";
-    return `<g><text x="${L - 12}" y="${y + 12}" text-anchor="end" class="bar-label">${escapeHtml(`${row.model} · ${row.harness}`)}</text><rect x="${L}" y="${y}" width="${Math.max(0, x(value) - L)}" height="16" fill="${colourFor(row.harness)}" />${ci}<text x="${Math.min(W - R + 8, x(value) + 9)}" y="${y + 12}" class="bar-value">${format(value, value < 10 ? 2 : 1)}${unit}</text></g>`;
+    const labelStart = high !== null ? x(high) + 9 : x(value) + 9;
+    return `<g><text x="${L - 12}" y="${y + 12}" text-anchor="end" class="bar-label">${escapeHtml(`${row.model} · ${row.harness}`)}</text><rect x="${L}" y="${y}" width="${Math.max(0, x(value) - L)}" height="16" fill="${colourFor(row.harness)}" />${ci}<text x="${Math.min(W - R + 8, labelStart)}" y="${y + 12}" class="bar-value">${format(value, value < 10 ? 2 : 1)}${unit}</text></g>`;
   }).join("");
   return `<figure class="chart-block"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(title)}"><g class="chart-grid">${grid}</g>${marks}</svg></div></figure>`;
 }
@@ -131,25 +196,177 @@ function endorCharts(rows) {
   return `<figure class="chart-block"><div class="metric-key"><span><i class="functional"></i>Functional pass rate</span><span><i class="security"></i>Security pass rate</span></div><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Functional and security pass rates"><g class="chart-grid">${grid}</g>${marks}</svg></div></figure>`;
 }
 
+function databricksChart(rows) {
+  const costClaims = claimsFor("databricks").filter(claim => claim.measure === "native-to-pi cost ratio");
+  const contextClaims = claimsFor("databricks").filter(claim => claim.measure === "median context tokens per task");
+  const W = 900, H = 450, L = 190, R = 90;
+  const plotW = W - L - R;
+  const relativeMax = 1.1;
+  const relativeX = value => L + value / relativeMax * plotW;
+  const costTicks = [0, 0.25, 0.5, 0.75, 1];
+  const costGrid = costTicks.map(tick => `<line x1="${relativeX(tick)}" y1="34" x2="${relativeX(tick)}" y2="252" /><text x="${relativeX(tick)}" y="270" text-anchor="middle">${format(tick, 2)}×</text>`).join("");
+  const costMarks = costClaims.map((claim, index) => {
+    const pi = rows.find(row => row.model === claim.model && row.effort === claim.effort && row.harness === "Pi");
+    const native = rows.find(row => row.model === claim.model && row.effort === claim.effort && row.harness === claim.reference_harness);
+    const piCost = 1 / claim.value;
+    const y = 48 + index * 36;
+    const shortModel = claim.model.replace("Claude ", "");
+    return `<g>
+      <text x="${L - 12}" y="${y + 4}" text-anchor="end" class="bar-label">${escapeHtml(`${shortModel} · ${claim.effort}`)}</text>
+      <line x1="${relativeX(piCost)}" y1="${y}" x2="${relativeX(1)}" y2="${y}" stroke="#b1b4b6" stroke-width="2" />
+      <circle cx="${relativeX(piCost)}" cy="${y}" r="7" fill="${colourFor("Pi")}" />
+      <circle cx="${relativeX(1)}" cy="${y}" r="7" fill="#ffffff" stroke="${colourFor(claim.reference_harness)}" stroke-width="3" />
+      <text x="${(relativeX(piCost) + relativeX(1)) / 2}" y="${y - 8}" text-anchor="middle" class="bar-value">${escapeHtml(claim.reference_harness)} ÷ Pi ${format(claim.value, 2)}×</text>
+      <text x="${relativeX(piCost)}" y="${y + 17}" text-anchor="middle" class="bar-value">Pi · ${format(pi.performance_value)}%</text>
+      <text x="${relativeX(1) + 12}" y="${y + 4}" class="bar-value">${escapeHtml(claim.reference_harness)} · ${format(native.performance_value)}%</text>
+    </g>`;
+  }).join("");
+
+  const contextMax = 1400000;
+  const contextX = value => L + value / contextMax * plotW;
+  const contextTicks = [0, 350000, 700000, 1050000, 1400000];
+  const contextGrid = contextTicks.map(tick => `<line x1="${contextX(tick)}" y1="312" x2="${contextX(tick)}" y2="408" /><text x="${contextX(tick)}" y="427" text-anchor="middle">${tick === 0 ? "0" : `${format(tick / 1000000, 2)}m`}</text>`).join("");
+  const contextMarks = contextClaims.map((claim, index) => {
+    const y = 316 + index * 23;
+    return `<g>
+      <text x="${L - 12}" y="${y + 12}" text-anchor="end" class="bar-label">${escapeHtml(`${claim.model.replace("Claude ", "")} · ${claim.harness}`)}</text>
+      <rect x="${L}" y="${y}" width="${contextX(claim.value) - L}" height="14" fill="${colourFor(claim.harness)}" />
+      <text x="${contextX(claim.value) + 8}" y="${y + 12}" class="bar-value">${format(claim.value / 1000, 0)}k</text>
+    </g>`;
+  }).join("");
+
+  return `<figure class="chart-block databricks-chart"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="databricks-title databricks-desc">
+    <title id="databricks-title">Databricks matched harness comparisons</title>
+    <desc id="databricks-desc">Six matched-model comparisons show Claude Code or Codex costing 1.20 to 2.08 times as much as Pi, with task completion within 7 percentage points. Four bars show lower median context use for Pi.</desc>
+    <text x="${L}" y="18" class="axis-title">Relative cost and task completion</text>
+    <g class="chart-grid">${costGrid}</g>${costMarks}
+    <text x="${L + plotW / 2}" y="288" text-anchor="middle" class="axis-title">Relative cost · Claude Code or Codex = 1.0</text>
+    <text x="${L}" y="303" class="axis-title">Median context re-fed per task</text>
+    <g class="chart-grid">${contextGrid}</g>${contextMarks}
+    <text x="${L + plotW / 2}" y="447" text-anchor="middle" class="axis-title">Context tokens</text>
+  </svg></div><p class="chart-caption">The source publishes exact cost ratios and scores, but not exact dollar values for each matched point. Costs are indexed to Claude Code for Opus and Codex for GPT.</p></figure>`;
+}
+
+function githubCopilotChart() {
+  const performance = claimsFor("github-copilot").filter(claim => claim.measure === "Copilot minus native task-resolution points");
+  const tokens = claimsFor("github-copilot").filter(claim => claim.measure === "Copilot median token change percent");
+  const models = ["Claude Sonnet 4.6", "Claude Opus 4.7", "GPT-5.4", "GPT-5.5"];
+  const W = 900, H = 470, panelW = 390, panelH = 155;
+  const panelX = index => 72 + index % 2 * 430;
+  const panelY = index => 42 + Math.floor(index / 2) * 205;
+  const x = (value, left) => left + (value + 70) / 80 * panelW;
+  const y = (value, top) => top + panelH - (value + 20) / 40 * panelH;
+  const xTicks = [-70, -50, -30, -10, 10];
+  const yTicks = [-20, -10, 0, 10, 20];
+  const panels = models.map((model, index) => {
+    const left = panelX(index), top = panelY(index);
+    const modelPerformance = performance.filter(claim => claim.model === model);
+    const grid = [
+      ...xTicks.map(tick => `<line x1="${x(tick, left)}" y1="${top}" x2="${x(tick, left)}" y2="${top + panelH}" /><text x="${x(tick, left)}" y="${top + panelH + 18}" text-anchor="middle">${tick}%</text>`),
+      ...yTicks.map(tick => `<line x1="${left}" y1="${y(tick, top)}" x2="${left + panelW}" y2="${y(tick, top)}" /><text x="${left - 8}" y="${y(tick, top) + 4}" text-anchor="end">${tick > 0 ? "+" : ""}${tick}</text>`)
+    ].join("");
+    const marks = modelPerformance.map((claim, markIndex) => {
+      const tokenClaim = tokens.find(item => item.model === model && item.benchmark === claim.benchmark);
+      const pointX = x(tokenClaim.value, left), pointY = y(claim.value, top);
+      return `<g><circle cx="${pointX}" cy="${pointY}" r="8" fill="#1d70b8" stroke="#ffffff" stroke-width="2" /><text x="${pointX}" y="${pointY + 3.5}" text-anchor="middle" class="point-number">${markIndex + 1}</text></g>`;
+    }).join("");
+    return `<g><text x="${left}" y="${top - 13}" class="panel-title">${escapeHtml(model)}</text><g class="chart-grid">${grid}</g>${marks}</g>`;
+  }).join("");
+  return `<figure class="chart-block"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="github-title github-desc"><title id="github-title">GitHub Copilot task-resolution and token changes</title><desc id="github-desc">Four panels plot Copilot CLI's task-resolution difference against its median token difference from Claude Code or Codex. Most points use fewer tokens and quality differences range from minus 8 to plus 7.1 percentage points.</desc>${panels}<text transform="translate(18 235) rotate(-90)" text-anchor="middle" class="axis-title">Copilot minus native task resolution, percentage points</text><text x="450" y="467" text-anchor="middle" class="axis-title">Copilot median token change · negative means fewer tokens</text></svg></div><p class="chart-caption"><strong>1</strong> SWE-bench Verified · <strong>2</strong> SWE-bench Pro · <strong>3</strong> SkillsBench · <strong>4</strong> Win-Hill · <strong>5</strong> Terminal-Bench 2. Axes include zero; the task-resolution axis spans ±20 points, wider than the observed range. GitHub says the quality differences are within run-to-run variance.</p></figure>`;
+}
+
+function facetedCostScatter(rows, models, xField, xMax, xLabel, caption) {
+  const W = 900, L = 76, R = 28, panelH = 135, gap = 64;
+  const H = 32 + models.length * (panelH + gap);
+  const plotW = W - L - R;
+  const x = value => L + value / xMax * plotW;
+  const y = (value, top) => top + panelH - value / 100 * panelH;
+  const xTicks = Array.from({ length: 5 }, (_, index) => xMax / 4 * index);
+  const yTicks = [0, 25, 50, 75, 100];
+  let pointIndex = 0;
+  const keyedRows = [];
+  const panels = models.map((model, panelIndex) => {
+    const top = 35 + panelIndex * (panelH + gap);
+    const groupRows = rows.filter(row => row.model === model);
+    const grid = [
+      ...xTicks.map(tick => `<line x1="${x(tick)}" y1="${top}" x2="${x(tick)}" y2="${top + panelH}" /><text x="${x(tick)}" y="${top + panelH + 20}" text-anchor="middle">${xField.includes("cost") ? "$" : ""}${format(tick, xMax < 10 ? 2 : 0)}</text>`),
+      ...yTicks.map(tick => `<line x1="${L}" y1="${y(tick, top)}" x2="${L + plotW}" y2="${y(tick, top)}" /><text x="${L - 10}" y="${y(tick, top) + 4}" text-anchor="end">${tick}</text>`)
+    ].join("");
+    const marks = groupRows.map(row => {
+      pointIndex += 1;
+      keyedRows.push({ ...row, pointIndex });
+      return `<g><circle cx="${x(row[xField])}" cy="${y(row.performance_value, top)}" r="9" fill="${colourFor(row.harness)}" stroke="#ffffff" stroke-width="2" /><text x="${x(row[xField])}" y="${y(row.performance_value, top) + 4}" text-anchor="middle" class="point-number">${pointIndex}</text></g>`;
+    }).join("");
+    return `<g><text x="${L}" y="${top - 13}" class="panel-title">${escapeHtml(model)}</text><g class="chart-grid">${grid}</g>${marks}</g>`;
+  }).join("");
+  const keyRows = keyedRows.map(row => `<tr><td><span class="point-key" style="background:${colourFor(row.harness)}">${row.pointIndex}</span></td><td>${escapeHtml(row.model)}</td><td>${escapeHtml(row.harness)}</td><td>${format(row.performance_value)}% · $${format(row[xField], 2)}</td></tr>`);
+  const keyTable = values => `<table class="chart-key"><thead><tr><th>Point</th><th>Model</th><th>Harness</th><th>Result · cost</th></tr></thead><tbody>${values.join("")}</tbody></table>`;
+  const key = keyRows.length > 6 ? `<div class="chart-key-grid">${keyTable(keyRows.slice(0, Math.ceil(keyRows.length / 2)))}${keyTable(keyRows.slice(Math.ceil(keyRows.length / 2)))}</div>` : keyTable(keyRows);
+  return `<figure class="chart-block"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(xLabel)} against performance, split by model">${panels}<text transform="translate(18 ${H / 2}) rotate(-90)" text-anchor="middle" class="axis-title">Performance, 0 to 100%</text><text x="${L + plotW / 2}" y="${H - 3}" text-anchor="middle" class="axis-title">${escapeHtml(xLabel)}</text></svg></div>${key}<p class="chart-caption">${escapeHtml(caption)}</p></figure>`;
+}
+
+function agentsLastExamChart(rows) {
+  return facetedCostScatter(rows, ["GPT-5.5", "Claude Opus 4.7"], "total_cost_usd", 2200, "Published total evaluation cost in US dollars", "The panels use the source's stated 152-task public set. Sonnet 4.6 ALE-CLI rows use a different 105-task subset and remain in the downloadable data.");
+}
+
+function clawSweChart(rows) {
+  return facetedCostScatter(rows, ["GLM-5.1", "Qwen3.6-Flash"], "cost_usd_per_task", 2.5, "API cost per task in US dollars", "Cost per task is the published configuration total divided by the common 350-task set. Every panel and axis starts at zero.");
+}
+
+function scaffoldEffectCharts(rows) {
+  const tokenRows = rows.map(row => ({ ...row, tokens_millions: row.tokens_per_solved_task / 1000000 }));
+  return `<div class="paired-charts"><section><h3>Pass rate</h3>${barChart(rows, "Pass rate", "performance_value", 100, "%")}</section><section><h3>Reported tokens per solved task</h3>${barChart(tokenRows, "Reported tokens per solved task", "tokens_millions", 1.6, "m")}</section></div><p class="chart-caption">Both scales start at zero. Token accounting is harness-reported and incomplete, so treat the efficiency contrast as diagnostic.</p>`;
+}
+
+function harnessBenchPaperCharts(rows) {
+  const tokenRows = rows.map(row => ({ ...row, tokens_thousands: row.tokens_per_task / 1000 }));
+  return `<div class="paired-charts"><section><h3>Combined score</h3>${barChart(rows, "Harness-average combined score", "performance_value", 100, "")}</section><section><h3>Tokens per task</h3>${barChart(tokenRows, "Harness-average tokens per task", "tokens_thousands", 200, "k")}</section></div><p class="chart-caption">Each bar averages the same 8-model pool. Combined score includes process judging as well as task completion.</p>`;
+}
+
+function halChart(rows) {
+  const selected = [
+    ["Claude Sonnet 4.5", "high"],
+    ["Claude Opus 4.1", "high"],
+    ["o4-mini", "low"],
+    ["GPT-5", "medium"],
+    ["Gemini 2 Flash", "default"],
+    ["DeepSeek R1", "default"]
+  ];
+  const W = 900, H = 410, L = 205, R = 88, T = 38, B = 38;
+  const plotW = W - L - R;
+  const x = value => L + value / 100 * plotW;
+  const ticks = [0, 20, 40, 60, 80, 100];
+  const grid = ticks.map(tick => `<line x1="${x(tick)}" y1="${T}" x2="${x(tick)}" y2="${H - B}" /><text x="${x(tick)}" y="${H - 10}" text-anchor="middle">${tick}%</text>`).join("");
+  const marks = selected.map(([model, effort], index) => {
+    const pair = rows.filter(row => row.model === model && row.effort === effort);
+    const swe = pair.find(row => row.harness === "SWE-Agent");
+    const hal = pair.find(row => row.harness === "HAL Generalist");
+    const y = T + 23 + index * 52;
+    return `<g><text x="${L - 12}" y="${y + 4}" text-anchor="end" class="bar-label">${escapeHtml(`${model} · ${effort}`)}</text><line x1="${x(Math.min(swe.performance_value, hal.performance_value))}" y1="${y}" x2="${x(Math.max(swe.performance_value, hal.performance_value))}" y2="${y}" stroke="#b1b4b6" stroke-width="2" /><circle cx="${x(swe.performance_value)}" cy="${y}" r="7" fill="${colourFor("SWE-Agent")}" /><circle cx="${x(hal.performance_value)}" cy="${y}" r="7" fill="${colourFor("HAL Generalist")}" /><text x="${x(swe.performance_value)}" y="${y - 10}" text-anchor="middle" class="point-label">SWE ${format(swe.performance_value)}% · $${format(swe.cost_usd_per_task, 2)}</text><text x="${x(hal.performance_value)}" y="${y + 20}" text-anchor="middle" class="point-label">HAL ${format(hal.performance_value)}% · $${format(hal.cost_usd_per_task, 2)}</text></g>`;
+  }).join("");
+  return `<figure class="chart-block"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="Selected HAL and SWE-Agent pass-rate and cost comparisons"><g class="chart-grid">${grid}</g>${marks}</svg></div><p class="chart-caption">Six representative pairs are shown on a zero-to-100 performance scale; all 15 pairs are in the downloadable observations. Dollar labels are published total cost divided by 50 tasks.</p></figure>`;
+}
+
 function claimChart(studyId) {
   const studyClaims = claimsFor(studyId);
-  if (studyId === "databricks") {
-    const rows = [
-      { model: "Cost ratio", harness: "Lower-cost harness", performance_value: 1 },
-      { model: "Cost ratio", harness: "Higher-cost harness", performance_value: 2 },
-      { model: "Context ratio", harness: "Pi", performance_value: 1 },
-      { model: "Context ratio", harness: "Native harness", performance_value: 3 }
-    ];
-    return `${barChart(rows, "Reported relative cost and context", "performance_value", 3.5, "×")}<p class="chart-caption">The source reports ‘more than 2 times’ for cost and ‘about 3 times’ for context. These are directional ratios, not exact run-level values.</p>`;
-  }
   const rows = studyClaims.map(claim => ({ model: claim.claim.split(" sent")[0], harness: claim.claim.split(" sent")[0], performance_value: claim.value }));
   return `${barChart(rows, "Input prompt tokens", "performance_value", 30000, "")}<p class="chart-caption">This diagnostic measures fixed input overhead. It does not measure coding quality.</p>`;
 }
 
 function chartFor(study) {
   const rows = rowsFor(study.id);
-  if (study.id === "databricks" || study.id === "portkey-harness-tax") return claimChart(study.id);
+  if (study.id === "github-copilot") return githubCopilotChart();
+  if (study.id === "databricks") return databricksChart(rows);
+  if (study.id === "artificial-analysis") return artificialAnalysisChart(rows);
+  if (study.id === "agents-last-exam") return agentsLastExamChart(rows);
+  if (study.id === "claw-swe-bench") return clawSweChart(rows);
+  if (study.id === "harness-bench-paper") return harnessBenchPaperCharts(rows);
+  if (study.id === "scaffold-effect") return scaffoldEffectCharts(rows);
+  if (study.id === "hal-swe-mini") return halChart(rows);
+  if (study.id === "portkey-harness-tax") return claimChart(study.id);
   if (!rows.length) return "";
+  if (study.id === "terminal-bench") return `${barChart(rows, "Terminal-Bench 2.1 pass rate")}<p class="chart-caption">Whiskers reproduce the leaderboard's published 95% confidence intervals. The scale runs from 0 to 100%.</p>`;
+  if (study.id === "harvey-lab") return `${barChart(rows, "Harvey rubric pass rate")}<p class="chart-caption">Whiskers reproduce the source's published error values. Harvey does not define them as confidence intervals. The scale runs from 0 to 100%.</p>`;
   if (study.id === "openbench") return openBenchCharts(rows);
   if (study.id === "endor") return endorCharts(rows);
   if (rows.every(row => row.cost_usd_per_task !== null)) return scatterChart(rows, `${study.name}: performance and cost per task`);
@@ -204,6 +421,15 @@ const summaryOverviewGroups = Object.keys(sectionNotes).map((section, index) => 
 }).join("");
 
 const sourceRows = external.map(item => `<tr><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.access)}</td><td>${escapeHtml(item.licence)}</td><td><a href="${escapeHtml(item.result_url)}">Results</a>${item.dataset_url ? ` · <a href="${escapeHtml(item.dataset_url)}">Data</a>` : ""}</td></tr>`).join("");
+const formatScreenedDate = value => {
+  if (!value) return "Not dated";
+  if (value.length === 7) {
+    const [year, month] = value.split("-").map(Number);
+    return new Intl.DateTimeFormat("en-GB", { month: "short", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(year, month - 1, 1)));
+  }
+  return formatStudyDate(value);
+};
+const screenedRows = screened.map(item => `<tr><td><a href="${escapeHtml(item.url)}">${escapeHtml(item.name)}</a></td><td>${escapeHtml(formatScreenedDate(item.published))}</td><td>${escapeHtml(item.disposition)}</td><td>${escapeHtml(item.reason)}</td></tr>`).join("");
 
 const css = `
 :root{--ink:#0b0c0c;--muted:#505a5f;--line:#b1b4b6;--paper:#ffffff;--wash:#f3f2f1;--blue:#1d70b8;--blue-dark:#003078;--green:#00703c;--yellow:#ffdd00;--red:#d4351c;--max:1120px}
@@ -219,27 +445,28 @@ const html = `<!doctype html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="A review of public studies that compare coding-agent harnesses while holding the model constant.">
+  <meta name="description" content="A review of public studies that compare agent harnesses while holding the model constant.">
   <title>The harness (still) matters</title>
   <style>${css}</style>
   <link rel="stylesheet" href="report.css">
 </head>
 <body>
   <header class="topbar"><div class="wrap"><a href="#main">The harness (still) matters</a></div></header>
-  <section class="hero"><div class="wrap"><p class="eyebrow">Evidence review</p><h1>The harness (still) matters</h1><p class="lede">Public studies show that the coding-agent harness changes performance, cost, token use and runtime. They do not identify one harness that wins across every model and task.</p><p class="date">Evidence captured on 12 July 2026</p></div></section>
+  <section class="hero"><div class="wrap"><p class="eyebrow">Evidence review</p><h1>The harness (still) matters</h1><p class="lede">Public studies show that the agent harness changes performance, cost, token use and runtime. They do not identify one harness that wins across every model and task.</p><p class="date">Evidence captured on ${escapeHtml(formatLongDate(capturedAt))}</p></div></section>
   <main id="main">
     <section class="current-observations"><div class="wrap">
       <header class="current-observations-header"><p class="eyebrow">Executive summary</p><h2>Current observations</h2></header>
       <ul class="current-observations-list">
-        <li><strong>Harness choice can materially change results.</strong> Studies that hold the model fixed find differences in quality, cost, token use and runtime.</li>
-        <li><strong>No harness wins across all models and tasks.</strong> Different harnesses lead on different models, tasks and measures. Some gaps are too uncertain to call.</li>
-        <li><strong>Efficiency differences are often clearer than quality differences.</strong> Similar success rates can hide large differences in cost, context use and completion time.</li>
-        <li><strong>The evidence is useful but still limited.</strong> Several benchmarks use small task sets, single runs or live leaderboards. Few publish enough data to estimate uncertainty.</li>
-        <li><strong>Teams should test harnesses on their own work.</strong> Compare at least 2 harnesses with the same model. Measure quality, cost and time. Repeat the test when either changes.</li>
+        <li><strong>Harness choice can materially change results.</strong> Claw-SWE-Bench found 12.5- to 27.4-point spreads; Harvey's intervention ranged from 0.9 points worse to 23 points better.</li>
+        <li><strong>No harness wins across all models and tasks.</strong> Native CLIs led 4 of 6 current Terminal-Bench pairs, while alternative harnesses led elsewhere.</li>
+        <li><strong>Efficiency differences are often clearer than quality differences.</strong> Databricks, GitHub and several smaller studies found large cost, context or token gaps beside modest quality changes.</li>
+        <li><strong>The count is not 22 independent replications.</strong> Some studies reuse benchmark families or live leaderboards, and many rely on a single attempt per task.</li>
+        <li><strong>We only count model-fixed comparisons as harness evidence.</strong> FrontierSWE and model-only leaderboards remain on the watchlist until they expose a matched harness comparator.</li>
+        <li><strong>Teams should test harnesses on their own work.</strong> Compare at least 2 harnesses with the same model, effort and budget. Measure quality, cost and time.</li>
       </ul>
     </div></section>
     <section class="overview" id="benchmark-map"><div class="wrap">
-      <div class="overview-header"><h2>Currently, we know of 13 benchmarks that evaluate multiple coding-agent harnesses</h2></div>
+      <div class="overview-header"><h2>Currently, we know of ${studies.length} public harness comparisons and diagnostics</h2><p class="overview-subtitle">${matchedStudyCount} hold the model fixed and measure task quality. One isolates prompt overhead.</p></div>
       <div class="overview-groups">${overviewGroups}</div>
     </div></section>
     <section class="benchmark-summaries"><div class="wrap">
@@ -248,7 +475,8 @@ const html = `<!doctype html>
     </div></section>
     <div class="wrap">${orderedStudies.map(studySection).join("\n")}</div>
     <section class="appendix"><div class="wrap">
-      <section><h2>Evidence matrix</h2><p>Twelve studies contain at least one matched-model harness comparison. Portkey is an efficiency diagnostic, not a quality benchmark.</p><p class="date-note">Dates are the publication or public-release date of the comparison used here. For live leaderboards, they mark when the referenced comparison first appeared.</p><div class="table-wrap"><table><thead><tr><th>No.</th><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody>${studyRows}</tbody></table></div><p><a href="https://github.com/tmustier/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></section>
+      <section><h2>Evidence matrix</h2><p>${matchedStudyCount} studies contain at least one matched-model harness comparison. Portkey is an efficiency diagnostic, not a quality benchmark.</p><p class="date-note">Dates are the publication or public-release date of the comparison used here. For live leaderboards, they mark when the referenced comparison first appeared.</p><div class="table-wrap"><table><thead><tr><th>No.</th><th>Study</th><th>Task surface</th><th>Model fixed</th><th>Includes Pi</th><th>Repeats</th><th>Cost</th></tr></thead><tbody>${studyRows}</tbody></table></div><p><a href="https://github.com/tmustier/harness-benchmarks/blob/main/docs/method.md">How to read harness comparisons</a> · <a href="data/observations.json">Download observations</a> · <a href="data/studies.json">Download study records</a></p></section>
+      <section><h2>Screened but not counted</h2><p>These sources are relevant to the search, but they do not currently isolate a harness effect or they duplicate an included benchmark family.</p><div class="table-wrap"><table><thead><tr><th>Source</th><th>Date</th><th>Disposition</th><th>Reason</th></tr></thead><tbody>${screenedRows}</tbody></table></div></section>
       <section><h2>Data and source access</h2><p>External datasets remain under their publishers' terms. This repository stores derived observations and links to the original data.</p><div class="table-wrap"><table><thead><tr><th>Source</th><th>Access</th><th>Licence note</th><th>Links</th></tr></thead><tbody>${sourceRows}</tbody></table></div></section>
     </div></section>
   </main>
@@ -276,7 +504,7 @@ fs.mkdirSync(siteAssetsDir, { recursive: true });
 fs.writeFileSync(path.join(siteDir, "index.html"), html);
 fs.copyFileSync(path.join(root, "styles", "report.css"), path.join(siteDir, "report.css"));
 fs.copyFileSync(path.join(root, "assets", "fonts", "Archivo-latin-VF.woff2"), path.join(siteAssetsDir, "Archivo-latin-VF.woff2"));
-for (const name of ["studies.json", "observations.json", "claims.json", "external-datasets.json"]) {
+for (const name of ["studies.json", "observations.json", "claims.json", "external-datasets.json", "screened-sources.json"]) {
   fs.copyFileSync(path.join(dataDir, name), path.join(siteDataDir, name));
 }
 console.log(`Built ${path.join(siteDir, "index.html")} from ${studies.length} studies and ${observations.length} observations.`);

@@ -48,6 +48,7 @@ main { padding-bottom: 80px; }
 .overview { padding: 56px 0 64px; border-bottom: 4px solid var(--ink); }
 .overview-header { max-width: 1040px; margin-bottom: 42px; }
 .overview h2, .appendix h2 { font-size: 42px; line-height: 1.12; font-weight: 650; font-stretch: 105%; margin: 0; }
+.overview-subtitle { max-width: 850px; margin: 18px 0 0; color: var(--muted); font-size: 20px; line-height: 1.4; }
 .overview-groups { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 30px; }
 .overview-group { border-top: 8px solid var(--blue); padding-top: 14px; }
 .overview-number { font-size: 34px; line-height: 1; color: var(--blue); font-weight: 500; margin: 0 0 10px; }
@@ -101,6 +102,8 @@ main { padding-bottom: 80px; }
 .chart-grid line { stroke: #b1b4b6; stroke-width: 1; }
 .chart-grid text, .axis-title, .bar-label, .bar-value { fill: #505a5f; font-family: var(--font); font-size: 13px; }
 .axis-title { font-size: 14px; }
+.panel-title { fill: #0b0c0c; font-family: var(--font); font-size: 15px; font-weight: 500; }
+.point-label { fill: #0b0c0c; font-family: var(--font); font-size: 12px; font-weight: 500; }
 .bar-label, .bar-value { fill: #0b0c0c; }
 .bar-value { font-weight: 500; }
 .point-number { fill: #ffffff; font-family: var(--font); font-size: 11px; font-weight: 500; }
@@ -178,6 +181,7 @@ td { border-bottom: 1px solid var(--line); padding: 10px 10px 10px 0; vertical-a
   .overview { padding: 42px 0 50px; }
   .overview-header { margin-bottom: 34px; }
   .overview h2, .appendix h2 { font-size: 32px; line-height: 1.08; }
+  .overview-subtitle { margin-top: 15px; font-size: 17px; }
   .overview-groups { gap: 40px; }
   .overview-group { border-top-width: 6px; padding-top: 12px; }
   .overview-number { font-size: 30px; }
@@ -250,6 +254,7 @@ td { border-bottom: 1px solid var(--line); padding: 10px 10px 10px 0; vertical-a
   .overview { height: 190mm; padding: 5mm 0 0; border: 0; break-after: page; overflow: hidden; }
   .overview-header { max-width: 225mm; margin-bottom: 9mm; }
   .overview h2 { font-size: 22pt; }
+  .overview-subtitle { margin-top: 3mm; font-size: 9pt; }
   .overview-groups { grid-template-columns: 1.2fr 1fr 1fr; gap: 6mm; }
   .overview-group { padding-top: 2.5mm; border-top-width: 2mm; }
   .overview-number { font-size: 16pt; margin-bottom: 1mm; }

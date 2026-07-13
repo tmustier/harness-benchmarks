@@ -1,6 +1,6 @@
 # Contribute evidence
 
-Add evidence that helps isolate the effect of a coding-agent harness.
+Add evidence that helps isolate the effect of an agent harness.
 
 ## Inclusion rules
 
@@ -20,8 +20,9 @@ Efficiency-only diagnostics can be included if they are clearly labelled and do 
 2. Add exact published values to `data/observations.json`.
 3. Add any qualitative or ratio-only findings to `data/claims.json`.
 4. Add raw-data access details to `data/external-datasets.json`.
-5. Run `npm test`.
-6. Run `npm run build` and inspect the report.
+5. Add relevant near misses to `data/screened-sources.json` rather than forcing model-confounded rows into the review.
+6. Run `npm test`.
+7. Run `npm run build` and inspect the report.
 
 ## Evidence rules
 

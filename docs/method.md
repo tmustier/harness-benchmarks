@@ -2,6 +2,8 @@
 
 The strongest comparison changes the harness while keeping the model, task and budget fixed.
 
+This review does not require a study to include Pi. It excludes rows that pair each harness with a different model, even when the source calls the result an agent leaderboard.
+
 ## Check what stayed the same
 
 Check whether the study fixes:
@@ -33,6 +35,10 @@ Cached input, uncached input, reasoning tokens and output tokens have different 
 
 Compare costs within one study before comparing costs across studies.
 
+When a source publishes only total cost for a common task set, the report either labels it as total cost or divides by the stated common task count and records that derivation. It does not derive a per-task value when the denominator is unclear.
+
 ## Use the result for the right task
 
 The public evidence does not identify one best harness. It shows that the harness is part of the evaluated system.
+
+Several pages reuse benchmark families or live leaderboards. Treat the number of review pages as a source count, not as a count of independent replications.

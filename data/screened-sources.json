@@ -1,0 +1,37 @@
+[
+  {
+    "name": "Factory Terminal-Bench article",
+    "published": "2025-09-25",
+    "url": "https://factory.ai/news/terminal-bench",
+    "disposition": "Not counted separately",
+    "reason": "The headline Droid comparisons use different model variants from Claude Code and Codex. Valid Terminal-Bench comparisons are covered under the benchmark family."
+  },
+  {
+    "name": "Harvey Legal Agent Benchmark introduction",
+    "published": "2026-05-06",
+    "url": "https://www.harvey.ai/blog/introducing-harveys-legal-agent-benchmark",
+    "disposition": "Context only",
+    "reason": "The launch defines the legal benchmark but publishes no comparison that changes the harness while holding the model fixed."
+  },
+  {
+    "name": "Harvey LAB initial results",
+    "published": "2026-05-26",
+    "url": "https://www.harvey.ai/blog/legal-agent-benchmark-initial-results",
+    "disposition": "Excluded",
+    "reason": "It compares models under a fixed harness. The later 22 June harness ablation is included instead."
+  },
+  {
+    "name": "FrontierSWE",
+    "published": "2026-04",
+    "url": "https://www.frontierswe.com/",
+    "disposition": "Watchlist",
+    "reason": "The benchmark repeats 17 long-horizon tasks, but each model currently appears under only one harness, so the harness effect cannot be isolated."
+  },
+  {
+    "name": "Artificial Analysis general agents catalogue",
+    "published": null,
+    "url": "https://artificialanalysis.ai/agents",
+    "disposition": "Excluded",
+    "reason": "This is a product catalogue, not a benchmark. Alternate Coding Agent Index URLs are merged into the single included study."
+  }
+]
