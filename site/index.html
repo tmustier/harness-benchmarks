@@ -33,6 +33,49 @@
       <div class="overview-header"><h2>Currently, we know of 13 benchmarks that evaluate multiple coding-agent harnesses</h2></div>
       <div class="overview-groups"><section class="overview-group"><p class="overview-number">1</p><h3>Operational and broad evidence</h3><p>Start here: larger, more operational or more extensively reported comparisons.</p><ol><li><a href="#databricks"><span>01</span><span>Databricks coding-agent benchmark</span><time datetime="2026-07-08">8 Jul</time></a></li><li><a href="#warden"><span>02</span><span>Warden benchmark</span><time datetime="2026-06-05">5 Jun</time></a></li><li><a href="#artificial-analysis"><span>03</span><span>Coding Agent Index</span><time datetime="2026-05-11">11 May</time></a></li><li><a href="#drugdiscoverybench"><span>04</span><span>DrugDiscoveryBench</span><time datetime="2026-06-29">29 Jun</time></a></li><li><a href="#endor"><span>05</span><span>Agent Security League</span><time datetime="2026-07-09">9 Jul</time></a></li></ol></section><section class="overview-group"><p class="overview-number">2</p><h3>Focused domain evidence</h3><p>Strong task-specific evidence, but conclusions may not transfer outside the domain.</p><ol><li><a href="#latchbio-scbench-long"><span>06</span><span>scBench-Long</span><time datetime="2026-06-25">25 Jun</time></a></li><li><a href="#xor"><span>07</span><span>Vulnerability-Agent-Bench</span><time datetime="2026-02-01">1 Feb</time></a></li><li><a href="#wildclawbench"><span>08</span><span>WildClawBench</span><time datetime="2026-05-11">11 May</time></a></li><li><a href="#corebench-hard"><span>09</span><span>CORE-Bench Hard</span><time datetime="2026-06-23">23 Jun</time></a></li></ol></section><section class="overview-group"><p class="overview-number">3</p><h3>Small and diagnostic evidence</h3><p>Useful signals with limited task counts or no direct measure of coding quality.</p><ol><li><a href="#harnessbench"><span>10</span><span>HarnessBench</span><time datetime="2026-05-08">8 May</time></a></li><li><a href="#acode-cli"><span>11</span><span>A-CODE-CLI</span><time datetime="2026-06-29">29 Jun</time></a></li><li><a href="#openbench"><span>12</span><span>OpenBench M4.5</span><time datetime="2026-07-03">3 Jul</time></a></li><li><a href="#portkey-harness-tax"><span>13</span><span>Harness Tax</span><time datetime="2026-04-13">13 Apr</time></a></li></ol></section></div>
     </div></section>
+    <section class="benchmark-summaries"><div class="wrap">
+      <header class="benchmark-summaries-header"><p class="eyebrow">Summary overview</p><h2>What each benchmark tells us</h2></header>
+      <div class="summary-overview-groups"><section class="summary-overview-group"><p class="overview-number">1</p><h3>Operational and broad evidence</h3><ol><li>
+    <p class="summary-item-heading"><span>01</span><a href="#databricks">Databricks coding-agent benchmark</a></p>
+    <p>Pi used about one-third as much context. Equal-quality runs sometimes cost more than 2 times as much.</p>
+  </li><li>
+    <p class="summary-item-heading"><span>02</span><a href="#warden">Warden benchmark</a></p>
+    <p>Pi found a similar or larger share of known vulnerabilities at about one-quarter to one-fifth of Claude SDK's cost.</p>
+  </li><li>
+    <p class="summary-item-heading"><span>03</span><a href="#artificial-analysis">Coding Agent Index</a></p>
+    <p>OpenCode scored highest with Opus 4.7. Claude Code was cheaper and faster.</p>
+  </li><li>
+    <p class="summary-item-heading"><span>04</span><a href="#drugdiscoverybench">DrugDiscoveryBench</a></p>
+    <p>mini-SWE-agent scored highest with GPT-5.5. Codex placed in the middle.</p>
+  </li><li>
+    <p class="summary-item-heading"><span>05</span><a href="#endor">Agent Security League</a></p>
+    <p>Cursor led on Opus 4.7 and 4.8. Claude Code led on Sonnet 5.</p>
+  </li></ol></section><section class="summary-overview-group"><p class="overview-number">2</p><h3>Focused domain evidence</h3><ol><li>
+    <p class="summary-item-heading"><span>06</span><a href="#latchbio-scbench-long">scBench-Long</a></p>
+    <p>Claude Code led Pi on Opus 4.8, while Codex and Pi tied on GPT-5.5. The uncertainty was wide.</p>
+  </li><li>
+    <p class="summary-item-heading"><span>07</span><a href="#xor">Vulnerability-Agent-Bench</a></p>
+    <p>Claude Code and Codex beat OpenCode on all 3 published matched-model pairs.</p>
+  </li><li>
+    <p class="summary-item-heading"><span>08</span><a href="#wildclawbench">WildClawBench</a></p>
+    <p>The best harness changed by model. Switching harness moved scores by double digits.</p>
+  </li><li>
+    <p class="summary-item-heading"><span>09</span><a href="#corebench-hard">CORE-Bench Hard</a></p>
+    <p>Claude Code more than doubled CORE-Agent's verified success with Opus 4.5 while costing less.</p>
+  </li></ol></section><section class="summary-overview-group"><p class="overview-number">3</p><h3>Small and diagnostic evidence</h3><ol><li>
+    <p class="summary-item-heading"><span>10</span><a href="#harnessbench">HarnessBench</a></p>
+    <p>Several configurations finished within one task of the leader. Runtime differed more clearly.</p>
+  </li><li>
+    <p class="summary-item-heading"><span>11</span><a href="#acode-cli">A-CODE-CLI</a></p>
+    <p>OpenCode had a small backend lead over Claude Code and cost 44% less with Sonnet 4.6.</p>
+  </li><li>
+    <p class="summary-item-heading"><span>12</span><a href="#openbench">OpenBench M4.5</a></p>
+    <p>All 4 harnesses passed every task. Pi and Cursor used less time and fewer tokens.</p>
+  </li><li>
+    <p class="summary-item-heading"><span>13</span><a href="#portkey-harness-tax">Harness Tax</a></p>
+    <p>Fixed input overhead ranged from about 2,600 tokens for Pi to 27,000 for Claude Code.</p>
+  </li></ol></section></div>
+    </div></section>
     <div class="wrap"><article class="study" id="databricks">
     <header class="study-header">
       <p class="study-position"><span>01</span><span class="study-section">Operational and broad evidence</span><time datetime="2026-07-08">8 Jul</time></p>

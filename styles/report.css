@@ -60,6 +60,19 @@ main { padding-bottom: 80px; }
 .overview-group a span:nth-child(2) { color: var(--ink); font-weight: 400; }
 .overview-group time { align-self: start; color: var(--muted); font-size: 14px; white-space: nowrap; }
 
+.benchmark-summaries { padding: 56px 0 64px; border-bottom: 4px solid var(--ink); }
+.benchmark-summaries-header { max-width: 1040px; margin-bottom: 42px; }
+.benchmark-summaries h2 { margin: 0; font-size: 42px; line-height: 1.12; font-weight: 650; font-stretch: 105%; }
+.summary-overview-groups { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 30px; }
+.summary-overview-group { border-top: 8px solid var(--blue); padding-top: 14px; }
+.summary-overview-group h3 { margin: 0 0 14px; font-size: 23px; line-height: 1.15; font-weight: 500; }
+.summary-overview-group ol { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.summary-overview-group li { padding: 11px 0 12px; border-bottom: 1px solid var(--line); }
+.summary-item-heading { display: grid; grid-template-columns: 38px minmax(0, 1fr); gap: 6px; margin: 0; font-size: 16px; line-height: 1.25; }
+.summary-item-heading span { color: var(--blue); font-weight: 500; }
+.summary-item-heading a { color: var(--ink); font-weight: 500; }
+.summary-overview-group li > p:last-child { margin: 7px 0 0 44px; font-size: 15px; line-height: 1.4; }
+
 .study { padding: 56px 0 64px; border-bottom: 4px solid var(--ink); }
 .study-header { margin-bottom: 30px; }
 .study-position { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 14px; align-items: center; margin: 0 0 16px; color: var(--blue); font-size: 18px; font-weight: 500; }
@@ -125,7 +138,7 @@ td { border-bottom: 1px solid var(--line); padding: 10px 10px 10px 0; vertical-a
   .hero h1 { font-size: 48px; }
   .hero .lede { font-size: 23px; }
   .study-layout { grid-template-columns: 1fr; gap: 24px; }
-  .overview-groups { grid-template-columns: 1fr; }
+  .overview-groups, .summary-overview-groups { grid-template-columns: 1fr; }
   .study h2 { font-size: 34px; }
   .study-context { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   .study-meta, .source-line { grid-column: 1 / -1; }
@@ -172,6 +185,15 @@ td { border-bottom: 1px solid var(--line); padding: 10px 10px 10px 0; vertical-a
   .overview-group > p:not(.overview-number) { font-size: 15px; }
   .overview-group a { grid-template-columns: 34px minmax(0, 1fr) auto; min-height: 44px; padding: 11px 0; font-size: 16px; align-items: center; }
   .overview-group time { font-size: 13px; }
+  .benchmark-summaries { padding: 42px 0 50px; }
+  .benchmark-summaries-header { margin-bottom: 34px; }
+  .benchmark-summaries h2 { font-size: 32px; line-height: 1.08; }
+  .summary-overview-groups { gap: 40px; }
+  .summary-overview-group { border-top-width: 6px; padding-top: 12px; }
+  .summary-overview-group h3 { font-size: 22px; }
+  .summary-overview-group li { padding: 12px 0 13px; }
+  .summary-item-heading { grid-template-columns: 34px minmax(0, 1fr); font-size: 16px; }
+  .summary-overview-group li > p:last-child { margin-left: 40px; font-size: 15px; }
   .study { padding: 42px 0 50px; scroll-margin-top: 12px; }
   .study-header { margin-bottom: 24px; }
   .study-position { grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 15px; line-height: 1.25; }
@@ -235,6 +257,17 @@ td { border-bottom: 1px solid var(--line); padding: 10px 10px 10px 0; vertical-a
   .overview-group > p:not(.overview-number) { font-size: 7.2pt; margin-bottom: 2mm; }
   .overview-group a { grid-template-columns: 7mm minmax(0, 1fr) auto; padding: 1.5mm 0; font-size: 7.2pt; }
   .overview-group time { font-size: 6.5pt; }
+  .benchmark-summaries { height: 190mm; padding: 5mm 0 0; border: 0; break-after: page; overflow: hidden; }
+  .benchmark-summaries-header { max-width: 225mm; margin-bottom: 6mm; }
+  .benchmark-summaries-header .eyebrow { font-size: 8pt; }
+  .benchmark-summaries h2 { font-size: 22pt; }
+  .summary-overview-groups { grid-template-columns: 1.2fr 1fr 1fr; gap: 6mm; }
+  .summary-overview-group { padding-top: 2.5mm; border-top-width: 2mm; }
+  .summary-overview-group .overview-number { font-size: 14pt; margin-bottom: 1mm; }
+  .summary-overview-group h3 { margin-bottom: 2mm; font-size: 10pt; }
+  .summary-overview-group li { padding: 1.6mm 0 1.8mm; }
+  .summary-item-heading { grid-template-columns: 7mm minmax(0, 1fr); gap: 1mm; font-size: 7.2pt; }
+  .summary-overview-group li > p:last-child { margin: 1mm 0 0 8mm; font-size: 6.7pt; line-height: 1.3; }
   .study { width: 100%; height: 190mm; zoom: 1; break-before: page; break-after: page; padding: 3mm 0 0; border: 0; overflow: hidden; }
   .study-header { margin-bottom: 4mm; }
   .study-position { grid-template-columns: 11mm minmax(0, 1fr) auto; font-size: 8.5pt; margin-bottom: 2.5mm; gap: 3mm; }

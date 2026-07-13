@@ -195,6 +195,14 @@ const overviewGroups = Object.entries(sectionNotes).map(([section, note], index)
   return `<section class="overview-group"><p class="overview-number">${index + 1}</p><h3>${escapeHtml(section)}</h3><p>${escapeHtml(note)}</p><ol>${items}</ol></section>`;
 }).join("");
 
+const summaryOverviewGroups = Object.keys(sectionNotes).map((section, index) => {
+  const items = orderedStudies.filter(study => study.section === section).map(study => `<li>
+    <p class="summary-item-heading"><span>${String(study.section_order).padStart(2, "0")}</span><a href="#${escapeHtml(study.id)}">${escapeHtml(study.name)}</a></p>
+    <p>${escapeHtml(study.overview_summary)}</p>
+  </li>`).join("");
+  return `<section class="summary-overview-group"><p class="overview-number">${index + 1}</p><h3>${escapeHtml(section)}</h3><ol>${items}</ol></section>`;
+}).join("");
+
 const sourceRows = external.map(item => `<tr><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.access)}</td><td>${escapeHtml(item.licence)}</td><td><a href="${escapeHtml(item.result_url)}">Results</a>${item.dataset_url ? ` · <a href="${escapeHtml(item.dataset_url)}">Data</a>` : ""}</td></tr>`).join("");
 
 const css = `
@@ -233,6 +241,10 @@ const html = `<!doctype html>
     <section class="overview" id="benchmark-map"><div class="wrap">
       <div class="overview-header"><h2>Currently, we know of 13 benchmarks that evaluate multiple coding-agent harnesses</h2></div>
       <div class="overview-groups">${overviewGroups}</div>
+    </div></section>
+    <section class="benchmark-summaries"><div class="wrap">
+      <header class="benchmark-summaries-header"><p class="eyebrow">Summary overview</p><h2>What each benchmark tells us</h2></header>
+      <div class="summary-overview-groups">${summaryOverviewGroups}</div>
     </div></section>
     <div class="wrap">${orderedStudies.map(studySection).join("\n")}</div>
     <section class="appendix"><div class="wrap">

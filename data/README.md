@@ -32,3 +32,5 @@ Some sources report total benchmark cost. We divide by the published number of t
 Live result pages can change. Every observation includes the date on which we captured it.
 
 Each study record also includes an exact `published` date and a `date_basis`. For a static article or paper, this is its publication or public-release date. For a live leaderboard, it is the date the comparison used in this review first appeared.
+
+The `overview_summary` field is the short, conclusion-first description used in the report's grouped benchmark summary.
