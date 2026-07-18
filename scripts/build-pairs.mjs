@@ -137,10 +137,17 @@ for (const claim of claims) {
       (p.effort ?? null) === (claim.effort ?? null) &&
       ((p.harness_a === ha && p.harness_b === hb) || (p.harness_a === hb && p.harness_b === ha)));
     if (host) {
+      const oriented = host.harness_a === ha ? claim.value : Number((1 / claim.value).toFixed(3));
       if (host.cost_ratio != null) {
-        throw new Error(`Duplicate cost ratio for ${claim.study_id} ${claim.model} ${claim.effort} ${ha}/${hb}`);
+        // The observations may carry absolute dollar figures derived from this
+        // same published ratio (plus a dollar anchor), so the two must agree.
+        // Keep the claim's value: it is the exactly-reported number.
+        const drift = Math.abs(host.cost_ratio / oriented - 1);
+        if (drift > 0.08) {
+          throw new Error(`Cost ratio conflict for ${claim.study_id} ${claim.model} ${claim.effort} ${ha}/${hb}: obs-derived ${host.cost_ratio} vs claimed ${oriented}`);
+        }
       }
-      host.cost_ratio = host.harness_a === ha ? claim.value : Number((1 / claim.value).toFixed(3));
+      host.cost_ratio = oriented;
     } else {
       pairs.push({
         ...base,
