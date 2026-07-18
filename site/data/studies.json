@@ -25,7 +25,7 @@
     "slide_lead": "Databricks ran 6 matched harness comparisons: Claude Code or Codex cost 1.20 to 2.08 times as much as Pi, with quality within 7 points.",
     "method_summary": "Databricks replayed recent human-written pull requests from its multi-million-line internal codebase. It compared Claude Code with Pi on Opus 4.8 and Codex with Pi on GPT-5.5 at matched effort settings.",
     "conclusion": "Pi was cheaper in all 6 published pairs. It also re-fed less context: 236,000 versus 742,000 tokens on Opus 4.8 and 665,000 versus 1.235 million on GPT-5.5.",
-    "limitation": "The source does not publish task count, exact dollar cost for each point, run-level data or uncertainty."
+    "limitation": "The source does not publish task count, run-level data or uncertainty. Per-task dollar costs: three combinations are stated exactly in the text; the rest are derived from the published cost ratios or traced from Figure 1."
   },
   {
     "id": "warden",

@@ -458,6 +458,153 @@ for (const panel of PANELS) {
 </section>`;
 }
 
+// --- Study spotlight: the absolute cost-quality frontier --------------------
+// The lanes above are deliberately relative: most studies only support
+// challenger-vs-native contrasts, and their quality scales are not comparable
+// across benchmarks. Within ONE study the scales are comparable, and when a
+// study publishes absolute pass rates and absolute dollars per task for many
+// model x harness x effort combinations, the honest full picture is a Pareto
+// scatter, not the relative grammar. Databricks is the flagship case; the
+// renderer is generic so other absolute-reporting studies can be added.
+const observations = JSON.parse(fs.readFileSync(path.join(root, "data", "observations.json"), "utf8"));
+
+function paretoSpotlight(studyId, opts) {
+  const study = studies[studyId];
+  const rows = observations.filter(o =>
+    o.study_id === studyId && o.cost_usd_per_task != null && o.performance_value != null);
+  const HC = opts.harnessColors;
+  const P = { lm: 56, w: 860, top: 20, h: 430 };
+  const xmax = Math.max(...rows.map(r => r.cost_usd_per_task)) * 1.08;
+  const ymin = opts.ymin, ymax = opts.ymax;
+  const px = v => P.lm + (v / xmax) * P.w;
+  const py = v => P.top + ((ymax - v) / (ymax - ymin)) * P.h;
+  const bottom = P.top + P.h;
+  const effShort = e => e === "medium" ? "med" : e;
+  // label like the source figure: "Opus 4.8 (pi, xhigh)", "GLM 5.2 (pi)"
+  const shortLabel = r => {
+    const inner = [r.harness.toLowerCase(), r.effort && r.effort !== "default" ? effShort(r.effort) : null]
+      .filter(Boolean).join(", ");
+    return `${r.model.replace(/^Claude /, "")} (${inner})`;
+  };
+
+  let svg = `<svg width="${P.lm + P.w + 24}" height="${bottom + 52}" class="lane">`;
+  // the study's own capability tiers, as horizontal bands; their labels are
+  // registered as occupied space so point labels route around them
+  const rects = [];
+  for (const t of opts.tiers ?? []) {
+    const ty = py(t.lo) - 8, ttext = `${t.label} \u00b7 ${t.lo}\u2013${t.hi}%`;
+    svg += `<rect x="${P.lm}" y="${py(t.hi)}" width="${P.w}" height="${py(t.lo) - py(t.hi)}" fill="#e8f1fa" opacity="0.55"/>` +
+      `<text x="${P.lm + P.w - 8}" y="${ty}" font-size="10" text-anchor="end" fill="#8ba3b8" letter-spacing="0.05em">${esc(ttext)}</text>`;
+    const tw = ttext.length * 6;
+    rects.push({ x0: P.lm + P.w - 8 - tw, x1: P.lm + P.w - 8, y0: ty - 9, y1: ty + 2 });
+  }
+  // grid + axes
+  for (let t = 0.5; t < xmax; t += 0.5) {
+    svg += `<line x1="${px(t)}" y1="${P.top}" x2="${px(t)}" y2="${bottom}" stroke="#efefef"/>` +
+      `<text x="${px(t)}" y="${bottom + 16}" font-size="10" text-anchor="middle" fill="#505a5f">$${t.toFixed(2)}</text>`;
+  }
+  for (let t = Math.ceil(ymin / 5) * 5; t <= ymax; t += 5) {
+    svg += `<line x1="${P.lm}" y1="${py(t)}" x2="${P.lm + P.w}" y2="${py(t)}" stroke="#efefef"/>` +
+      `<text x="${P.lm - 8}" y="${py(t) + 3.5}" font-size="10" text-anchor="end" fill="#505a5f">${t}%</text>`;
+  }
+  svg += `<text x="${P.lm + P.w / 2}" y="${bottom + 40}" font-size="11" text-anchor="middle" fill="#3d4247" font-weight="600">Cost per task (mean $)</text>`;
+  svg += `<text transform="rotate(-90 14 ${P.top + P.h / 2})" x="14" y="${P.top + P.h / 2}" font-size="11" text-anchor="middle" fill="#3d4247" font-weight="600">Overall pass rate</text>`;
+
+  // connectors: same model + effort run through two harnesses. The horizontal
+  // gap is the harness cost effect, the vertical gap the harness quality effect.
+  const byCombo = new Map();
+  for (const r of rows) {
+    const k = `${r.model}|${r.effort}`;
+    if (!byCombo.has(k)) byCombo.set(k, []);
+    byCombo.get(k).push(r);
+  }
+  for (const combo of byCombo.values()) {
+    if (combo.length !== 2) continue;
+    const [a, b] = combo;
+    svg += `<line x1="${px(a.cost_usd_per_task)}" y1="${py(a.performance_value)}" x2="${px(b.cost_usd_per_task)}" y2="${py(b.performance_value)}" stroke="#b9bfc6" stroke-width="1.2"/>`;
+  }
+
+  // Pareto frontier: best pass rate available at or below each cost
+  const byCost = [...rows].sort((a, b) =>
+    a.cost_usd_per_task - b.cost_usd_per_task || b.performance_value - a.performance_value);
+  const frontier = [];
+  let best = -Infinity;
+  for (const r of byCost) {
+    if (r.performance_value > best) { frontier.push(r); best = r.performance_value; }
+  }
+  svg += `<polyline points="${frontier.map(r => `${px(r.cost_usd_per_task)},${py(r.performance_value)}`).join(" ")}" fill="none" stroke="#ef4444" stroke-width="1.6" stroke-dasharray="5,4" opacity="0.65"/>`;
+  const onFrontier = new Set(frontier);
+
+  // greedy label placement: try several anchor offsets, avoid points and labels
+  const pts = rows.map(r => ({ r, x: px(r.cost_usd_per_task), y: py(r.performance_value) }));
+  const CANDS = [
+    { dx: 10, dy: 3.5, a: "start" }, { dx: -10, dy: 3.5, a: "end" },
+    { dx: 0, dy: -11, a: "middle" }, { dx: 0, dy: 17, a: "middle" },
+    { dx: 9, dy: -9, a: "start" }, { dx: 9, dy: 15, a: "start" },
+    { dx: -9, dy: -9, a: "end" }, { dx: -9, dy: 15, a: "end" },
+    // second ring for congested regions
+    { dx: 12, dy: -20, a: "start" }, { dx: 12, dy: 26, a: "start" },
+    { dx: -12, dy: -20, a: "end" }, { dx: -12, dy: 26, a: "end" },
+    { dx: 0, dy: -22, a: "middle" }, { dx: 0, dy: 28, a: "middle" },
+  ];
+  const overlaps = (r1, r2) => r1.x0 < r2.x1 && r2.x0 < r1.x1 && r1.y0 < r2.y1 && r2.y0 < r1.y1;
+  const labels = [];
+  for (const p of [...pts].sort((a, b) => a.x - b.x)) {
+    const text = shortLabel(p.r);
+    const w = text.length * 6.2, h = 11;
+    let pick = null;
+    for (const c of CANDS) {
+      const tx = p.x + c.dx, ty = p.y + c.dy;
+      const x0 = c.a === "start" ? tx : c.a === "end" ? tx - w : tx - w / 2;
+      const rect = { x0, x1: x0 + w, y0: ty - h + 2, y1: ty + 2 };
+      if (rect.x0 < 2 || rect.x1 > P.lm + P.w + 22 || rect.y0 < 4 || rect.y1 > bottom + 12) continue;
+      const hitsPoint = pts.some(q => q !== p &&
+        q.x > rect.x0 - 7 && q.x < rect.x1 + 7 && q.y > rect.y0 - 7 && q.y < rect.y1 + 7);
+      if (hitsPoint || rects.some(rr => overlaps(rect, rr))) continue;
+      pick = { tx, ty, a: c.a, rect };
+      break;
+    }
+    if (!pick) {
+      const c = CANDS[0], tx = p.x + c.dx, ty = p.y + c.dy;
+      pick = { tx, ty, a: c.a, rect: { x0: tx, x1: tx + w, y0: ty - h + 2, y1: ty + 2 } };
+    }
+    rects.push(pick.rect);
+    labels.push(`<text x="${pick.tx}" y="${pick.ty}" font-size="10" text-anchor="${pick.a}" fill="#5b6166">${esc(text)}</text>`);
+  }
+  svg += labels.join("");
+
+  // marks last, on top; frontier members get a red ring
+  for (const p of pts) {
+    const r = p.r;
+    const effortSuffix = r.effort && r.effort !== "default" ? `, ${effShort(r.effort)}` : "";
+    const tip = `${r.model} (${r.harness}${effortSuffix})\n${r.performance_value}% pass rate \u00b7 $${r.cost_usd_per_task.toFixed(2)} per task\n${study.name} (${study.weight_tier})`;
+    const ring = onFrontier.has(r) ? `<circle cx="${p.x}" cy="${p.y}" r="9" fill="none" stroke="#ef4444" stroke-width="1.3" opacity="0.75"/>` : "";
+    svg += `<g class="mark" data-tip="${esc(tip)}" data-study="${esc(studyId)}">${ring}<circle cx="${p.x}" cy="${p.y}" r="6" fill="${HC[r.harness] ?? "#6b7280"}" stroke="#ffffff" stroke-width="1.2"/></g>`;
+  }
+  svg += `</svg>`;
+
+  const legend = Object.entries(HC).map(([h, c]) =>
+    `<span class="lg"><span class="dot" style="background:${c}"></span>${esc(h)}</span>`).join("");
+  return `
+<section class="panel spotlightp">
+  <h2>One study in absolute terms <span class="vs">&mdash; the ${esc(study.name)} frontier</span></h2>
+  <p class="coverage">${rows.length} model &#183; harness &#183; effort combinations on ${esc(study.publisher)}'s internal multi-million-line codebase, in the study's own units: overall pass rate against mean dollars per task. Dashed line and ringed points: the Pareto frontier. Grey connectors join the same model and effort through two harnesses. Shaded bands: the study's own capability tiers.</p>
+  <div class="legend2">${legend}</div>
+  ${svg}
+  <p class="provnote">Dollar provenance: $1.94 (Opus 4.8, Claude Code, high), $1.28 (GLM 5.2, Pi) and $2.09 (Sonnet 5, Claude Code) are stated in the text, as are all six matched cost ratios and the 1.8&#215; and 1.3&#215; comparisons; the remaining anchors are traced from the published figure. The study publishes no task count or uncertainty, so quality gaps here carry no interval &mdash; the study's own reading is that harness swaps moved cost far more than quality.</p>
+</section>`;
+}
+
+body += paretoSpotlight("databricks", {
+  ymin: 47, ymax: 93,
+  tiers: [
+    { label: "TIER 1", lo: 82, hi: 90 },
+    { label: "TIER 2", lo: 71, hi: 82 },
+    { label: "TIER 3", lo: 51, hi: 60 },
+  ],
+  harnessColors: { Pi: "#7c3aed", "Claude Code": "#da7756", Codex: "#2563eb" },
+});
+
 const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -511,6 +658,11 @@ const html = `<!doctype html>
          white-space: pre-line; pointer-events: none; display: none; }
   .studynote { color: #505a5f; font-size: 0.85rem; margin-top: 4px; display: none; }
   body.spot .studynote { display: block; }
+  .spotlightp svg { display: block; }
+  .legend2 { color: #3d4247; font-size: 0.9rem; margin: 8px 0 2px; }
+  .legend2 .lg { margin-right: 18px; }
+  .legend2 .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: -1px; margin-right: 6px; }
+  .provnote { color: #767a7e; font-size: 0.82rem; max-width: 940px; margin-top: 6px; }
 </style>
 </head>
 <body>
