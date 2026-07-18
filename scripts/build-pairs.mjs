@@ -124,15 +124,34 @@ for (const claim of claims) {
   };
   if (claim.measure === "native-to-pi cost ratio") {
     // value = native cost divided by Pi cost; reference_harness is the native harness.
-    pairs.push({
-      ...base,
-      metric: "cost only",
-      harness_a: canonical(claim.reference_harness),
-      harness_b: canonical(claim.harness),
-      value_a: null,
-      value_b: null,
-      cost_ratio: claim.value,
-    });
+    // These ratios are different cuts of the same experiment that produced the
+    // study's quality observations (e.g. Databricks reports quality as a chart
+    // and cost ratios in text). If a matched quality pair exists for the same
+    // configuration, attach the ratio to it rather than emitting a second,
+    // cost-only row that would look like a separate result.
+    const ha = canonical(claim.reference_harness);
+    const hb = canonical(claim.harness);
+    const host = pairs.find(p =>
+      p.study_id === claim.study_id &&
+      p.model === (claim.model ?? null) &&
+      (p.effort ?? null) === (claim.effort ?? null) &&
+      ((p.harness_a === ha && p.harness_b === hb) || (p.harness_a === hb && p.harness_b === ha)));
+    if (host) {
+      if (host.cost_ratio != null) {
+        throw new Error(`Duplicate cost ratio for ${claim.study_id} ${claim.model} ${claim.effort} ${ha}/${hb}`);
+      }
+      host.cost_ratio = host.harness_a === ha ? claim.value : Number((1 / claim.value).toFixed(3));
+    } else {
+      pairs.push({
+        ...base,
+        metric: "cost only",
+        harness_a: ha,
+        harness_b: hb,
+        value_a: null,
+        value_b: null,
+        cost_ratio: claim.value,
+      });
+    }
   } else if (claim.measure === "Copilot minus native task-resolution points") {
     pairs.push({
       ...base,
