@@ -44,6 +44,7 @@
     "conflict": "none",
     "weight_tier": "supporting",
     "weight_rationale": "Real historical vulnerabilities in Sentry code, but the grader measures recognition of known vulnerabilities in one domain, without repeated trials.",
+    "citation_note": "Cite the comparator as Warden's Claude Agent SDK configuration, not as Claude Code. The Agent SDK shares Claude Code's runtime and tools, but Warden replaces the native system prompt with its own, restricts the agent to read-only tools and disables subagents, shell and edits (checked 18 July 2026).",
     "source_url": "https://warden.sentry.dev/benchmarking/",
     "section": "Operational and broad evidence",
     "section_order": 9,
