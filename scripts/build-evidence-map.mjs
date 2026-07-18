@@ -93,12 +93,15 @@ const QCOLS = [
 ];
 const QW = QCOLS.reduce((a, c) => a + c.w, 0);
 
-// Cost: log axis FLIPPED — expensive (favors native) left, cheap right.
-const CL = { min: Math.log2(1 / 10), max: Math.log2(16), w: 380, pad: 12 };
-const cx = v => CL.pad + ((CL.max - Math.min(Math.max(Math.log2(v), CL.min), CL.max)) / (CL.max - CL.min)) * CL.w;
+// Cost: linear axis, FLIPPED — expensive (favors native) left, cheap right.
+// Linear because nearly everything sits between ½× and 2×; a log axis hides
+// how substantial those differences are. Outliers park at the left edge with
+// their value written out.
+const CL = { min: 0, max: 3, w: 380, pad: 12 };
+const cx = v => CL.pad + ((CL.max - Math.min(Math.max(v, CL.min), CL.max)) / (CL.max - CL.min)) * CL.w;
 const CW = CL.w + CL.pad * 2;
-const COST_TICKS = [16, 8, 4, 2, 1, 0.5, 0.25, 0.125];
-const tickLabel = t => t === 0.5 ? "&#189;&#215;" : t === 0.25 ? "&#188;&#215;" : t === 0.125 ? "&#8539;&#215;" : `${t}&#215;`;
+const COST_TICKS = [3, 2, 1, 0.5, 0];
+const tickLabel = t => t === 0.5 ? "&#189;&#215;" : t === 0 ? "0" : `${t}&#215;`;
 const MARK_STEP = 17;
 const LINE_H = 20;
 const NEUTRAL = "#64748b";
@@ -213,7 +216,7 @@ function costLane(results, rowColor, isRepeated) {
   for (const r of sorted) {
     const x = cx(r.cost);
     let line = 0;
-    while (placed.some(p => p.line === line && Math.abs(p.x - x) < 13)) line++;
+    while (placed.some(p => p.line === line && Math.abs(p.x - x) < 18)) line++;
     placed.push({ r, x, line });
   }
   const lines = Math.max(1, ...placed.map(p => p.line + 1));
@@ -233,10 +236,9 @@ function costLane(results, rowColor, isRepeated) {
   for (const p of placed) {
     const y = 10 + p.line * LINE_H;
     const ring = p.r.tier === "anchor" ? `<circle cx="${p.x}" cy="${y}" r="8" fill="none" stroke="${rowColor}" stroke-width="1.2" opacity="0.55"/>` : "";
-    // flipped axis: >16× clips at the LEFT edge, <1/10× at the RIGHT edge
+    // flipped axis: outliers beyond the max park at the LEFT edge, labelled
     let clip = "";
-    if (p.r.cost > 16) clip = `<text x="${p.x + 10}" y="${y + 4}" font-size="10" text-anchor="start" fill="#505a5f">&#8592;${p.r.cost.toFixed(1)}&#215;</text>`;
-    else if (p.r.cost < 1 / 10) clip = `<text x="${p.x - 10}" y="${y + 4}" font-size="10" text-anchor="end" fill="#505a5f">${p.r.cost.toFixed(2)}&#215;&#8594;</text>`;
+    if (p.r.cost > CL.max) clip = `<text x="${p.x + 10}" y="${y + 4}" font-size="10" text-anchor="start" fill="#505a5f">&#8592;${p.r.cost.toFixed(0)}&#215;</text>`;
     svg += `<g class="mark" ${tipAttrs(p.r)}>${ring}<circle cx="${p.x}" cy="${y}" r="5" fill="${rowColor}"/>${clip}</g>`;
   }
   return { html: `<svg width="${CW}" height="${h}" class="lane">${svg}</svg>`, h };
@@ -300,6 +302,9 @@ function detailBlock(native, challenger, results) {
         const clipped = r.delta - r.interval < SC.ymin || r.delta + r.interval > SC.ymax;
         svg += `<line x1="${x}" y1="${hi}" x2="${x}" y2="${lo}" stroke="#9a9a9a" stroke-width="2"${clipped ? ' stroke-dasharray="3,2"' : ""}/>`;
       }
+      if (r.cost > CL.max) {
+        svg += `<text x="${x + 10}" y="${y + 3.5}" font-size="10" text-anchor="start" fill="#505a5f">&#8592;${r.cost.toFixed(0)}&#215;</text>`;
+      }
       svg += `<g class="mark" ${tipAttrs(r)}>${markShape(r, x, y, c)}</g>`;
     }
     // quality-only gutter (no cost reported)
@@ -325,7 +330,7 @@ function detailBlock(native, challenger, results) {
     }
     // axis titles
     svg += `<text x="${LM}" y="10" font-size="10" fill="#505a5f">quality &#916; pp vs ${esc(native)}</text>`;
-    svg += `<text x="${LM + CW / 2}" y="${xLabelY + (cOnly.length ? 38 : 14)}" font-size="10" text-anchor="middle" fill="#505a5f">cost, ${esc(challenger)} &#247; ${esc(native)} &#8212; costs more &#8592; &#183; &#8594; cheaper</text>`;
+    svg += `<text x="${LM + CW / 2}" y="${xLabelY + (cOnly.length ? 38 : 14)}" font-size="10" text-anchor="middle" fill="#505a5f">cost vs ${esc(native)}</text>`;
     svg += `</svg>`;
     html += svg;
   }
@@ -403,13 +408,14 @@ for (const panel of PANELS) {
   <div class="row lanehead">
     <div class="rowhead"></div>
     <div class="qcell">
-      <div class="lanetitle">Quality &#8212; who leads?</div>
+      <div class="lanetitle">Quality &#8212; vs ${esc(panel.native)}</div>
       <div class="qheads">${QCOLS.map(col => `<span style="width:${col.w}px">${{
         native: `&#8592; ${esc(panel.native)} leads`, noclear: "no clear lead", challenger: "harness leads &#8594;",
       }[col.id]}</span>`).join("")}</div>
     </div>
     <div class="ccell">
-      <div class="lanetitle">Cost &#8212; harness &#247; ${esc(panel.native)} <span class="dirhint">costs more &#8592; &#183; &#8594; cheaper</span></div>
+      <div class="lanetitle">Cost &#8212; vs ${esc(panel.native)}</div>
+      <div class="qheads costheads"><span>&#8592; ${esc(panel.native)} cheaper</span><span>harness cheaper &#8594;</span></div>
       ${axis}
     </div>
   </div>
@@ -449,14 +455,15 @@ const html = `<!doctype html>
   .qcell { width: ${QW}px; flex: none; }
   .ccell { width: ${CW}px; flex: none; margin-left: 26px; padding-left: 14px; border-left: 3px solid #e5e7eb; }
   .lanetitle { font-size: 0.8rem; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
-  .lanetitle .dirhint { font-weight: 400; color: #767a7e; font-size: 0.9em; margin-left: 6px; }
   .qheads { display: flex; }
+  .costheads { width: ${CW}px; justify-content: space-between; }
+  .costheads span:last-child { text-align: right; padding-right: 8px; padding-left: 0; }
   .qheads span { display: inline-block; font-size: 0.72rem; text-transform: uppercase;
                  letter-spacing: 0.04em; color: #505a5f; padding-left: 8px; }
   .qheads span:last-child { text-align: right; padding-right: 8px; padding-left: 0; }
   .lane { display: block; }
   .costnote { padding: 2px 0 0 12px; }
-  .nocost { color: #767a7e; font-size: 0.85rem; font-style: italic; }
+  .nocost { color: #b1b4b6; font-size: 0.78rem; font-style: italic; }
   .detail { margin: 0 0 8px 170px; padding: 10px 14px; background: #fafafa; border-left: 3px solid #d0d0d0; }
   .detail .record { font-size: 0.92rem; margin: 4px 0; }
   .dim { color: #505a5f; }
