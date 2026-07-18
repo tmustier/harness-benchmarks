@@ -19,10 +19,23 @@ const errors = [];
 const studyIds = new Set();
 const sectionOrders = new Set();
 
+const conflictValues = new Set(["none", "adjacent", "compared vendor"]);
+const weightTiers = new Set(["anchor", "supporting", "contextual"]);
+
 for (const study of studies) {
   if (!study.id || !study.name || !study.source_url) errors.push(`Study is missing a required field: ${JSON.stringify(study)}`);
   if (!study.section || !study.overview_summary || !study.slide_lead || !study.method_summary || !Number.isInteger(study.section_order)) errors.push(`Study is missing presentation metadata: ${study.id}`);
   if (!/^20\d{2}-\d{2}-\d{2}$/.test(study.published) || !study.date_basis) errors.push(`Study needs an exact publication date and date basis: ${study.id}`);
+  if (!conflictValues.has(study.conflict)) errors.push(`Study needs a conflict value of none, adjacent or compared vendor: ${study.id}`);
+  if (!weightTiers.has(study.weight_tier)) errors.push(`Study needs a weight tier of anchor, supporting or contextual: ${study.id}`);
+  if (!study.weight_rationale) errors.push(`Study is missing a weight rationale: ${study.id}`);
+  if (study.conflict === "compared vendor" && study.weight_tier === "anchor") errors.push(`A compared-vendor study cannot be an anchor: ${study.id}`);
+  if (study.component_suites !== undefined) {
+    for (const suite of study.component_suites) {
+      if (!suite.name || !suite.producer || !suite.provenance || !Number.isInteger(suite.task_count)) errors.push(`Component suite is missing required data: ${study.id} ${JSON.stringify(suite)}`);
+      if (suite.overlaps_study !== null && typeof suite.overlaps_study !== "string") errors.push(`Component suite overlap must be null or a study id: ${study.id} ${suite.name}`);
+    }
+  }
   if (studyIds.has(study.id)) errors.push(`Duplicate study id: ${study.id}`);
   if (sectionOrders.has(study.section_order)) errors.push(`Duplicate section order: ${study.section_order}`);
   studyIds.add(study.id);
@@ -32,6 +45,9 @@ for (const study of studies) {
 const sourceIds = new Set(external.map(item => item.source_id));
 for (const study of studies) {
   if (!sourceIds.has(study.id)) errors.push(`Study has no external source record: ${study.id}`);
+  for (const suite of study.component_suites ?? []) {
+    if (suite.overlaps_study !== null && !studyIds.has(suite.overlaps_study)) errors.push(`Component suite overlap points to an unknown study: ${study.id} ${suite.name}`);
+  }
 }
 
 const observationKeys = new Set();

@@ -14,6 +14,29 @@ The `section`, `section_order`, `slide_lead` and `method_summary` fields in
 `studies.json` control the report sequence and give each benchmark page enough
 context to stand alone.
 
+## Source weighting
+
+Each study record carries a weight that controls how the review cites it. See
+[How this review weights sources](../docs/method.md#how-this-review-weights-sources)
+for the assignment rules.
+
+- `conflict` is `none`, `adjacent` or `compared vendor`. A buyer or a
+  professional evaluator with no compared product counts as `none`. `adjacent`
+  means the publisher has a commercial interest in the benchmark's subject but
+  ships none of the compared systems. `compared vendor` means the publisher
+  ships one of the compared harnesses or models.
+- `conflict_note` records the evidence or open questions behind the
+  classification, with a check date where the classification relied on
+  external research.
+- `weight_tier` is `anchor`, `supporting` or `contextual`.
+- `weight_rationale` states in one sentence why the study has its tier.
+- `citation_note` restricts how the study may be cited, for example
+  direction-only citation or the demotion of specific measures.
+- `component_suites` describes the parts of a composite index: each entry
+  records the suite `name`, `producer`, `task_count`, `provenance` and
+  `overlaps_study`, the id of a study in this review built on the same suite.
+  An overlap means the two records are not independent corroboration.
+
 ## Missing values
 
 `null` means that the source did not publish the value in a form we could record. It does not mean zero.
