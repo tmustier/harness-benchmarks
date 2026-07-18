@@ -97,12 +97,13 @@ const QW = QCOLS.reduce((a, c) => a + c.w, 0);
 // proportional to how many times cheaper one side is, so "Claude Code 2×
 // cheaper" (2×) sits exactly opposite "harness 2× cheaper" (½×) and the two
 // directional headers read the same way. Expensive (favors native) is left,
-// cheap is right. Results more than FOLD_MAX-fold apart park in a separate
-// outlier gutter left of the axis with their value written out, so they never
-// masquerade as an on-scale reading.
-const FOLD_MAX = 3;
+// cheap is right. The axis caps at FOLD_MAX so the cluster of real results
+// stays spread out; anything beyond it parks in an outlier gutter on its own
+// side of the axis, with its fold difference written out, so it never
+// masquerades as an on-scale reading.
+const FOLD_MAX = 2;
 const CL = { w: 380, pad: 12 };
-const OUT_W = 52; // outlier gutter width, present in every row for alignment
+const OUT_W = 52; // outlier gutter width (one per side), constant for alignment
 const fold = v => (v >= 1 ? v : 1 / v);
 const isOutlier = v => fold(v) > FOLD_MAX + 1e-9;
 const cx = v => {
@@ -110,11 +111,13 @@ const cx = v => {
   return CL.pad + CL.w / 2 + (v >= 1 ? -off : off);
 };
 const CW = CL.w + CL.pad * 2;
+const CTOT = OUT_W + CW + OUT_W; // full cost lane width incl. both gutters
 const COST_TICKS = [
-  { v: 3, l: "3&#215;" }, { v: 2, l: "2&#215;" }, { v: 1, l: "1&#215;" },
-  { v: 1 / 2, l: "2&#215;" }, { v: 1 / 3, l: "3&#215;" },
+  { v: 2, l: "2&#215;" }, { v: 1.5, l: "1.5&#215;" }, { v: 1, l: "1&#215;" },
+  { v: 1 / 1.5, l: "1.5&#215;" }, { v: 1 / 2, l: "2&#215;" },
 ];
-const outLabel = v => `${v >= 10 ? v.toFixed(0) : v.toFixed(1)}&#215;`;
+// Gutter labels read as folds, matching the tick convention on each side.
+const outLabel = v => { const f = fold(v); return `${f >= 10 ? f.toFixed(0) : f.toFixed(1)}&#215;`; };
 const MARK_STEP = 17;
 const LINE_H = 20;
 const NEUTRAL = "#64748b";
@@ -213,7 +216,7 @@ function qualityLane(results, rowColor, challenger, isRepeated) {
   return { svg: `<svg width="${QW}" height="${h}" class="lane">${svg}${marks}</svg>`, h };
 }
 
-function costLane(results, rowColor, isRepeated) {
+function costLane(results, rowColor, challenger, isRepeated) {
   const withCost = results.filter(r => r.cost != null);
   const tokenOnly = results.filter(r => r.cost == null && r.tokens != null);
   if (!withCost.length) {
@@ -222,13 +225,14 @@ function costLane(results, rowColor, isRepeated) {
       const pcts = tokenOnly.map(r => (r.tokens - 1) * 100);
       note = `<span class="nocost">no cost &#183; tokens ${Math.min(...pcts).toFixed(0)}% to ${Math.max(...pcts).toFixed(0)}% vs native</span>`;
     }
-    return { html: `<div class="costnote" style="width:${OUT_W + CW}px">${note}</div>`, h: 24 };
+    return { html: `<div class="costnote" style="width:${CTOT}px">${note}</div>`, h: 24 };
   }
   const sorted = [...withCost].sort((a, b) => a.cost - b.cost);
   const placed = [];
   for (const r of sorted) {
     const out = isOutlier(r.cost);
-    const x = out ? 18 : OUT_W + cx(r.cost);
+    // outliers park in the gutter on their own side: expensive left, cheap right
+    const x = out ? (r.cost > 1 ? 34 : OUT_W + CW + 18) : OUT_W + cx(r.cost);
     let line = 0;
     while (placed.some(p => p.line === line && Math.abs(p.x - x) < 18)) line++;
     placed.push({ r, x, line, out });
@@ -239,7 +243,9 @@ function costLane(results, rowColor, isRepeated) {
   const c1 = OUT_W + cx(1);
   let svg = `<rect x="${OUT_W}" y="0" width="${c1 - OUT_W}" height="${h}" fill="${NEUTRAL}" opacity="0.06"/>` +
     `<rect x="${c1}" y="0" width="${OUT_W + CW - c1}" height="${h}" fill="${rowColor}" opacity="0.07"/>` +
-    `<line x1="${OUT_W - 4}" y1="0" x2="${OUT_W - 4}" y2="${h}" stroke="#d9d9d9" stroke-dasharray="2,3"/>`;
+    `<line x1="${OUT_W - 4}" y1="0" x2="${OUT_W - 4}" y2="${h}" stroke="#d9d9d9" stroke-dasharray="2,3"/>` +
+    `<line x1="${OUT_W + CW + 4}" y1="0" x2="${OUT_W + CW + 4}" y2="${h}" stroke="#d9d9d9" stroke-dasharray="2,3"/>` +
+    `<text x="${OUT_W + CW - 8}" y="${h / 2 + 3.5}" text-anchor="end" font-size="9.5" letter-spacing="0.06em" fill="${rowColor}" opacity="0.5">${esc(challenger.toUpperCase())} &#8594;</text>`;
   for (const t of COST_TICKS) {
     svg += `<line x1="${OUT_W + cx(t.v)}" y1="0" x2="${OUT_W + cx(t.v)}" y2="${h}" stroke="${t.v === 1 ? "#8a8a8a" : "#e9e9e9"}" stroke-width="${t.v === 1 ? 1.4 : 1}"/>`;
   }
@@ -251,10 +257,14 @@ function costLane(results, rowColor, isRepeated) {
   }
   for (const p of placed) {
     const y = 10 + p.line * LINE_H;
-    const label = p.out ? `<text x="${p.x + 10}" y="${y + 3.5}" font-size="10" text-anchor="start" fill="#505a5f">${outLabel(p.r.cost)}</text>` : "";
+    const label = p.out
+      ? (p.r.cost > 1
+        ? `<text x="${p.x - 9}" y="${y + 3.5}" font-size="10" text-anchor="end" fill="#505a5f">${outLabel(p.r.cost)}</text>`
+        : `<text x="${p.x + 9}" y="${y + 3.5}" font-size="10" text-anchor="start" fill="#505a5f">${outLabel(p.r.cost)}</text>`)
+      : "";
     svg += `<g class="mark" ${tipAttrs(p.r)}>${markShape(p.r, p.x, y, rowColor)}${label}</g>`;
   }
-  return { html: `<svg width="${OUT_W + CW}" height="${h}" class="lane">${svg}</svg>`, h };
+  return { html: `<svg width="${CTOT}" height="${h}" class="lane">${svg}</svg>`, h };
 }
 
 // --- Expanded detail: cost-vs-quality quadrant scatter ----------------------
@@ -286,14 +296,16 @@ function detailBlock(native, challenger, results) {
     const xLabelY = plotBottom + 16;
     const stripY = xLabelY + 24;
     const totalH = (cOnly.length ? stripY + 14 : xLabelY + 8) + 14;
-    const totalW = LM + OUT_W + CW + (qOnly.length ? GUT : 0) + 8;
+    const totalW = LM + CTOT + (qOnly.length ? GUT : 0) + 8;
     let svg = `<svg width="${totalW}" height="${totalH}">`;
     // quadrant tints: up = challenger better, right = cheaper
     svg += `<rect x="${LM + OUT_W}" y="${SC.top}" width="${cx(1)}" height="${SC.h}" fill="${NEUTRAL}" opacity="0.05"/>`;
     svg += `<rect x="${sx(1)}" y="${SC.top}" width="${LM + OUT_W + CW - sx(1)}" height="${SC.h / 2}" fill="${c}" opacity="0.06"/>`;
-    // outlier gutter, same convention as the hero lane
+    // outlier gutters, same convention as the hero lane: one per side
     svg += `<line x1="${LM + OUT_W - 4}" y1="${SC.top}" x2="${LM + OUT_W - 4}" y2="${plotBottom}" stroke="#d9d9d9" stroke-dasharray="2,3"/>` +
-      `<text x="${LM + OUT_W / 2 - 2}" y="${xLabelY}" font-size="10" text-anchor="middle" fill="#767a7e">&gt;3&#215;</text>`;
+      `<line x1="${LM + OUT_W + CW + 4}" y1="${SC.top}" x2="${LM + OUT_W + CW + 4}" y2="${plotBottom}" stroke="#d9d9d9" stroke-dasharray="2,3"/>` +
+      `<text x="${LM + OUT_W / 2 - 2}" y="${xLabelY}" font-size="10" text-anchor="middle" fill="#767a7e">&gt;${FOLD_MAX}&#215;</text>` +
+      `<text x="${LM + OUT_W + CW + OUT_W / 2 + 2}" y="${xLabelY}" font-size="10" text-anchor="middle" fill="#767a7e">&gt;${FOLD_MAX}&#215;</text>`;
     // grid
     for (const t of [-20, -10, 0, 10, 20]) {
       svg += `<line x1="${LM + OUT_W}" y1="${sy(t)}" x2="${LM + OUT_W + CW}" y2="${sy(t)}" stroke="${t === 0 ? "#8a8a8a" : "#ececec"}"/>` +
@@ -313,18 +325,22 @@ function detailBlock(native, challenger, results) {
     // points with both metrics
     for (const r of both) {
       const out = isOutlier(r.cost);
-      const x = out ? LM + 18 : sx(r.cost), y = sy(r.delta);
+      const x = out ? (r.cost > 1 ? LM + 34 : LM + OUT_W + CW + 18) : sx(r.cost), y = sy(r.delta);
       if (r.interval != null) {
         const lo = sy(r.delta - r.interval), hi = sy(r.delta + r.interval);
         const clipped = r.delta - r.interval < SC.ymin || r.delta + r.interval > SC.ymax;
         svg += `<line x1="${x}" y1="${hi}" x2="${x}" y2="${lo}" stroke="#9a9a9a" stroke-width="2"${clipped ? ' stroke-dasharray="3,2"' : ""}/>`;
       }
-      const label = out ? `<text x="${x + 10}" y="${y + 3.5}" font-size="10" text-anchor="start" fill="#505a5f">${outLabel(r.cost)}</text>` : "";
+      const label = out
+        ? (r.cost > 1
+          ? `<text x="${x - 9}" y="${y + 3.5}" font-size="10" text-anchor="end" fill="#505a5f">${outLabel(r.cost)}</text>`
+          : `<text x="${x + 9}" y="${y + 3.5}" font-size="10" text-anchor="start" fill="#505a5f">${outLabel(r.cost)}</text>`)
+        : "";
       svg += `<g class="mark" ${tipAttrs(r)}>${markShape(r, x, y, c)}${label}</g>`;
     }
     // quality-only gutter (no cost reported)
     if (qOnly.length) {
-      const gx0 = LM + OUT_W + CW + 10;
+      const gx0 = LM + CTOT + 10;
       svg += `<line x1="${gx0 - 5}" y1="${SC.top}" x2="${gx0 - 5}" y2="${plotBottom}" stroke="#d9d9d9" stroke-dasharray="2,3"/>` +
         `<text x="${gx0 + GUT / 2 - 10}" y="${SC.top - 4}" font-size="9.5" text-anchor="middle" fill="#767a7e">NO COST DATA</text>`;
       qOnly.forEach((r, i) => {
@@ -340,7 +356,7 @@ function detailBlock(native, challenger, results) {
     if (cOnly.length) {
       svg += `<text x="${LM - 6}" y="${stripY + 3.5}" font-size="9.5" text-anchor="end" fill="#767a7e">COST ONLY</text>`;
       for (const r of cOnly) {
-        const x = isOutlier(r.cost) ? LM + 18 : sx(r.cost);
+        const x = isOutlier(r.cost) ? (r.cost > 1 ? LM + 34 : LM + OUT_W + CW + 18) : sx(r.cost);
         svg += `<g class="mark" ${tipAttrs(r)}><circle cx="${x}" cy="${stripY}" r="5" fill="${c}"/></g>`;
       }
     }
@@ -395,8 +411,9 @@ for (const panel of PANELS) {
   const nStudies = new Set(plottable.map(r => r.study_id)).size;
   const nCostStudies = new Set(plottable.filter(r => r.cost != null).map(r => r.study_id)).size;
 
-  const axis = `<svg width="${OUT_W + CW}" height="22" class="lane">` +
-    `<text x="${OUT_W / 2 - 2}" y="14" font-size="10.5" text-anchor="middle" fill="#767a7e">&gt;3&#215;</text>` +
+  const axis = `<svg width="${CTOT}" height="22" class="lane">` +
+    `<text x="${OUT_W / 2 - 2}" y="14" font-size="10.5" text-anchor="middle" fill="#767a7e">&gt;${FOLD_MAX}&#215;</text>` +
+    `<text x="${OUT_W + CW + OUT_W / 2 + 2}" y="14" font-size="10.5" text-anchor="middle" fill="#767a7e">&gt;${FOLD_MAX}&#215;</text>` +
     COST_TICKS.map(t =>
       `<text x="${OUT_W + cx(t.v)}" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">${t.l}</text>`).join("") + `</svg>`;
 
@@ -404,7 +421,7 @@ for (const panel of PANELS) {
   for (const [challenger, results] of rows) {
     const rowColor = color(challenger);
     const q = qualityLane(results, rowColor, challenger, isRepeated);
-    const cl = costLane(results, rowColor, isRepeated);
+    const cl = costLane(results, rowColor, challenger, isRepeated);
     const id = `${panel.key}-${slug(challenger)}`;
     rowsHtml += `
 <div class="row" id="${id}">
@@ -471,10 +488,10 @@ const html = `<!doctype html>
   .caret { color: #909396; transition: transform 0.15s; }
   .rowhead[aria-expanded="true"] .caret { transform: rotate(90deg); }
   .qcell { width: ${QW}px; flex: none; }
-  .ccell { width: ${OUT_W + CW}px; flex: none; margin-left: 26px; padding-left: 14px; border-left: 3px solid #e5e7eb; }
+  .ccell { width: ${CTOT}px; flex: none; margin-left: 26px; padding-left: 14px; border-left: 3px solid #e5e7eb; }
   .lanetitle { font-size: 0.8rem; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
   .qheads { display: flex; }
-  .costheads { width: ${OUT_W + CW}px; justify-content: space-between; }
+  .costheads { width: ${CTOT}px; justify-content: space-between; }
   .costheads span:last-child { text-align: right; padding-right: 8px; padding-left: 0; }
   .qheads span { display: inline-block; font-size: 0.72rem; text-transform: uppercase;
                  letter-spacing: 0.04em; color: #505a5f; padding-left: 8px; }
