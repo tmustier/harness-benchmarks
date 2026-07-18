@@ -29,6 +29,8 @@ Repeated trials show whether an observed difference is stable. A one-task or one
 
 Do not treat overlapping confidence intervals as proof that 2 systems are equal. Treat them as evidence that the study has not separated them clearly.
 
+Every matched pair gets a winning interval from the study's own dispersion, on a fixed ladder: a published confidence interval, else a published error range, else a binomial interval from the study's task count, else a study-level dispersion recorded in `studies.json` as `dispersion_pp` with a mandatory `dispersion_note`. The last rung exists for studies that publish neither uncertainty nor task counts: it encodes the noise scale the study itself reveals — the publisher's own statements about which differences it considers equivalent, and the observed wiggle between near-equivalent configurations inside the study. The aim is that a pair is called decisive only where a careful reader of the original study would call the gap material. A pair is direction-only when no rung applies.
+
 ## Check cost and token definitions
 
 Cached input, uncached input, reasoning tokens and output tokens have different prices. Harnesses also report them differently.
