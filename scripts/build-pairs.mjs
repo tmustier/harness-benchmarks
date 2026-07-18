@@ -39,7 +39,12 @@ function modelFamily(model) {
 }
 
 // 95% half-width for one observation, from the study's own dispersion.
-function halfWidth(row) {
+// Ladder: published CI > published error range > binomial from the study's
+// task count > study-level dispersion. The last rung covers studies that
+// publish neither uncertainty nor task counts but whose own results or
+// statements reveal a noise scale (see docs/method.md); it is recorded per
+// study as dispersion_pp / dispersion_note so the basis is always auditable.
+function halfWidth(row, study) {
   if (row.ci_low != null && row.ci_high != null) {
     return { hw: (row.ci_high - row.ci_low) / 2, basis: "published confidence interval" };
   }
@@ -49,6 +54,9 @@ function halfWidth(row) {
   if (Number.isFinite(row.sample_count) && row.sample_count > 0) {
     const p = Math.min(Math.max(row.performance_value / 100, 0.01), 0.99);
     return { hw: 1.96 * Math.sqrt((p * (1 - p)) / row.sample_count) * 100, basis: `binomial, n=${row.sample_count}` };
+  }
+  if (study?.dispersion_pp != null) {
+    return { hw: study.dispersion_pp, basis: "study dispersion" };
   }
   return { hw: null, basis: null };
 }
@@ -72,8 +80,8 @@ for (const rows of groups.values()) {
       const b = sorted[j];
       if (canonical(a.harness) === canonical(b.harness)) continue;
       const study = studies[a.study_id];
-      const wa = halfWidth(a);
-      const wb = halfWidth(b);
+      const wa = halfWidth(a, study);
+      const wb = halfWidth(b, study);
       const interval = wa.hw != null && wb.hw != null ? Math.sqrt(wa.hw ** 2 + wb.hw ** 2) : null;
       const delta = a.performance_value - b.performance_value;
       pairs.push({

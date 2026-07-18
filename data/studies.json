@@ -18,6 +18,8 @@
     "weight_tier": "anchor",
     "weight_rationale": "A buyer study on real pull requests from a multi-million-line production codebase, with matched models and broad scope.",
     "citation_note": "Directional anchor. The source publishes aggregate claims only, so cite direction and rough magnitude rather than exact points.",
+    "dispersion_pp": 3.5,
+    "dispersion_note": "No CI or task count is published, so the winning interval uses the study-internal noise scale: the publisher treats results a couple of points apart as equivalent and a 6-point gap (Sonnet 5 vs Opus 4.8) as material, and quality wiggle between adjacent effort settings of the same model-harness pair runs 1 to 8 points (RMS about 4, an upper bound since effort has a real effect). ±3.5 pp per observation, about ±5 on a pair, encodes that reading: a 6-point gap clears it, a 2-3 point gap does not.",
     "source_url": "https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase",
     "section": "Operational and broad evidence",
     "section_order": 1,

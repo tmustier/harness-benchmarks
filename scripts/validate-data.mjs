@@ -50,6 +50,13 @@ for (const study of studies) {
   }
 }
 
+for (const study of studies) {
+  if (study.dispersion_pp !== undefined) {
+    if (!Number.isFinite(study.dispersion_pp) || study.dispersion_pp <= 0) errors.push(`dispersion_pp must be a positive number: ${study.id}`);
+    if (!study.dispersion_note) errors.push(`dispersion_pp requires a dispersion_note explaining its derivation: ${study.id}`);
+  }
+}
+
 const observationKeys = new Set();
 for (const row of observations) {
   if (!studyIds.has(row.study_id)) errors.push(`Unknown study in observations: ${row.study_id}`);

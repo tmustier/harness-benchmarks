@@ -378,6 +378,114 @@ function detailBlock(native, challenger, results) {
 }
 
 // --- Assemble ----------------------------------------------------------------
+// --- The field at a glance: origin-centred cost-quality plane ---------------
+// The aggregated analog of a single study's Pareto scatter. Absolute units do
+// not survive aggregation across benchmarks, but every matched result's
+// position relative to its own study's native baseline does: quality delta in
+// points (y, gated by the study's winning interval) and cost fold (x, the
+// same capped symmetric axis as the cost lane). The native harness IS the
+// origin. A mark up and to the right beat the native on both counts at once
+// -- the cross-study equivalent of sitting on the frontier.
+const PLN = { lm: 44, top: 30, h: 300, gut: 116 };
+function planeView(panel, results, isRepeated, rowOrder) {
+  const native = panel.native;
+  const withQ = results.filter(r => r.delta != null);
+  const both = withQ.filter(r => r.cost != null);
+  const qOnly = withQ.filter(r => r.cost == null);
+  const YMAX = 25;
+  const clampD = v => Math.max(-YMAX, Math.min(YMAX, v));
+  const sy = v => PLN.top + ((YMAX - clampD(v)) / (2 * YMAX)) * PLN.h;
+  const sx = v => PLN.lm + OUT_W + cx(v);
+  const bottom = PLN.top + PLN.h;
+  const ic0 = PLN.lm + OUT_W, ic1 = PLN.lm + OUT_W + CW; // in-scale span
+  const gx0 = PLN.lm + CTOT + 14;                        // no-cost strip
+  const W = qOnly.length ? gx0 + PLN.gut + 4 : PLN.lm + CTOT + 4;
+  const H = bottom + 36;
+  const cx1 = ic0 + cx(1);
+  const y0 = sy(0);
+  const ql = (x, y, anchor, text) =>
+    `<text x="${x}" y="${y}" font-size="9.5" text-anchor="${anchor}" fill="#8a9096" letter-spacing="0.04em">${text}</text>`;
+
+  let svg = `<svg width="${W}" height="${H}" class="lane">`;
+  // quadrant tints: up-right = dominates the native, down-left = dominated
+  svg += `<rect x="${cx1}" y="${PLN.top}" width="${ic1 - cx1}" height="${y0 - PLN.top}" fill="#16a34a" opacity="0.06"/>` +
+    `<rect x="${ic0}" y="${y0}" width="${cx1 - ic0}" height="${bottom - y0}" fill="${NEUTRAL}" opacity="0.05"/>`;
+  // grid + ticks
+  for (const t of [-20, -10, 10, 20]) {
+    svg += `<line x1="${ic0}" y1="${sy(t)}" x2="${ic1}" y2="${sy(t)}" stroke="#f0f0f0"/>` +
+      `<text x="${PLN.lm - 6}" y="${sy(t) + 3.5}" font-size="10" text-anchor="end" fill="#505a5f">${t > 0 ? "+" + t : t}</text>`;
+  }
+  svg += `<text x="${PLN.lm - 6}" y="${y0 + 3.5}" font-size="10" text-anchor="end" fill="#505a5f">0</text>`;
+  for (const t of COST_TICKS) {
+    svg += `<line x1="${ic0 + cx(t.v)}" y1="${PLN.top}" x2="${ic0 + cx(t.v)}" y2="${bottom}" stroke="${t.v === 1 ? "#c7c7c7" : "#f0f0f0"}"/>` +
+      `<text x="${ic0 + cx(t.v)}" y="${bottom + 16}" font-size="10" text-anchor="middle" fill="#505a5f">${t.l}</text>`;
+  }
+  // origin lines
+  svg += `<line x1="${ic0}" y1="${y0}" x2="${ic1}" y2="${y0}" stroke="#8a8a8a"/>`;
+  // outlier gutters, same convention as the cost lane
+  svg += `<line x1="${ic0 - 4}" y1="${PLN.top}" x2="${ic0 - 4}" y2="${bottom}" stroke="#d9d9d9" stroke-dasharray="2,3"/>` +
+    `<line x1="${ic1 + 4}" y1="${PLN.top}" x2="${ic1 + 4}" y2="${bottom}" stroke="#d9d9d9" stroke-dasharray="2,3"/>` +
+    `<text x="${PLN.lm + OUT_W / 2 - 2}" y="${bottom + 16}" font-size="10" text-anchor="middle" fill="#767a7e">&gt;${FOLD_MAX}&#215;</text>` +
+    `<text x="${ic1 + OUT_W / 2 + 2}" y="${bottom + 16}" font-size="10" text-anchor="middle" fill="#767a7e">&gt;${FOLD_MAX}&#215;</text>`;
+  // directional headers + quadrant labels
+  svg += `<text x="${ic0}" y="${PLN.top - 16}" font-size="9.5" letter-spacing="0.06em" fill="#505a5f">&#8592; ${esc(native.toUpperCase())} CHEAPER</text>` +
+    `<text x="${ic1}" y="${PLN.top - 16}" font-size="9.5" letter-spacing="0.06em" text-anchor="end" fill="#505a5f">HARNESS CHEAPER &#8594;</text>`;
+  svg += ql(ic0 + 6, PLN.top + 11, "start", "harness better &#183; costs more");
+  svg += ql(ic1 - 6, PLN.top + 11, "end", "harness better &#183; cheaper");
+  svg += ql(ic0 + 6, bottom - 5, "start", "worse &#183; costs more");
+  svg += ql(ic1 - 6, bottom - 5, "end", "worse &#183; cheaper");
+  svg += `<text transform="rotate(-90 11 ${y0})" x="11" y="${y0}" font-size="10" text-anchor="middle" fill="#505a5f">&#916; quality (pp)</text>`;
+
+  // place marks with both metrics
+  const placed = both.map(r => {
+    const out = isOutlier(r.cost);
+    const x = out ? (r.cost > 1 ? PLN.lm + 34 : ic1 + 18) : sx(r.cost);
+    return { r, x, y: sy(r.delta), out };
+  });
+  // no-cost strip keeps the true quality position; collisions shift right
+  if (qOnly.length) {
+    svg += `<line x1="${gx0 - 8}" y1="${PLN.top}" x2="${gx0 - 8}" y2="${bottom}" stroke="#d9d9d9" stroke-dasharray="2,3"/>` +
+      `<text x="${gx0 + PLN.gut / 2 - 8}" y="${PLN.top - 16}" font-size="9.5" letter-spacing="0.06em" text-anchor="middle" fill="#767a7e">NO COST DATA</text>`;
+    for (const r of [...qOnly].sort((a, b) => b.delta - a.delta)) {
+      const y = sy(r.delta);
+      const k = placed.filter(p => p.strip && Math.abs(p.y - y) < 13).length;
+      placed.push({ r, x: gx0 + 6 + k * 15, y, strip: true });
+    }
+  }
+  // capsules behind, whiskers, then marks
+  for (const p of placed) {
+    if (isRepeated(p.r.study_id)) {
+      svg += `<rect class="capsule" data-study="${esc(p.r.study_id)}" x="${p.x - 9}" y="${p.y - 9}" width="18" height="18" rx="9" fill="#e8e8e8" stroke="#cccccc" stroke-width="1"/>`;
+    }
+  }
+  for (const p of placed) {
+    if (p.r.interval == null) continue;
+    const lo = sy(p.r.delta - p.r.interval), hi = sy(p.r.delta + p.r.interval);
+    const clipped = Math.abs(p.r.delta - p.r.interval) > YMAX || Math.abs(p.r.delta + p.r.interval) > YMAX;
+    svg += `<line x1="${p.x}" y1="${hi}" x2="${p.x}" y2="${lo}" stroke="#b3b3b3" stroke-width="1.4"${clipped ? ' stroke-dasharray="3,2"' : ""}/>`;
+  }
+  for (const p of placed) {
+    const label = p.out
+      ? (p.r.cost > 1
+        ? `<text x="${p.x - 9}" y="${p.y + 3.5}" font-size="10" text-anchor="end" fill="#505a5f">${outLabel(p.r.cost)}</text>`
+        : `<text x="${p.x + 9}" y="${p.y + 3.5}" font-size="10" text-anchor="start" fill="#505a5f">${outLabel(p.r.cost)}</text>`)
+      : "";
+    svg += `<g class="mark" ${tipAttrs(p.r)}>${markShape(p.r, p.x, p.y, color(p.r.challenger))}${label}</g>`;
+  }
+  svg += `</svg>`;
+
+  const seen = new Set(withQ.map(r => r.challenger));
+  const chips = rowOrder.filter(ch => seen.has(ch)).map(ch =>
+    `<span class="lg"><span class="dot" style="background:${color(ch)}"></span>${esc(ch)}</span>`).join("");
+  return `
+  <div class="planecard">
+    <div class="lanetitle">The field at a glance &#8212; every matched result, cost &#215; quality, vs ${esc(native)}</div>
+    <div class="legend2">${chips}</div>
+    ${svg}
+    <p class="provnote">${native === "Claude Code" ? "Claude Code" : "Codex"} sits at the origin. ${both.length} results report cost and quality together; ${qOnly.length} report quality only (right strip). Same mark language as the lanes below: filled = clear lead, open = inside the study's interval, diamond = direction only; whiskers show the interval; grey backing = same study.</p>
+  </div>`;
+}
+
 let body = "";
 for (const panel of PANELS) {
   const oriented = pairs
@@ -436,10 +544,12 @@ for (const panel of PANELS) {
 <div class="detail" id="${id}-detail" hidden>${detailBlock(panel.native, challenger, results)}</div>`;
   }
 
+  const plane = planeView(panel, oriented, isRepeated, rows.map(([ch]) => ch));
   body += `
 <section class="panel">
   <h2>Using ${esc(panel.family)} <span class="vs">&mdash; every harness compared with ${esc(panel.native)}</span></h2>
   <p class="coverage">${nResults} matched results &#183; ${nStudies} studies &#183; ${nCostStudies} report cost. Anchor and supporting studies only; each mark is one published matched result.</p>
+  ${plane}
   <div class="row lanehead">
     <div class="rowhead"></div>
     <div class="qcell">
@@ -457,153 +567,6 @@ for (const panel of PANELS) {
   ${rowsHtml}
 </section>`;
 }
-
-// --- Study spotlight: the absolute cost-quality frontier --------------------
-// The lanes above are deliberately relative: most studies only support
-// challenger-vs-native contrasts, and their quality scales are not comparable
-// across benchmarks. Within ONE study the scales are comparable, and when a
-// study publishes absolute pass rates and absolute dollars per task for many
-// model x harness x effort combinations, the honest full picture is a Pareto
-// scatter, not the relative grammar. Databricks is the flagship case; the
-// renderer is generic so other absolute-reporting studies can be added.
-const observations = JSON.parse(fs.readFileSync(path.join(root, "data", "observations.json"), "utf8"));
-
-function paretoSpotlight(studyId, opts) {
-  const study = studies[studyId];
-  const rows = observations.filter(o =>
-    o.study_id === studyId && o.cost_usd_per_task != null && o.performance_value != null);
-  const HC = opts.harnessColors;
-  const P = { lm: 56, w: 860, top: 20, h: 430 };
-  const xmax = Math.max(...rows.map(r => r.cost_usd_per_task)) * 1.08;
-  const ymin = opts.ymin, ymax = opts.ymax;
-  const px = v => P.lm + (v / xmax) * P.w;
-  const py = v => P.top + ((ymax - v) / (ymax - ymin)) * P.h;
-  const bottom = P.top + P.h;
-  const effShort = e => e === "medium" ? "med" : e;
-  // label like the source figure: "Opus 4.8 (pi, xhigh)", "GLM 5.2 (pi)"
-  const shortLabel = r => {
-    const inner = [r.harness.toLowerCase(), r.effort && r.effort !== "default" ? effShort(r.effort) : null]
-      .filter(Boolean).join(", ");
-    return `${r.model.replace(/^Claude /, "")} (${inner})`;
-  };
-
-  let svg = `<svg width="${P.lm + P.w + 24}" height="${bottom + 52}" class="lane">`;
-  // the study's own capability tiers, as horizontal bands; their labels are
-  // registered as occupied space so point labels route around them
-  const rects = [];
-  for (const t of opts.tiers ?? []) {
-    const ty = py(t.lo) - 8, ttext = `${t.label} \u00b7 ${t.lo}\u2013${t.hi}%`;
-    svg += `<rect x="${P.lm}" y="${py(t.hi)}" width="${P.w}" height="${py(t.lo) - py(t.hi)}" fill="#e8f1fa" opacity="0.55"/>` +
-      `<text x="${P.lm + P.w - 8}" y="${ty}" font-size="10" text-anchor="end" fill="#8ba3b8" letter-spacing="0.05em">${esc(ttext)}</text>`;
-    const tw = ttext.length * 6;
-    rects.push({ x0: P.lm + P.w - 8 - tw, x1: P.lm + P.w - 8, y0: ty - 9, y1: ty + 2 });
-  }
-  // grid + axes
-  for (let t = 0.5; t < xmax; t += 0.5) {
-    svg += `<line x1="${px(t)}" y1="${P.top}" x2="${px(t)}" y2="${bottom}" stroke="#efefef"/>` +
-      `<text x="${px(t)}" y="${bottom + 16}" font-size="10" text-anchor="middle" fill="#505a5f">$${t.toFixed(2)}</text>`;
-  }
-  for (let t = Math.ceil(ymin / 5) * 5; t <= ymax; t += 5) {
-    svg += `<line x1="${P.lm}" y1="${py(t)}" x2="${P.lm + P.w}" y2="${py(t)}" stroke="#efefef"/>` +
-      `<text x="${P.lm - 8}" y="${py(t) + 3.5}" font-size="10" text-anchor="end" fill="#505a5f">${t}%</text>`;
-  }
-  svg += `<text x="${P.lm + P.w / 2}" y="${bottom + 40}" font-size="11" text-anchor="middle" fill="#3d4247" font-weight="600">Cost per task (mean $)</text>`;
-  svg += `<text transform="rotate(-90 14 ${P.top + P.h / 2})" x="14" y="${P.top + P.h / 2}" font-size="11" text-anchor="middle" fill="#3d4247" font-weight="600">Overall pass rate</text>`;
-
-  // connectors: same model + effort run through two harnesses. The horizontal
-  // gap is the harness cost effect, the vertical gap the harness quality effect.
-  const byCombo = new Map();
-  for (const r of rows) {
-    const k = `${r.model}|${r.effort}`;
-    if (!byCombo.has(k)) byCombo.set(k, []);
-    byCombo.get(k).push(r);
-  }
-  for (const combo of byCombo.values()) {
-    if (combo.length !== 2) continue;
-    const [a, b] = combo;
-    svg += `<line x1="${px(a.cost_usd_per_task)}" y1="${py(a.performance_value)}" x2="${px(b.cost_usd_per_task)}" y2="${py(b.performance_value)}" stroke="#b9bfc6" stroke-width="1.2"/>`;
-  }
-
-  // Pareto frontier: best pass rate available at or below each cost
-  const byCost = [...rows].sort((a, b) =>
-    a.cost_usd_per_task - b.cost_usd_per_task || b.performance_value - a.performance_value);
-  const frontier = [];
-  let best = -Infinity;
-  for (const r of byCost) {
-    if (r.performance_value > best) { frontier.push(r); best = r.performance_value; }
-  }
-  svg += `<polyline points="${frontier.map(r => `${px(r.cost_usd_per_task)},${py(r.performance_value)}`).join(" ")}" fill="none" stroke="#ef4444" stroke-width="1.6" stroke-dasharray="5,4" opacity="0.65"/>`;
-  const onFrontier = new Set(frontier);
-
-  // greedy label placement: try several anchor offsets, avoid points and labels
-  const pts = rows.map(r => ({ r, x: px(r.cost_usd_per_task), y: py(r.performance_value) }));
-  const CANDS = [
-    { dx: 10, dy: 3.5, a: "start" }, { dx: -10, dy: 3.5, a: "end" },
-    { dx: 0, dy: -11, a: "middle" }, { dx: 0, dy: 17, a: "middle" },
-    { dx: 9, dy: -9, a: "start" }, { dx: 9, dy: 15, a: "start" },
-    { dx: -9, dy: -9, a: "end" }, { dx: -9, dy: 15, a: "end" },
-    // second ring for congested regions
-    { dx: 12, dy: -20, a: "start" }, { dx: 12, dy: 26, a: "start" },
-    { dx: -12, dy: -20, a: "end" }, { dx: -12, dy: 26, a: "end" },
-    { dx: 0, dy: -22, a: "middle" }, { dx: 0, dy: 28, a: "middle" },
-  ];
-  const overlaps = (r1, r2) => r1.x0 < r2.x1 && r2.x0 < r1.x1 && r1.y0 < r2.y1 && r2.y0 < r1.y1;
-  const labels = [];
-  for (const p of [...pts].sort((a, b) => a.x - b.x)) {
-    const text = shortLabel(p.r);
-    const w = text.length * 6.2, h = 11;
-    let pick = null;
-    for (const c of CANDS) {
-      const tx = p.x + c.dx, ty = p.y + c.dy;
-      const x0 = c.a === "start" ? tx : c.a === "end" ? tx - w : tx - w / 2;
-      const rect = { x0, x1: x0 + w, y0: ty - h + 2, y1: ty + 2 };
-      if (rect.x0 < 2 || rect.x1 > P.lm + P.w + 22 || rect.y0 < 4 || rect.y1 > bottom + 12) continue;
-      const hitsPoint = pts.some(q => q !== p &&
-        q.x > rect.x0 - 7 && q.x < rect.x1 + 7 && q.y > rect.y0 - 7 && q.y < rect.y1 + 7);
-      if (hitsPoint || rects.some(rr => overlaps(rect, rr))) continue;
-      pick = { tx, ty, a: c.a, rect };
-      break;
-    }
-    if (!pick) {
-      const c = CANDS[0], tx = p.x + c.dx, ty = p.y + c.dy;
-      pick = { tx, ty, a: c.a, rect: { x0: tx, x1: tx + w, y0: ty - h + 2, y1: ty + 2 } };
-    }
-    rects.push(pick.rect);
-    labels.push(`<text x="${pick.tx}" y="${pick.ty}" font-size="10" text-anchor="${pick.a}" fill="#5b6166">${esc(text)}</text>`);
-  }
-  svg += labels.join("");
-
-  // marks last, on top; frontier members get a red ring
-  for (const p of pts) {
-    const r = p.r;
-    const effortSuffix = r.effort && r.effort !== "default" ? `, ${effShort(r.effort)}` : "";
-    const tip = `${r.model} (${r.harness}${effortSuffix})\n${r.performance_value}% pass rate \u00b7 $${r.cost_usd_per_task.toFixed(2)} per task\n${study.name} (${study.weight_tier})`;
-    const ring = onFrontier.has(r) ? `<circle cx="${p.x}" cy="${p.y}" r="9" fill="none" stroke="#ef4444" stroke-width="1.3" opacity="0.75"/>` : "";
-    svg += `<g class="mark" data-tip="${esc(tip)}" data-study="${esc(studyId)}">${ring}<circle cx="${p.x}" cy="${p.y}" r="6" fill="${HC[r.harness] ?? "#6b7280"}" stroke="#ffffff" stroke-width="1.2"/></g>`;
-  }
-  svg += `</svg>`;
-
-  const legend = Object.entries(HC).map(([h, c]) =>
-    `<span class="lg"><span class="dot" style="background:${c}"></span>${esc(h)}</span>`).join("");
-  return `
-<section class="panel spotlightp">
-  <h2>One study in absolute terms <span class="vs">&mdash; the ${esc(study.name)} frontier</span></h2>
-  <p class="coverage">${rows.length} model &#183; harness &#183; effort combinations on ${esc(study.publisher)}'s internal multi-million-line codebase, in the study's own units: overall pass rate against mean dollars per task. Dashed line and ringed points: the Pareto frontier. Grey connectors join the same model and effort through two harnesses. Shaded bands: the study's own capability tiers.</p>
-  <div class="legend2">${legend}</div>
-  ${svg}
-  <p class="provnote">Dollar provenance: $1.94 (Opus 4.8, Claude Code, high), $1.28 (GLM 5.2, Pi) and $2.09 (Sonnet 5, Claude Code) are stated in the text, as are all six matched cost ratios and the 1.8&#215; and 1.3&#215; comparisons; the remaining anchors are traced from the published figure. The study publishes no task count or uncertainty, so quality gaps here carry no interval &mdash; the study's own reading is that harness swaps moved cost far more than quality.</p>
-</section>`;
-}
-
-body += paretoSpotlight("databricks", {
-  ymin: 47, ymax: 93,
-  tiers: [
-    { label: "TIER 1", lo: 82, hi: 90 },
-    { label: "TIER 2", lo: 71, hi: 82 },
-    { label: "TIER 3", lo: 51, hi: 60 },
-  ],
-  harnessColors: { Pi: "#7c3aed", "Claude Code": "#da7756", Codex: "#2563eb" },
-});
 
 const html = `<!doctype html>
 <html lang="en">
@@ -658,7 +621,7 @@ const html = `<!doctype html>
          white-space: pre-line; pointer-events: none; display: none; }
   .studynote { color: #505a5f; font-size: 0.85rem; margin-top: 4px; display: none; }
   body.spot .studynote { display: block; }
-  .spotlightp svg { display: block; }
+  .planecard { margin: 10px 0 30px; }
   .legend2 { color: #3d4247; font-size: 0.9rem; margin: 8px 0 2px; }
   .legend2 .lg { margin-right: 18px; }
   .legend2 .dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: -1px; margin-right: 6px; }
