@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Which harness should I run? The matched evidence</title>
+<link rel="stylesheet" href="report.css">
+<style>
+  body { background: #ffffff; }
+  .map-wrap { max-width: 1280px; margin: 0 auto; padding: 28px 24px 80px; }
+  .map-wrap h1 { margin-bottom: 6px; }
+  .lede2 { color: #383f43; max-width: 900px; }
+  .legend { color: #505a5f; font-size: 0.85rem; margin: 10px 0 6px; }
+  .legend .sw { display:inline-block; vertical-align:-2px; margin: 0 3px 0 10px; }
+  .panel { margin-top: 34px; }
+  .panel h2 { margin-bottom: 2px; }
+  .panel .vs { font-weight: 400; color: #505a5f; font-size: 0.75em; }
+  .coverage { color: #505a5f; font-size: 0.9rem; margin: 2px 0 10px; }
+  .row { display: flex; align-items: flex-start; border-top: 1px solid #eee; padding: 6px 0; }
+  .row:not(.lanehead) .rowhead { margin-top: 2px; }
+  .row.lanehead { border-top: none; align-items: flex-end; padding-bottom: 0; }
+  .rowhead { width: 170px; flex: none; display: flex; align-items: center; gap: 8px;
+             background: none; border: none; cursor: pointer; font: inherit; text-align: left; padding: 0; }
+  .lanehead .rowhead { cursor: default; }
+  .chip { width: 24px; height: 24px; border-radius: 6px; color: #fff; font-size: 10.5px; font-weight: 700;
+          display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  .hname { font-weight: 600; font-size: 0.95rem; white-space: nowrap; }
+  .caret { color: #909396; transition: transform 0.15s; }
+  .rowhead[aria-expanded="true"] .caret { transform: rotate(90deg); }
+  .qcell { width: 560px; flex: none; border-right: 1px solid #e6e6e6; }
+  .ccell { width: 404px; flex: none; padding-left: 4px; }
+  .qheads { display: flex; }
+  .qheads span, .chead { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: #505a5f; }
+  .qheads span { display: inline-block; padding-left: 8px; }
+  .chead { padding-left: 12px; }
+  .lane { display: block; }
+  .costnote { padding: 2px 0 0 12px; }
+  .nocost { color: #767a7e; font-size: 0.85rem; font-style: italic; }
+  .detail { margin: 0 0 8px 170px; padding: 10px 14px; background: #fafafa; border-left: 3px solid #d0d0d0; }
+  .detail .record { font-size: 0.92rem; margin: 4px 0; }
+  .dim { color: #505a5f; }
+  .mark { cursor: pointer; }
+  .capsule { cursor: pointer; }
+  body.spot .mark, body.spot .capsule { opacity: 0.18; }
+  body.spot .mark.lit, body.spot .capsule.lit { opacity: 1; }
+  #tip { position: fixed; z-index: 10; max-width: 340px; background: #0b0c0c; color: #fff;
+         font-size: 12px; line-height: 1.45; padding: 8px 10px; border-radius: 4px;
+         white-space: pre-line; pointer-events: none; display: none; }
+  .studynote { color: #505a5f; font-size: 0.85rem; margin-top: 4px; display: none; }
+  body.spot .studynote { display: block; }
+</style>
+</head>
+<body>
+<div class="map-wrap">
+<h1>Which harness should I run?</h1>
+<p class="lede2">Every published matched comparison against the harness you would use by default. Quality on the left: does the study's own dispersion let the challenger and the native harness be told apart? Cost on the right: what the same studies measured, as a ratio. Hover any mark for the study behind it; click a harness for the full detail; click a grey capsule to spotlight one study's results.</p>
+<p class="legend">
+  <svg class="sw" width="14" height="14"><circle cx="7" cy="7" r="5.5" fill="#505a5f"/></svg> clears the study's winning interval
+  <svg class="sw" width="14" height="14"><circle cx="7" cy="7" r="5" fill="#fff" stroke="#505a5f" stroke-width="1.8"/></svg> inside it
+  <svg class="sw" width="14" height="14"><rect x="2.6" y="2.6" width="8.8" height="8.8" transform="rotate(45 7 7)" fill="#fff" stroke="#505a5f" stroke-width="1.6"/></svg> direction only, no interval
+  <svg class="sw" width="18" height="14"><circle cx="9" cy="7" r="8" fill="none" stroke="#505a5f" opacity="0.55"/><circle cx="9" cy="7" r="4" fill="#505a5f"/></svg> ringed = anchor study
+  <svg class="sw" width="26" height="14"><rect x="1" y="1" width="24" height="12" rx="6" fill="#f0f0f0"/><circle cx="8" cy="7" r="3.6" fill="#505a5f"/><circle cx="17" cy="7" r="3.6" fill="#505a5f"/></svg> same study
+</p>
+<p class="studynote" id="studynote"></p>
+
+<section class="panel">
+  <h2>Using Claude models <span class="vs">&mdash; compared with Claude Code</span></h2>
+  <p class="coverage">42 matched results &#183; 8 studies &#183; 3 report cost. Anchor and supporting studies only; each mark is one published matched result.</p>
+  <div class="row lanehead">
+    <div class="rowhead"></div>
+    <div class="qcell">
+      <div class="qheads"><span style="width:130px">Claude Code leads</span><span style="width:170px">unclear</span><span style="width:130px">challenger leads</span><span style="width:130px">no interval</span></div>
+    </div>
+    <div class="ccell"><div class="chead">cost, challenger &#247; Claude Code (log)</div><svg width="404" height="22" class="lane"><text x="28.707713388037522" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">&#8539;&#215;</text><text x="80.60661147546072" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">&#188;&#215;</text><text x="132.50550956288396" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">&#189;&#215;</text><text x="184.40440765030715" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">1&#215;</text><text x="236.30330573773034" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">2&#215;</text><text x="288.20220382515356" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">4&#215;</text><text x="340.1011019125768" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">8&#215;</text><text x="392" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">16&#215;</text></svg></div>
+  </div>
+  
+<div class="row" id="claude-cursor">
+  <button class="rowhead" aria-expanded="false" data-target="claude-cursor-detail">
+    <span class="chip" style="background:#111111">C</span>
+    <span class="hname">Cursor</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Agent Security League (supporting)
+Claude Sonnet 5 · effort default
+functional pass rate
+Δ quality -20.1 pts vs native · interval ±8.5 (binomial, n=200 / binomial, n=200)" data-study="endor"><circle cx="14" cy="10" r="5.5" fill="#111111"/></g><g class="mark" data-tip="Coding Agent Index (anchor)
+Claude Opus 4.7 · effort medium
+Coding Agent Index
+Δ quality +3.4 pts vs native · interval ±7.6 (binomial, n=321 / binomial, n=321)
+cost 1.60× native
+tokens 1.24× native" data-study="artificial-analysis"><circle cx="144" cy="10" r="8" fill="none" stroke="#111111" stroke-width="1.2" opacity="0.55"/><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/></g><g class="mark" data-tip="Agents&#39; Last Exam (anchor)
+Claude Opus 4.7 · effort default
+full-pass rate
+Δ quality +7.2 pts vs native · interval ±8.4 (binomial, n=152 / binomial, n=152)" data-study="agents-last-exam"><circle cx="161" cy="10" r="8" fill="none" stroke="#111111" stroke-width="1.2" opacity="0.55"/><circle cx="161" cy="10" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/></g><rect class="capsule" data-study="endor" x="168" y="1" width="37" height="18" rx="9" fill="#f0f0f0"/><g class="mark" data-tip="Agent Security League (supporting)
+Claude Opus 4.7 · effort default
+functional pass rate
+Δ quality +3.4 pts vs native · interval ±8.1 (binomial, n=200 / binomial, n=200)" data-study="endor"><circle cx="178" cy="10" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/></g><g class="mark" data-tip="Agent Security League (supporting)
+Claude Opus 4.8 · effort default
+functional pass rate
+Δ quality +1.7 pts vs native · interval ±8.5 (binomial, n=200 / binomial, n=200)" data-study="endor"><circle cx="195" cy="10" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><svg width="404" height="24" class="lane"><line x1="28.707713388037522" y1="0" x2="28.707713388037522" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="80.60661147546072" y1="0" x2="80.60661147546072" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="132.50550956288396" y1="0" x2="132.50550956288396" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="184.40440765030715" y1="0" x2="184.40440765030715" y2="24" stroke="#9a9a9a" stroke-width="1.4"/><line x1="236.30330573773034" y1="0" x2="236.30330573773034" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="288.20220382515356" y1="0" x2="288.20220382515356" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="340.1011019125768" y1="0" x2="340.1011019125768" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="392" y1="0" x2="392" y2="24" stroke="#eeeeee" stroke-width="1"/><g class="mark" data-tip="Coding Agent Index (anchor)
+Claude Opus 4.7 · effort medium
+Coding Agent Index
+Δ quality +3.4 pts vs native · interval ±7.6 (binomial, n=321 / binomial, n=321)
+cost 1.60× native
+tokens 1.24× native" data-study="artificial-analysis"><circle cx="219.3740830218141" cy="10" r="8" fill="none" stroke="#111111" stroke-width="1.2" opacity="0.55"/><circle cx="219.3740830218141" cy="10" r="5" fill="#111111"/></g></svg></div>
+</div>
+<div class="detail" id="claude-cursor-detail" hidden><p class="record"><strong>Cursor</strong> vs Claude Code across 3 studies: 0 clear Cursor leads, 1 clear Claude Code lead, 4 inside the noise, 0 direction-only.</p><svg width="1052" height="160"><line x1="78" y1="4" x2="78" y2="126" stroke="#e6e6e6"/><text x="78" y="140" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="126" stroke="#e6e6e6"/><text x="162" y="140" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="126" stroke="#505a5f"/><text x="246" y="140" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="126" stroke="#e6e6e6"/><text x="330" y="140" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="126" stroke="#e6e6e6"/><text x="414" y="140" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="210.21600000000004" y1="16" x2="338.232" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="274.22400000000005" cy="16" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/><text x="498" y="20" font-size="11">Coding Agent Index · Claude Opus 4.7 · medium · Coding Agent Index <tspan fill="#505a5f">[A]</tspan></text><line x1="236.172" y1="40" x2="376.788" y2="40" stroke="#9a9a9a" stroke-width="2"/><circle cx="306.48" cy="40" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/><text x="498" y="44" font-size="11">Agents&#39; Last Exam · Claude Opus 4.7 · default · full-pass rate <tspan fill="#505a5f">[A]</tspan></text><line x1="206.604" y1="64" x2="342.516" y2="64" stroke="#9a9a9a" stroke-width="2"/><circle cx="274.55999999999995" cy="64" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/><text x="498" y="68" font-size="11">Agent Security League · Claude Opus 4.7 · default · functional pass rate <tspan fill="#505a5f">[B]</tspan></text><line x1="188.544" y1="88" x2="332.01599999999996" y2="88" stroke="#9a9a9a" stroke-width="2"/><circle cx="260.28" cy="88" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/><text x="498" y="92" font-size="11">Agent Security League · Claude Opus 4.8 · default · functional pass rate <tspan fill="#505a5f">[B]</tspan></text><line x1="36" y1="112" x2="148.224" y2="112" stroke="#9a9a9a" stroke-width="2" stroke-dasharray="3,2"/><circle cx="77.16" cy="112" r="5" fill="#111111" stroke="#111111" stroke-width="1.8"/><text x="498" y="116" font-size="11">Agent Security League · Claude Sonnet 5 · default · functional pass rate <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="156" font-size="10.5" fill="#505a5f">&#8592; Claude Code leads</text><text x="456" y="156" font-size="10.5" text-anchor="end" fill="#505a5f">Cursor leads &#8594;</text></svg><p class="record">Cost, Cursor relative to Claude Code: 1.60&#215; <span class="dim">(Coding Agent Index, Claude Opus 4.7, medium)</span></p><p class="record dim">Sources: <a href="https://artificialanalysis.ai/agents/coding-agents">Coding Agent Index</a> · <a href="https://arxiv.org/abs/2606.05405">Agents&#39; Last Exam</a> · <a href="https://www.endorlabs.com/learn/claude-sonnet-5-with-cursor-strong-reasoning-throttled-by-the-harness">Agent Security League</a> (adjacent)</p></div>
+<div class="row" id="claude-pi">
+  <button class="rowhead" aria-expanded="false" data-target="claude-pi-detail">
+    <span class="chip" style="background:#7c3aed">P</span>
+    <span class="hname">Pi</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="scBench-Long (supporting)
+Claude Opus 4.8 · effort default
+pass rate
+Δ quality -4.8 pts vs native · interval ±22.2 (published confidence interval / published confidence interval)" data-study="latchbio-scbench-long"><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/></g><rect class="capsule" data-study="databricks" x="434" y="1" width="54" height="18" rx="9" fill="#f0f0f0"/><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+Claude Opus 4.8 · effort high
+task completion
+Δ quality -2.0 pts vs native · no interval published" data-study="databricks"><circle cx="444" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><rect x="439.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 444 10)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/></g><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+Claude Opus 4.8 · effort xhigh
+task completion
+Δ quality +2.0 pts vs native · no interval published" data-study="databricks"><circle cx="461" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><rect x="456.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 461 10)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/></g><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+Claude Opus 4.8 · effort max
+task completion
+Δ quality -7.0 pts vs native · no interval published" data-study="databricks"><circle cx="478" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><rect x="473.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 478 10)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/></g></svg></div>
+  <div class="ccell"><svg width="404" height="24" class="lane"><line x1="28.707713388037522" y1="0" x2="28.707713388037522" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="80.60661147546072" y1="0" x2="80.60661147546072" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="132.50550956288396" y1="0" x2="132.50550956288396" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="184.40440765030715" y1="0" x2="184.40440765030715" y2="24" stroke="#9a9a9a" stroke-width="1.4"/><line x1="236.30330573773034" y1="0" x2="236.30330573773034" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="288.20220382515356" y1="0" x2="288.20220382515356" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="340.1011019125768" y1="0" x2="340.1011019125768" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="392" y1="0" x2="392" y2="24" stroke="#eeeeee" stroke-width="1"/><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+Claude Opus 4.8 · effort high
+cost only
+cost 0.48× native" data-study="databricks"><circle cx="129.56888679077102" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><circle cx="129.56888679077102" cy="10" r="5" fill="#7c3aed"/></g><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+Claude Opus 4.8 · effort xhigh
+cost only
+cost 0.68× native" data-study="databricks"><circle cx="156.0692509031549" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><circle cx="156.0692509031549" cy="10" r="5" fill="#7c3aed"/></g><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+Claude Opus 4.8 · effort max
+cost only
+cost 0.83× native" data-study="databricks"><circle cx="170.75321182845317" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><circle cx="170.75321182845317" cy="10" r="5" fill="#7c3aed"/></g></svg></div>
+</div>
+<div class="detail" id="claude-pi-detail" hidden><p class="record"><strong>Pi</strong> vs Claude Code across 2 studies: 0 clear Pi leads, 0 clear Claude Code leads, 1 inside the noise, 3 direction-only.</p><svg width="1052" height="136"><line x1="78" y1="4" x2="78" y2="102" stroke="#e6e6e6"/><text x="78" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="102" stroke="#e6e6e6"/><text x="162" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="102" stroke="#505a5f"/><text x="246" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="102" stroke="#e6e6e6"/><text x="330" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="102" stroke="#e6e6e6"/><text x="414" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><rect x="224.8" y="11.6" width="8.8" height="8.8" transform="rotate(45 229.20000000000002 16)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/><text x="498" y="20" font-size="11">Databricks coding-agent benchmark · Claude Opus 4.8 · high · task completion <tspan fill="#505a5f">[A]</tspan></text><rect x="258.40000000000003" y="35.6" width="8.8" height="8.8" transform="rotate(45 262.8 40)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/><text x="498" y="44" font-size="11">Databricks coding-agent benchmark · Claude Opus 4.8 · xhigh · task completion <tspan fill="#505a5f">[A]</tspan></text><rect x="182.79999999999998" y="59.6" width="8.8" height="8.8" transform="rotate(45 187.2 64)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/><text x="498" y="68" font-size="11">Databricks coding-agent benchmark · Claude Opus 4.8 · max · task completion <tspan fill="#505a5f">[A]</tspan></text><line x1="36" y1="88" x2="392.32800000000003" y2="88" stroke="#9a9a9a" stroke-width="2" stroke-dasharray="3,2"/><circle cx="205.93200000000002" cy="88" r="5" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/><text x="498" y="92" font-size="11">scBench-Long · Claude Opus 4.8 · default · pass rate <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="132" font-size="10.5" fill="#505a5f">&#8592; Claude Code leads</text><text x="456" y="132" font-size="10.5" text-anchor="end" fill="#505a5f">Pi leads &#8594;</text></svg><p class="record">Cost, Pi relative to Claude Code: 0.48&#215; <span class="dim">(Databricks coding-agent benchmark, Claude Opus 4.8, high)</span> · 0.68&#215; <span class="dim">(Databricks coding-agent benchmark, Claude Opus 4.8, xhigh)</span> · 0.83&#215; <span class="dim">(Databricks coding-agent benchmark, Claude Opus 4.8, max)</span></p><p class="record dim">Sources: <a href="https://benchmarks.bio/scbench-long">scBench-Long</a> (adjacent) · <a href="https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase">Databricks coding-agent benchmark</a></p></div>
+<div class="row" id="claude-terminus">
+  <button class="rowhead" aria-expanded="false" data-target="claude-terminus-detail">
+    <span class="chip" style="background:#64748b">T</span>
+    <span class="hname">Terminus</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Terminal-Bench 2.1 (anchor)
+Claude Opus 4.8 · effort default
+pass rate
+Δ quality -4.3 pts vs native · interval ±3.5 (published confidence interval / published confidence interval)" data-study="terminal-bench"><circle cx="14" cy="10" r="8" fill="none" stroke="#64748b" stroke-width="1.2" opacity="0.55"/><circle cx="14" cy="10" r="5.5" fill="#64748b"/></g><rect class="capsule" data-study="terminal-bench" x="134" y="1" width="37" height="18" rx="9" fill="#f0f0f0"/><g class="mark" data-tip="Terminal-Bench 2.1 (anchor)
+Claude 5 Fable · effort default
+pass rate
+Δ quality -2.7 pts vs native · interval ±3.0 (published confidence interval / published confidence interval)" data-study="terminal-bench"><circle cx="144" cy="10" r="8" fill="none" stroke="#64748b" stroke-width="1.2" opacity="0.55"/><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#64748b" stroke-width="1.8"/></g><g class="mark" data-tip="Terminal-Bench 2.1 (anchor)
+Claude Opus 4.7 · effort default
+pass rate
+Δ quality -3.6 pts vs native · interval ±3.8 (published confidence interval / published confidence interval)" data-study="terminal-bench"><circle cx="161" cy="10" r="8" fill="none" stroke="#64748b" stroke-width="1.2" opacity="0.55"/><circle cx="161" cy="10" r="5" fill="#ffffff" stroke="#64748b" stroke-width="1.8"/></g><g class="mark" data-tip="Agents&#39; Last Exam (anchor)
+Claude Sonnet 4.6 · effort ALE-CLI
+full-pass rate
+Δ quality -4.8 pts vs native · interval ±9.4 (binomial, n=105 / binomial, n=105)" data-study="agents-last-exam"><circle cx="178" cy="10" r="8" fill="none" stroke="#64748b" stroke-width="1.2" opacity="0.55"/><circle cx="178" cy="10" r="5" fill="#ffffff" stroke="#64748b" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost reported</span></div></div>
+</div>
+<div class="detail" id="claude-terminus-detail" hidden><p class="record"><strong>Terminus</strong> vs Claude Code across 2 studies: 0 clear Terminus leads, 1 clear Claude Code lead, 3 inside the noise, 0 direction-only.</p><svg width="1052" height="136"><line x1="78" y1="4" x2="78" y2="102" stroke="#e6e6e6"/><text x="78" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="102" stroke="#e6e6e6"/><text x="162" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="102" stroke="#505a5f"/><text x="246" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="102" stroke="#e6e6e6"/><text x="330" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="102" stroke="#e6e6e6"/><text x="414" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="197.70000000000002" y1="16" x2="248.94" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="223.32" cy="16" r="5" fill="#ffffff" stroke="#64748b" stroke-width="1.8"/><text x="498" y="20" font-size="11">Terminal-Bench 2.1 · Claude 5 Fable · default · pass rate <tspan fill="#505a5f">[A]</tspan></text><line x1="180.732" y1="40" x2="239.02800000000002" y2="40" stroke="#9a9a9a" stroke-width="2"/><circle cx="209.88" cy="40" r="5" fill="#64748b" stroke="#64748b" stroke-width="1.8"/><text x="498" y="44" font-size="11">Terminal-Bench 2.1 · Claude Opus 4.8 · default · pass rate <tspan fill="#505a5f">[A]</tspan></text><line x1="183.672" y1="64" x2="247.84799999999998" y2="64" stroke="#9a9a9a" stroke-width="2"/><circle cx="215.76" cy="64" r="5" fill="#ffffff" stroke="#64748b" stroke-width="1.8"/><text x="498" y="68" font-size="11">Terminal-Bench 2.1 · Claude Opus 4.7 · default · pass rate <tspan fill="#505a5f">[A]</tspan></text><line x1="126.3" y1="88" x2="285.06" y2="88" stroke="#9a9a9a" stroke-width="2"/><circle cx="205.67999999999998" cy="88" r="5" fill="#ffffff" stroke="#64748b" stroke-width="1.8"/><text x="498" y="92" font-size="11">Agents&#39; Last Exam · Claude Sonnet 4.6 · ALE-CLI · full-pass rate <tspan fill="#505a5f">[A]</tspan></text><text x="36" y="132" font-size="10.5" fill="#505a5f">&#8592; Claude Code leads</text><text x="456" y="132" font-size="10.5" text-anchor="end" fill="#505a5f">Terminus leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://www.tbench.ai/leaderboard/terminal-bench/2.1">Terminal-Bench 2.1</a> · <a href="https://arxiv.org/abs/2606.05405">Agents&#39; Last Exam</a></p></div>
+<div class="row" id="claude-opencode">
+  <button class="rowhead" aria-expanded="false" data-target="claude-opencode-detail">
+    <span class="chip" style="background:#16a34a">O</span>
+    <span class="hname">OpenCode</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Vulnerability-Agent-Bench (supporting)
+Claude Opus 4.6 · effort default
+pass rate
+Δ quality -14.0 pts vs native · interval ±11.8 (binomial, n=136 / binomial, n=136)
+cost 13.33× native" data-study="xor"><circle cx="14" cy="10" r="5.5" fill="#16a34a"/></g><g class="mark" data-tip="Coding Agent Index (anchor)
+Claude Opus 4.7 · effort medium
+Coding Agent Index
+Δ quality +7.7 pts vs native · interval ±7.5 (binomial, n=321 / binomial, n=321)
+cost 1.74× native
+tokens 1.65× native" data-study="artificial-analysis"><circle cx="314" cy="10" r="8" fill="none" stroke="#16a34a" stroke-width="1.2" opacity="0.55"/><circle cx="314" cy="10" r="5.5" fill="#16a34a"/></g></svg></div>
+  <div class="ccell"><svg width="404" height="24" class="lane"><line x1="28.707713388037522" y1="0" x2="28.707713388037522" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="80.60661147546072" y1="0" x2="80.60661147546072" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="132.50550956288396" y1="0" x2="132.50550956288396" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="184.40440765030715" y1="0" x2="184.40440765030715" y2="24" stroke="#9a9a9a" stroke-width="1.4"/><line x1="236.30330573773034" y1="0" x2="236.30330573773034" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="288.20220382515356" y1="0" x2="288.20220382515356" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="340.1011019125768" y1="0" x2="340.1011019125768" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="392" y1="0" x2="392" y2="24" stroke="#eeeeee" stroke-width="1"/><g class="mark" data-tip="Coding Agent Index (anchor)
+Claude Opus 4.7 · effort medium
+Coding Agent Index
+Δ quality +7.7 pts vs native · interval ±7.5 (binomial, n=321 / binomial, n=321)
+cost 1.74× native
+tokens 1.65× native" data-study="artificial-analysis"><circle cx="226.0801368726471" cy="10" r="8" fill="none" stroke="#16a34a" stroke-width="1.2" opacity="0.55"/><circle cx="226.0801368726471" cy="10" r="5" fill="#16a34a"/></g><g class="mark" data-tip="Vulnerability-Agent-Bench (supporting)
+Claude Opus 4.6 · effort default
+pass rate
+Δ quality -14.0 pts vs native · interval ±11.8 (binomial, n=136 / binomial, n=136)
+cost 13.33× native" data-study="xor"><circle cx="378.33752708152133" cy="10" r="5" fill="#16a34a"/></g></svg></div>
+</div>
+<div class="detail" id="claude-opencode-detail" hidden><p class="record"><strong>OpenCode</strong> vs Claude Code across 2 studies: 1 clear OpenCode lead, 1 clear Claude Code lead, 0 inside the noise, 0 direction-only.</p><svg width="1052" height="88"><line x1="78" y1="4" x2="78" y2="54" stroke="#e6e6e6"/><text x="78" y="68" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="54" stroke="#e6e6e6"/><text x="162" y="68" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="54" stroke="#505a5f"/><text x="246" y="68" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="54" stroke="#e6e6e6"/><text x="330" y="68" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="54" stroke="#e6e6e6"/><text x="414" y="68" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="247.09199999999998" y1="16" x2="373.596" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="310.34399999999994" cy="16" r="5" fill="#16a34a" stroke="#16a34a" stroke-width="1.8"/><text x="498" y="20" font-size="11">Coding Agent Index · Claude Opus 4.7 · medium · Coding Agent Index <tspan fill="#505a5f">[A]</tspan></text><line x1="36" y1="40" x2="227.268" y2="40" stroke="#9a9a9a" stroke-width="2" stroke-dasharray="3,2"/><circle cx="128.4" cy="40" r="5" fill="#16a34a" stroke="#16a34a" stroke-width="1.8"/><text x="498" y="44" font-size="11">Vulnerability-Agent-Bench · Claude Opus 4.6 · default · pass rate <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="84" font-size="10.5" fill="#505a5f">&#8592; Claude Code leads</text><text x="456" y="84" font-size="10.5" text-anchor="end" fill="#505a5f">OpenCode leads &#8594;</text></svg><p class="record">Cost, OpenCode relative to Claude Code: 13.33&#215; <span class="dim">(Vulnerability-Agent-Bench, Claude Opus 4.6, default)</span> · 1.74&#215; <span class="dim">(Coding Agent Index, Claude Opus 4.7, medium)</span></p><p class="record dim">Sources: <a href="https://www.xor.tech/resources/benchmarks/agents">Vulnerability-Agent-Bench</a> (adjacent) · <a href="https://artificialanalysis.ai/agents/coding-agents">Coding Agent Index</a></p></div>
+<div class="row" id="claude-copilot">
+  <button class="rowhead" aria-expanded="false" data-target="claude-copilot-detail">
+    <span class="chip" style="background:#0969da">C</span>
+    <span class="hname">Copilot</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="44" class="lane"><line x1="130" y1="0" x2="130" y2="44" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="44" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="44" stroke="#e6e6e6"/><rect class="capsule" data-study="github-copilot" x="434" y="1" width="105" height="18" rx="9" fill="#f0f0f0"/><rect class="capsule" data-study="github-copilot" x="434" y="21" width="71" height="18" rx="9" fill="#f0f0f0"/><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+Claude Sonnet 4.6
+SWE-bench Verified task resolution
+Δ quality +3.1 pts vs native · no interval published" data-study="github-copilot"><rect x="439.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 444 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+Claude Opus 4.7
+SWE-bench Verified task resolution
+Δ quality +2.2 pts vs native · no interval published" data-study="github-copilot"><rect x="456.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 461 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+Claude Sonnet 4.6
+SWE-bench Pro task resolution
+Δ quality -0.4 pts vs native · no interval published" data-study="github-copilot"><rect x="473.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 478 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+Claude Opus 4.7
+SWE-bench Pro task resolution
+Δ quality +1.4 pts vs native · no interval published" data-study="github-copilot"><rect x="490.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 495 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+Claude Sonnet 4.6
+SkillsBench task resolution
+Δ quality -5.4 pts vs native · no interval published" data-study="github-copilot"><rect x="507.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 512 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+Claude Opus 4.7
+SkillsBench task resolution
+Δ quality -8.0 pts vs native · no interval published" data-study="github-copilot"><rect x="524.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 529 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+Claude Sonnet 4.6
+Win-Hill task resolution
+Δ quality +2.4 pts vs native · no interval published" data-study="github-copilot"><rect x="439.6" y="25.6" width="8.8" height="8.8" transform="rotate(45 444 30)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+Claude Opus 4.7
+Win-Hill task resolution
+Δ quality +7.1 pts vs native · no interval published" data-study="github-copilot"><rect x="456.6" y="25.6" width="8.8" height="8.8" transform="rotate(45 461 30)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+Claude Sonnet 4.6
+Terminal-Bench 2 task resolution
+Δ quality +1.3 pts vs native · no interval published" data-study="github-copilot"><rect x="473.6" y="25.6" width="8.8" height="8.8" transform="rotate(45 478 30)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+Claude Opus 4.7
+Terminal-Bench 2 task resolution
+Δ quality +2.6 pts vs native · no interval published" data-study="github-copilot"><rect x="490.6" y="25.6" width="8.8" height="8.8" transform="rotate(45 495 30)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost &#183; tokens -65% to -31% vs native</span></div></div>
+</div>
+<div class="detail" id="claude-copilot-detail" hidden><p class="record"><strong>Copilot</strong> vs Claude Code across 1 study: 0 clear Copilot leads, 0 clear Claude Code leads, 0 inside the noise, 10 direction-only.</p><svg width="1052" height="280"><line x1="78" y1="4" x2="78" y2="246" stroke="#e6e6e6"/><text x="78" y="260" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="246" stroke="#e6e6e6"/><text x="162" y="260" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="246" stroke="#505a5f"/><text x="246" y="260" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="246" stroke="#e6e6e6"/><text x="330" y="260" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="246" stroke="#e6e6e6"/><text x="414" y="260" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><rect x="267.64000000000004" y="11.6" width="8.8" height="8.8" transform="rotate(45 272.04 16)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="20" font-size="11">GitHub Copilot harness evaluation · Claude Sonnet 4.6 · SWE-bench Verified task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="260.08000000000004" y="35.6" width="8.8" height="8.8" transform="rotate(45 264.48 40)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="44" font-size="11">GitHub Copilot harness evaluation · Claude Opus 4.7 · SWE-bench Verified task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="238.24" y="59.6" width="8.8" height="8.8" transform="rotate(45 242.64000000000001 64)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="68" font-size="11">GitHub Copilot harness evaluation · Claude Sonnet 4.6 · SWE-bench Pro task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="253.35999999999999" y="83.6" width="8.8" height="8.8" transform="rotate(45 257.76 88)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="92" font-size="11">GitHub Copilot harness evaluation · Claude Opus 4.7 · SWE-bench Pro task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="196.24" y="107.6" width="8.8" height="8.8" transform="rotate(45 200.64000000000001 112)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="116" font-size="11">GitHub Copilot harness evaluation · Claude Sonnet 4.6 · SkillsBench task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="174.4" y="131.6" width="8.8" height="8.8" transform="rotate(45 178.8 136)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="140" font-size="11">GitHub Copilot harness evaluation · Claude Opus 4.7 · SkillsBench task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="261.76" y="155.6" width="8.8" height="8.8" transform="rotate(45 266.15999999999997 160)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="164" font-size="11">GitHub Copilot harness evaluation · Claude Sonnet 4.6 · Win-Hill task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="301.24" y="179.6" width="8.8" height="8.8" transform="rotate(45 305.64 184)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="188" font-size="11">GitHub Copilot harness evaluation · Claude Opus 4.7 · Win-Hill task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="252.52" y="203.6" width="8.8" height="8.8" transform="rotate(45 256.92 208)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="212" font-size="11">GitHub Copilot harness evaluation · Claude Sonnet 4.6 · Terminal-Bench 2 task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="263.44000000000005" y="227.6" width="8.8" height="8.8" transform="rotate(45 267.84000000000003 232)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="236" font-size="11">GitHub Copilot harness evaluation · Claude Opus 4.7 · Terminal-Bench 2 task resolution <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="276" font-size="10.5" fill="#505a5f">&#8592; Claude Code leads</text><text x="456" y="276" font-size="10.5" text-anchor="end" fill="#505a5f">Copilot leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://github.blog/ai-and-ml/github-copilot/evaluating-performance-and-efficiency-of-the-github-copilot-agentic-harness-across-models-and-tasks/">GitHub Copilot harness evaluation</a> (compared vendor)</p></div>
+<div class="row" id="claude-ale-claw">
+  <button class="rowhead" aria-expanded="false" data-target="claude-ale-claw-detail">
+    <span class="chip" style="background:#b45309">AC</span>
+    <span class="hname">ALE-Claw</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Agents&#39; Last Exam (anchor)
+Claude Opus 4.7 · effort default
+full-pass rate
+Δ quality +5.2 pts vs native · interval ±8.2 (binomial, n=152 / binomial, n=152)" data-study="agents-last-exam"><circle cx="144" cy="10" r="8" fill="none" stroke="#b45309" stroke-width="1.2" opacity="0.55"/><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#b45309" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost reported</span></div></div>
+</div>
+<div class="detail" id="claude-ale-claw-detail" hidden><p class="record"><strong>ALE-Claw</strong> vs Claude Code across 1 study: 0 clear ALE-Claw leads, 0 clear Claude Code leads, 1 inside the noise, 0 direction-only.</p><svg width="1052" height="64"><line x1="78" y1="4" x2="78" y2="30" stroke="#e6e6e6"/><text x="78" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="30" stroke="#e6e6e6"/><text x="162" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="30" stroke="#505a5f"/><text x="246" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="30" stroke="#e6e6e6"/><text x="330" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="30" stroke="#e6e6e6"/><text x="414" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="220.96800000000002" y1="16" x2="358.392" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="289.67999999999995" cy="16" r="5" fill="#ffffff" stroke="#b45309" stroke-width="1.8"/><text x="498" y="20" font-size="11">Agents&#39; Last Exam · Claude Opus 4.7 · default · full-pass rate <tspan fill="#505a5f">[A]</tspan></text><text x="36" y="60" font-size="10.5" fill="#505a5f">&#8592; Claude Code leads</text><text x="456" y="60" font-size="10.5" text-anchor="end" fill="#505a5f">ALE-Claw leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://arxiv.org/abs/2606.05405">Agents&#39; Last Exam</a></p></div>
+<div class="row" id="claude-forgecode">
+  <button class="rowhead" aria-expanded="false" data-target="claude-forgecode-detail">
+    <span class="chip" style="background:#0891b2">F</span>
+    <span class="hname">ForgeCode</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Agents&#39; Last Exam (anchor)
+Claude Sonnet 4.6 · effort ALE-CLI
+full-pass rate
+Δ quality -3.4 pts vs native · interval ±9.7 (binomial, n=105 / binomial, n=105)" data-study="agents-last-exam"><circle cx="144" cy="10" r="8" fill="none" stroke="#0891b2" stroke-width="1.2" opacity="0.55"/><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#0891b2" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost reported</span></div></div>
+</div>
+<div class="detail" id="claude-forgecode-detail" hidden><p class="record"><strong>ForgeCode</strong> vs Claude Code across 1 study: 0 clear ForgeCode leads, 0 clear Claude Code leads, 1 inside the noise, 0 direction-only.</p><svg width="1052" height="64"><line x1="78" y1="4" x2="78" y2="30" stroke="#e6e6e6"/><text x="78" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="30" stroke="#e6e6e6"/><text x="162" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="30" stroke="#505a5f"/><text x="246" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="30" stroke="#e6e6e6"/><text x="330" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="30" stroke="#e6e6e6"/><text x="414" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="136.38" y1="16" x2="298.5" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="217.44000000000003" cy="16" r="5" fill="#ffffff" stroke="#0891b2" stroke-width="1.8"/><text x="498" y="20" font-size="11">Agents&#39; Last Exam · Claude Sonnet 4.6 · ALE-CLI · full-pass rate <tspan fill="#505a5f">[A]</tspan></text><text x="36" y="60" font-size="10.5" fill="#505a5f">&#8592; Claude Code leads</text><text x="456" y="60" font-size="10.5" text-anchor="end" fill="#505a5f">ForgeCode leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://arxiv.org/abs/2606.05405">Agents&#39; Last Exam</a></p></div>
+<div class="row" id="claude-hermes">
+  <button class="rowhead" aria-expanded="false" data-target="claude-hermes-detail">
+    <span class="chip" style="background:#ca8a04">H</span>
+    <span class="hname">Hermes</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Agents&#39; Last Exam (anchor)
+Claude Sonnet 4.6 · effort ALE-CLI
+full-pass rate
+Δ quality -3.5 pts vs native · interval ±9.6 (binomial, n=105 / binomial, n=105)" data-study="agents-last-exam"><circle cx="144" cy="10" r="8" fill="none" stroke="#ca8a04" stroke-width="1.2" opacity="0.55"/><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#ca8a04" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost reported</span></div></div>
+</div>
+<div class="detail" id="claude-hermes-detail" hidden><p class="record"><strong>Hermes</strong> vs Claude Code across 1 study: 0 clear Hermes leads, 0 clear Claude Code leads, 1 inside the noise, 0 direction-only.</p><svg width="1052" height="64"><line x1="78" y1="4" x2="78" y2="30" stroke="#e6e6e6"/><text x="78" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="30" stroke="#e6e6e6"/><text x="162" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="30" stroke="#505a5f"/><text x="246" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="30" stroke="#e6e6e6"/><text x="330" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="30" stroke="#e6e6e6"/><text x="414" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="135.70799999999997" y1="16" x2="297.492" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="216.6" cy="16" r="5" fill="#ffffff" stroke="#ca8a04" stroke-width="1.8"/><text x="498" y="20" font-size="11">Agents&#39; Last Exam · Claude Sonnet 4.6 · ALE-CLI · full-pass rate <tspan fill="#505a5f">[A]</tspan></text><text x="36" y="60" font-size="10.5" fill="#505a5f">&#8592; Claude Code leads</text><text x="456" y="60" font-size="10.5" text-anchor="end" fill="#505a5f">Hermes leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://arxiv.org/abs/2606.05405">Agents&#39; Last Exam</a></p></div>
+<div class="row" id="claude-openhands">
+  <button class="rowhead" aria-expanded="false" data-target="claude-openhands-detail">
+    <span class="chip" style="background:#be185d">O</span>
+    <span class="hname">OpenHands</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Agents&#39; Last Exam (anchor)
+Claude Sonnet 4.6 · effort ALE-CLI
+full-pass rate
+Δ quality -7.7 pts vs native · interval ±9.0 (binomial, n=105 / binomial, n=105)" data-study="agents-last-exam"><circle cx="144" cy="10" r="8" fill="none" stroke="#be185d" stroke-width="1.2" opacity="0.55"/><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#be185d" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost reported</span></div></div>
+</div>
+<div class="detail" id="claude-openhands-detail" hidden><p class="record"><strong>OpenHands</strong> vs Claude Code across 1 study: 0 clear OpenHands leads, 0 clear Claude Code leads, 1 inside the noise, 0 direction-only.</p><svg width="1052" height="64"><line x1="78" y1="4" x2="78" y2="30" stroke="#e6e6e6"/><text x="78" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="30" stroke="#e6e6e6"/><text x="162" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="30" stroke="#505a5f"/><text x="246" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="30" stroke="#e6e6e6"/><text x="330" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="30" stroke="#e6e6e6"/><text x="414" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="105.80399999999999" y1="16" x2="256.836" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="181.32000000000002" cy="16" r="5" fill="#ffffff" stroke="#be185d" stroke-width="1.8"/><text x="498" y="20" font-size="11">Agents&#39; Last Exam · Claude Sonnet 4.6 · ALE-CLI · full-pass rate <tspan fill="#505a5f">[A]</tspan></text><text x="36" y="60" font-size="10.5" fill="#505a5f">&#8592; Claude Code leads</text><text x="456" y="60" font-size="10.5" text-anchor="end" fill="#505a5f">OpenHands leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://arxiv.org/abs/2606.05405">Agents&#39; Last Exam</a></p></div>
+</section>
+<section class="panel">
+  <h2>Using GPT models <span class="vs">&mdash; compared with Codex</span></h2>
+  <p class="coverage">43 matched results &#183; 10 studies &#183; 4 report cost. Anchor and supporting studies only; each mark is one published matched result.</p>
+  <div class="row lanehead">
+    <div class="rowhead"></div>
+    <div class="qcell">
+      <div class="qheads"><span style="width:130px">Codex leads</span><span style="width:170px">unclear</span><span style="width:130px">challenger leads</span><span style="width:130px">no interval</span></div>
+    </div>
+    <div class="ccell"><div class="chead">cost, challenger &#247; Codex (log)</div><svg width="404" height="22" class="lane"><text x="28.707713388037522" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">&#8539;&#215;</text><text x="80.60661147546072" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">&#188;&#215;</text><text x="132.50550956288396" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">&#189;&#215;</text><text x="184.40440765030715" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">1&#215;</text><text x="236.30330573773034" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">2&#215;</text><text x="288.20220382515356" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">4&#215;</text><text x="340.1011019125768" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">8&#215;</text><text x="392" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">16&#215;</text></svg></div>
+  </div>
+  
+<div class="row" id="gpt-pi">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-pi-detail">
+    <span class="chip" style="background:#7c3aed">P</span>
+    <span class="hname">Pi</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="scBench-Long (supporting)
+GPT-5.5 · effort default
+pass rate
+Δ quality 0.0 pts vs native · interval ±19.3 (published confidence interval / published confidence interval)" data-study="latchbio-scbench-long"><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/></g><g class="mark" data-tip="DrugDiscoveryBench (supporting)
+GPT-5.5 · effort xhigh
+pass rate
+Δ quality +0.6 pts vs native · interval ±15.2 (binomial, n=82 / binomial, n=82)" data-study="drugdiscoverybench"><circle cx="161" cy="10" r="5" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/></g><rect class="capsule" data-study="databricks" x="434" y="1" width="54" height="18" rx="9" fill="#f0f0f0"/><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+GPT-5.5 · effort medium
+task completion
+Δ quality +3.0 pts vs native · no interval published" data-study="databricks"><circle cx="444" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><rect x="439.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 444 10)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/></g><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+GPT-5.5 · effort high
+task completion
+Δ quality -2.0 pts vs native · no interval published" data-study="databricks"><circle cx="461" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><rect x="456.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 461 10)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/></g><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+GPT-5.5 · effort xhigh
+task completion
+Δ quality -2.0 pts vs native · no interval published" data-study="databricks"><circle cx="478" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><rect x="473.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 478 10)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/></g></svg></div>
+  <div class="ccell"><svg width="404" height="44" class="lane"><line x1="28.707713388037522" y1="0" x2="28.707713388037522" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="80.60661147546072" y1="0" x2="80.60661147546072" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="132.50550956288396" y1="0" x2="132.50550956288396" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="184.40440765030715" y1="0" x2="184.40440765030715" y2="44" stroke="#9a9a9a" stroke-width="1.4"/><line x1="236.30330573773034" y1="0" x2="236.30330573773034" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="288.20220382515356" y1="0" x2="288.20220382515356" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="340.1011019125768" y1="0" x2="340.1011019125768" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="392" y1="0" x2="392" y2="44" stroke="#eeeeee" stroke-width="1"/><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+GPT-5.5 · effort medium
+cost only
+cost 0.65× native" data-study="databricks"><circle cx="152.07500885233813" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><circle cx="152.07500885233813" cy="10" r="5" fill="#7c3aed"/></g><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+GPT-5.5 · effort xhigh
+cost only
+cost 0.69× native" data-study="databricks"><circle cx="157.1020160065992" cy="30" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><circle cx="157.1020160065992" cy="30" r="5" fill="#7c3aed"/></g><g class="mark" data-tip="Databricks coding-agent benchmark (anchor)
+GPT-5.5 · effort high
+cost only
+cost 0.82× native" data-study="databricks"><circle cx="169.51559219804636" cy="10" r="8" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.55"/><circle cx="169.51559219804636" cy="10" r="5" fill="#7c3aed"/></g></svg></div>
+</div>
+<div class="detail" id="gpt-pi-detail" hidden><p class="record"><strong>Pi</strong> vs Codex across 3 studies: 0 clear Pi leads, 0 clear Codex leads, 2 inside the noise, 3 direction-only.</p><svg width="1052" height="160"><line x1="78" y1="4" x2="78" y2="126" stroke="#e6e6e6"/><text x="78" y="140" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="126" stroke="#e6e6e6"/><text x="162" y="140" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="126" stroke="#505a5f"/><text x="246" y="140" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="126" stroke="#e6e6e6"/><text x="330" y="140" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="126" stroke="#e6e6e6"/><text x="414" y="140" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><rect x="266.80000000000007" y="11.6" width="8.8" height="8.8" transform="rotate(45 271.20000000000005 16)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/><text x="498" y="20" font-size="11">Databricks coding-agent benchmark · GPT-5.5 · medium · task completion <tspan fill="#505a5f">[A]</tspan></text><rect x="224.8" y="35.6" width="8.8" height="8.8" transform="rotate(45 229.20000000000002 40)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/><text x="498" y="44" font-size="11">Databricks coding-agent benchmark · GPT-5.5 · high · task completion <tspan fill="#505a5f">[A]</tspan></text><rect x="224.8" y="59.6" width="8.8" height="8.8" transform="rotate(45 229.20000000000002 64)" fill="#ffffff" stroke="#7c3aed" stroke-width="1.6"/><text x="498" y="68" font-size="11">Databricks coding-agent benchmark · GPT-5.5 · xhigh · task completion <tspan fill="#505a5f">[A]</tspan></text><line x1="83.62800000000001" y1="88" x2="408.37199999999996" y2="88" stroke="#9a9a9a" stroke-width="2"/><circle cx="246" cy="88" r="5" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/><text x="498" y="92" font-size="11">scBench-Long · GPT-5.5 · default · pass rate <tspan fill="#505a5f">[B]</tspan></text><line x1="123.36000000000001" y1="112" x2="378.71999999999997" y2="112" stroke="#9a9a9a" stroke-width="2"/><circle cx="251.04" cy="112" r="5" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8"/><text x="498" y="116" font-size="11">DrugDiscoveryBench · GPT-5.5 · xhigh · pass rate <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="156" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="156" font-size="10.5" text-anchor="end" fill="#505a5f">Pi leads &#8594;</text></svg><p class="record">Cost, Pi relative to Codex: 0.65&#215; <span class="dim">(Databricks coding-agent benchmark, GPT-5.5, medium)</span> · 0.82&#215; <span class="dim">(Databricks coding-agent benchmark, GPT-5.5, high)</span> · 0.69&#215; <span class="dim">(Databricks coding-agent benchmark, GPT-5.5, xhigh)</span></p><p class="record dim">Sources: <a href="https://benchmarks.bio/scbench-long">scBench-Long</a> (adjacent) · <a href="https://github.com/scaleapi/DrugDiscoveryBench">DrugDiscoveryBench</a> (adjacent) · <a href="https://www.databricks.com/blog/benchmarking-coding-agents-databricks-multi-million-line-codebase">Databricks coding-agent benchmark</a></p></div>
+<div class="row" id="gpt-cursor">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-cursor-detail">
+    <span class="chip" style="background:#111111">C</span>
+    <span class="hname">Cursor</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Coding Agent Index (anchor)
+GPT-5.5 · effort medium
+Coding Agent Index
+Δ quality -8.7 pts vs native · interval ±7.3 (binomial, n=321 / binomial, n=321)
+cost 0.73× native
+tokens 0.57× native" data-study="artificial-analysis"><circle cx="14" cy="10" r="8" fill="none" stroke="#111111" stroke-width="1.2" opacity="0.55"/><circle cx="14" cy="10" r="5.5" fill="#111111"/></g><g class="mark" data-tip="HarnessBench (supporting)
+GPT-5.5 · effort medium
+pass rate
+Δ quality 0.0 pts vs native · interval ±22.2 (binomial, n=27 / binomial, n=27)" data-study="harnessbench"><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/></g><g class="mark" data-tip="Coding Agent Index (anchor)
+GPT-5.4 · effort medium
+2-component mean
+Δ quality -2.3 pts vs native · interval ±8.8 (binomial, n=208 / binomial, n=208)
+cost 0.67× native
+tokens 0.67× native" data-study="artificial-analysis"><circle cx="161" cy="10" r="8" fill="none" stroke="#111111" stroke-width="1.2" opacity="0.55"/><circle cx="161" cy="10" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/></g><g class="mark" data-tip="Agents&#39; Last Exam (anchor)
+GPT-5.5 · effort default
+full-pass rate
+Δ quality -3.3 pts vs native · interval ±9.4 (binomial, n=152 / binomial, n=152)" data-study="agents-last-exam"><circle cx="178" cy="10" r="8" fill="none" stroke="#111111" stroke-width="1.2" opacity="0.55"/><circle cx="178" cy="10" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><svg width="404" height="44" class="lane"><line x1="28.707713388037522" y1="0" x2="28.707713388037522" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="80.60661147546072" y1="0" x2="80.60661147546072" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="132.50550956288396" y1="0" x2="132.50550956288396" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="184.40440765030715" y1="0" x2="184.40440765030715" y2="44" stroke="#9a9a9a" stroke-width="1.4"/><line x1="236.30330573773034" y1="0" x2="236.30330573773034" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="288.20220382515356" y1="0" x2="288.20220382515356" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="340.1011019125768" y1="0" x2="340.1011019125768" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="392" y1="0" x2="392" y2="44" stroke="#eeeeee" stroke-width="1"/><g class="mark" data-tip="Coding Agent Index (anchor)
+GPT-5.4 · effort medium
+2-component mean
+Δ quality -2.3 pts vs native · interval ±8.8 (binomial, n=208 / binomial, n=208)
+cost 0.67× native
+tokens 0.67× native" data-study="artificial-analysis"><circle cx="154.52599085036417" cy="10" r="8" fill="none" stroke="#111111" stroke-width="1.2" opacity="0.55"/><circle cx="154.52599085036417" cy="10" r="5" fill="#111111"/></g><g class="mark" data-tip="Coding Agent Index (anchor)
+GPT-5.5 · effort medium
+Coding Agent Index
+Δ quality -8.7 pts vs native · interval ±7.3 (binomial, n=321 / binomial, n=321)
+cost 0.73× native
+tokens 0.57× native" data-study="artificial-analysis"><circle cx="160.9974532312136" cy="30" r="8" fill="none" stroke="#111111" stroke-width="1.2" opacity="0.55"/><circle cx="160.9974532312136" cy="30" r="5" fill="#111111"/></g></svg></div>
+</div>
+<div class="detail" id="gpt-cursor-detail" hidden><p class="record"><strong>Cursor</strong> vs Codex across 3 studies: 0 clear Cursor leads, 1 clear Codex lead, 3 inside the noise, 0 direction-only.</p><svg width="1052" height="136"><line x1="78" y1="4" x2="78" y2="102" stroke="#e6e6e6"/><text x="78" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="102" stroke="#e6e6e6"/><text x="162" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="102" stroke="#505a5f"/><text x="246" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="102" stroke="#e6e6e6"/><text x="330" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="102" stroke="#e6e6e6"/><text x="414" y="116" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="112.10399999999998" y1="16" x2="234.576" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="173.34" cy="16" r="5" fill="#111111" stroke="#111111" stroke-width="1.8"/><text x="498" y="20" font-size="11">Coding Agent Index · GPT-5.5 · medium · Coding Agent Index <tspan fill="#505a5f">[A]</tspan></text><line x1="152.424" y1="40" x2="300.432" y2="40" stroke="#9a9a9a" stroke-width="2"/><circle cx="226.428" cy="40" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/><text x="498" y="44" font-size="11">Coding Agent Index · GPT-5.4 · medium · 2-component mean <tspan fill="#505a5f">[A]</tspan></text><line x1="139.656" y1="64" x2="296.904" y2="64" stroke="#9a9a9a" stroke-width="2"/><circle cx="218.28" cy="64" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/><text x="498" y="68" font-size="11">Agents&#39; Last Exam · GPT-5.5 · default · full-pass rate <tspan fill="#505a5f">[A]</tspan></text><line x1="59.771999999999984" y1="88" x2="432.228" y2="88" stroke="#9a9a9a" stroke-width="2"/><circle cx="246" cy="88" r="5" fill="#ffffff" stroke="#111111" stroke-width="1.8"/><text x="498" y="92" font-size="11">HarnessBench · GPT-5.5 · medium · pass rate <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="132" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="132" font-size="10.5" text-anchor="end" fill="#505a5f">Cursor leads &#8594;</text></svg><p class="record">Cost, Cursor relative to Codex: 0.73&#215; <span class="dim">(Coding Agent Index, GPT-5.5, medium)</span> · 0.67&#215; <span class="dim">(Coding Agent Index, GPT-5.4, medium)</span></p><p class="record dim">Sources: <a href="https://github.com/nyosegawa/harness-bench">HarnessBench</a> · <a href="https://artificialanalysis.ai/agents/coding-agents">Coding Agent Index</a> · <a href="https://arxiv.org/abs/2606.05405">Agents&#39; Last Exam</a></p></div>
+<div class="row" id="gpt-opencode">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-opencode-detail">
+    <span class="chip" style="background:#16a34a">O</span>
+    <span class="hname">OpenCode</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Vulnerability-Agent-Bench (supporting)
+GPT-5.2 · effort default
+pass rate
+Δ quality -11.8 pts vs native · interval ±11.8 (binomial, n=136 / binomial, n=136)
+cost 1.00× native" data-study="xor"><circle cx="14" cy="10" r="5.5" fill="#16a34a"/></g><g class="mark" data-tip="Vulnerability-Agent-Bench (supporting)
+GPT-5.2-Codex · effort default
+pass rate
+Δ quality -11.0 pts vs native · interval ±11.6 (binomial, n=136 / binomial, n=136)
+cost 1.00× native" data-study="xor"><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#16a34a" stroke-width="1.8"/></g><g class="mark" data-tip="DrugDiscoveryBench (supporting)
+GPT-5.5 · effort xhigh
+pass rate
+Δ quality -3.3 pts vs native · interval ±15.1 (binomial, n=82 / binomial, n=82)" data-study="drugdiscoverybench"><circle cx="161" cy="10" r="5" fill="#ffffff" stroke="#16a34a" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><svg width="404" height="44" class="lane"><line x1="28.707713388037522" y1="0" x2="28.707713388037522" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="80.60661147546072" y1="0" x2="80.60661147546072" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="132.50550956288396" y1="0" x2="132.50550956288396" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="184.40440765030715" y1="0" x2="184.40440765030715" y2="44" stroke="#9a9a9a" stroke-width="1.4"/><line x1="236.30330573773034" y1="0" x2="236.30330573773034" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="288.20220382515356" y1="0" x2="288.20220382515356" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="340.1011019125768" y1="0" x2="340.1011019125768" y2="44" stroke="#eeeeee" stroke-width="1"/><line x1="392" y1="0" x2="392" y2="44" stroke="#eeeeee" stroke-width="1"/><g class="mark" data-tip="Vulnerability-Agent-Bench (supporting)
+GPT-5.2 · effort default
+pass rate
+Δ quality -11.8 pts vs native · interval ±11.8 (binomial, n=136 / binomial, n=136)
+cost 1.00× native" data-study="xor"><circle cx="184.40440765030715" cy="10" r="5" fill="#16a34a"/></g><g class="mark" data-tip="Vulnerability-Agent-Bench (supporting)
+GPT-5.2-Codex · effort default
+pass rate
+Δ quality -11.0 pts vs native · interval ±11.6 (binomial, n=136 / binomial, n=136)
+cost 1.00× native" data-study="xor"><circle cx="184.40440765030715" cy="30" r="5" fill="#16a34a"/></g></svg></div>
+</div>
+<div class="detail" id="gpt-opencode-detail" hidden><p class="record"><strong>OpenCode</strong> vs Codex across 2 studies: 0 clear OpenCode leads, 1 clear Codex lead, 2 inside the noise, 0 direction-only.</p><svg width="1052" height="112"><line x1="78" y1="4" x2="78" y2="78" stroke="#e6e6e6"/><text x="78" y="92" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="78" stroke="#e6e6e6"/><text x="162" y="92" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="78" stroke="#505a5f"/><text x="246" y="92" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="78" stroke="#e6e6e6"/><text x="330" y="92" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="78" stroke="#e6e6e6"/><text x="414" y="92" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="47.844" y1="16" x2="245.916" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="146.88" cy="16" r="5" fill="#16a34a" stroke="#16a34a" stroke-width="1.8"/><text x="498" y="20" font-size="11">Vulnerability-Agent-Bench · GPT-5.2 · default · pass rate <tspan fill="#505a5f">[B]</tspan></text><line x1="56.07600000000001" y1="40" x2="251.124" y2="40" stroke="#9a9a9a" stroke-width="2"/><circle cx="153.60000000000002" cy="40" r="5" fill="#ffffff" stroke="#16a34a" stroke-width="1.8"/><text x="498" y="44" font-size="11">Vulnerability-Agent-Bench · GPT-5.2-Codex · default · pass rate <tspan fill="#505a5f">[B]</tspan></text><line x1="91.356" y1="64" x2="345.204" y2="64" stroke="#9a9a9a" stroke-width="2"/><circle cx="218.28" cy="64" r="5" fill="#ffffff" stroke="#16a34a" stroke-width="1.8"/><text x="498" y="68" font-size="11">DrugDiscoveryBench · GPT-5.5 · xhigh · pass rate <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="108" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="108" font-size="10.5" text-anchor="end" fill="#505a5f">OpenCode leads &#8594;</text></svg><p class="record">Cost, OpenCode relative to Codex: 1.00&#215; <span class="dim">(Vulnerability-Agent-Bench, GPT-5.2, default)</span> · 1.00&#215; <span class="dim">(Vulnerability-Agent-Bench, GPT-5.2-Codex, default)</span></p><p class="record dim">Sources: <a href="https://www.xor.tech/resources/benchmarks/agents">Vulnerability-Agent-Bench</a> (adjacent) · <a href="https://github.com/scaleapi/DrugDiscoveryBench">DrugDiscoveryBench</a> (adjacent)</p></div>
+<div class="row" id="gpt-openclaw">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-openclaw-detail">
+    <span class="chip" style="background:#ea580c">O</span>
+    <span class="hname">OpenClaw</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="WildClawBench (supporting)
+GPT-5.4 · effort default
+overall score
+Δ quality -6.5 pts vs native · interval ±17.8 (binomial, n=60 / binomial, n=60)
+cost 0.58× native" data-study="wildclawbench"><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#ea580c" stroke-width="1.8"/></g><g class="mark" data-tip="Agents&#39; Last Exam (anchor)
+GPT-5.5 · effort default
+full-pass rate
+Δ quality -2.9 pts vs native · interval ±9.4 (binomial, n=152 / binomial, n=152)" data-study="agents-last-exam"><circle cx="161" cy="10" r="8" fill="none" stroke="#ea580c" stroke-width="1.2" opacity="0.55"/><circle cx="161" cy="10" r="5" fill="#ffffff" stroke="#ea580c" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><svg width="404" height="24" class="lane"><line x1="28.707713388037522" y1="0" x2="28.707713388037522" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="80.60661147546072" y1="0" x2="80.60661147546072" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="132.50550956288396" y1="0" x2="132.50550956288396" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="184.40440765030715" y1="0" x2="184.40440765030715" y2="24" stroke="#9a9a9a" stroke-width="1.4"/><line x1="236.30330573773034" y1="0" x2="236.30330573773034" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="288.20220382515356" y1="0" x2="288.20220382515356" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="340.1011019125768" y1="0" x2="340.1011019125768" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="392" y1="0" x2="392" y2="24" stroke="#eeeeee" stroke-width="1"/><g class="mark" data-tip="WildClawBench (supporting)
+GPT-5.4 · effort default
+overall score
+Δ quality -6.5 pts vs native · interval ±17.8 (binomial, n=60 / binomial, n=60)
+cost 0.58× native" data-study="wildclawbench"><circle cx="143.48233956340403" cy="10" r="5" fill="#ea580c"/></g></svg></div>
+</div>
+<div class="detail" id="gpt-openclaw-detail" hidden><p class="record"><strong>OpenClaw</strong> vs Codex across 2 studies: 0 clear OpenClaw leads, 0 clear Codex leads, 2 inside the noise, 0 direction-only.</p><svg width="1052" height="88"><line x1="78" y1="4" x2="78" y2="54" stroke="#e6e6e6"/><text x="78" y="68" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="54" stroke="#e6e6e6"/><text x="162" y="68" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="54" stroke="#505a5f"/><text x="246" y="68" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="54" stroke="#e6e6e6"/><text x="330" y="68" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="54" stroke="#e6e6e6"/><text x="414" y="68" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="142.764" y1="16" x2="300.516" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="221.64000000000001" cy="16" r="5" fill="#ffffff" stroke="#ea580c" stroke-width="1.8"/><text x="498" y="20" font-size="11">Agents&#39; Last Exam · GPT-5.5 · default · full-pass rate <tspan fill="#505a5f">[A]</tspan></text><line x1="41.796000000000014" y1="40" x2="341.004" y2="40" stroke="#9a9a9a" stroke-width="2"/><circle cx="191.4" cy="40" r="5" fill="#ffffff" stroke="#ea580c" stroke-width="1.8"/><text x="498" y="44" font-size="11">WildClawBench · GPT-5.4 · default · overall score <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="84" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="84" font-size="10.5" text-anchor="end" fill="#505a5f">OpenClaw leads &#8594;</text></svg><p class="record">Cost, OpenClaw relative to Codex: 0.58&#215; <span class="dim">(WildClawBench, GPT-5.4, default)</span></p><p class="record dim">Sources: <a href="https://github.com/InternLM/WildClawBench">WildClawBench</a> · <a href="https://arxiv.org/abs/2606.05405">Agents&#39; Last Exam</a></p></div>
+<div class="row" id="gpt-copilot">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-copilot-detail">
+    <span class="chip" style="background:#0969da">C</span>
+    <span class="hname">Copilot</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="44" class="lane"><line x1="130" y1="0" x2="130" y2="44" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="44" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="44" stroke="#e6e6e6"/><rect class="capsule" data-study="github-copilot" x="434" y="1" width="105" height="18" rx="9" fill="#f0f0f0"/><rect class="capsule" data-study="github-copilot" x="434" y="21" width="71" height="18" rx="9" fill="#f0f0f0"/><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+GPT-5.4
+SWE-bench Verified task resolution
+Δ quality -1.1 pts vs native · no interval published" data-study="github-copilot"><rect x="439.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 444 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+GPT-5.5
+SWE-bench Verified task resolution
+Δ quality -2.5 pts vs native · no interval published" data-study="github-copilot"><rect x="456.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 461 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+GPT-5.4
+SWE-bench Pro task resolution
+Δ quality +0.3 pts vs native · no interval published" data-study="github-copilot"><rect x="473.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 478 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+GPT-5.5
+SWE-bench Pro task resolution
+Δ quality +1.2 pts vs native · no interval published" data-study="github-copilot"><rect x="490.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 495 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+GPT-5.4
+SkillsBench task resolution
+Δ quality +4.0 pts vs native · no interval published" data-study="github-copilot"><rect x="507.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 512 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+GPT-5.5
+SkillsBench task resolution
+Δ quality +5.4 pts vs native · no interval published" data-study="github-copilot"><rect x="524.6" y="5.6" width="8.8" height="8.8" transform="rotate(45 529 10)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+GPT-5.4
+Win-Hill task resolution
+Δ quality +2.4 pts vs native · no interval published" data-study="github-copilot"><rect x="439.6" y="25.6" width="8.8" height="8.8" transform="rotate(45 444 30)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+GPT-5.5
+Win-Hill task resolution
+Δ quality 0.0 pts vs native · no interval published" data-study="github-copilot"><rect x="456.6" y="25.6" width="8.8" height="8.8" transform="rotate(45 461 30)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+GPT-5.4
+Terminal-Bench 2 task resolution
+Δ quality -1.4 pts vs native · no interval published" data-study="github-copilot"><rect x="473.6" y="25.6" width="8.8" height="8.8" transform="rotate(45 478 30)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g><g class="mark" data-tip="GitHub Copilot harness evaluation (supporting)
+GPT-5.5
+Terminal-Bench 2 task resolution
+Δ quality 0.0 pts vs native · no interval published" data-study="github-copilot"><rect x="490.6" y="25.6" width="8.8" height="8.8" transform="rotate(45 495 30)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost &#183; tokens -39% to 7% vs native</span></div></div>
+</div>
+<div class="detail" id="gpt-copilot-detail" hidden><p class="record"><strong>Copilot</strong> vs Codex across 1 study: 0 clear Copilot leads, 0 clear Codex leads, 0 inside the noise, 10 direction-only.</p><svg width="1052" height="280"><line x1="78" y1="4" x2="78" y2="246" stroke="#e6e6e6"/><text x="78" y="260" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="246" stroke="#e6e6e6"/><text x="162" y="260" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="246" stroke="#505a5f"/><text x="246" y="260" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="246" stroke="#e6e6e6"/><text x="330" y="260" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="246" stroke="#e6e6e6"/><text x="414" y="260" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><rect x="232.35999999999999" y="11.6" width="8.8" height="8.8" transform="rotate(45 236.76 16)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="20" font-size="11">GitHub Copilot harness evaluation · GPT-5.4 · SWE-bench Verified task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="220.6" y="35.6" width="8.8" height="8.8" transform="rotate(45 225 40)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="44" font-size="11">GitHub Copilot harness evaluation · GPT-5.5 · SWE-bench Verified task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="244.12" y="59.6" width="8.8" height="8.8" transform="rotate(45 248.52 64)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="68" font-size="11">GitHub Copilot harness evaluation · GPT-5.4 · SWE-bench Pro task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="251.68000000000004" y="83.6" width="8.8" height="8.8" transform="rotate(45 256.08000000000004 88)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="92" font-size="11">GitHub Copilot harness evaluation · GPT-5.5 · SWE-bench Pro task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="275.20000000000005" y="107.6" width="8.8" height="8.8" transform="rotate(45 279.6 112)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="116" font-size="11">GitHub Copilot harness evaluation · GPT-5.4 · SkillsBench task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="286.96000000000004" y="131.6" width="8.8" height="8.8" transform="rotate(45 291.36 136)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="140" font-size="11">GitHub Copilot harness evaluation · GPT-5.5 · SkillsBench task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="261.76" y="155.6" width="8.8" height="8.8" transform="rotate(45 266.15999999999997 160)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="164" font-size="11">GitHub Copilot harness evaluation · GPT-5.4 · Win-Hill task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="241.6" y="179.6" width="8.8" height="8.8" transform="rotate(45 246 184)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="188" font-size="11">GitHub Copilot harness evaluation · GPT-5.5 · Win-Hill task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="229.84" y="203.6" width="8.8" height="8.8" transform="rotate(45 234.24 208)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="212" font-size="11">GitHub Copilot harness evaluation · GPT-5.4 · Terminal-Bench 2 task resolution <tspan fill="#505a5f">[B]</tspan></text><rect x="241.6" y="227.6" width="8.8" height="8.8" transform="rotate(45 246 232)" fill="#ffffff" stroke="#0969da" stroke-width="1.6"/><text x="498" y="236" font-size="11">GitHub Copilot harness evaluation · GPT-5.5 · Terminal-Bench 2 task resolution <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="276" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="276" font-size="10.5" text-anchor="end" fill="#505a5f">Copilot leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://github.blog/ai-and-ml/github-copilot/evaluating-performance-and-efficiency-of-the-github-copilot-agentic-harness-across-models-and-tasks/">GitHub Copilot harness evaluation</a> (compared vendor)</p></div>
+<div class="row" id="gpt-ale-claw">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-ale-claw-detail">
+    <span class="chip" style="background:#b45309">AC</span>
+    <span class="hname">ALE-Claw</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Agents&#39; Last Exam (anchor)
+GPT-5.5 · effort default
+full-pass rate
+Δ quality -1.0 pts vs native · interval ±9.5 (binomial, n=152 / binomial, n=152)" data-study="agents-last-exam"><circle cx="144" cy="10" r="8" fill="none" stroke="#b45309" stroke-width="1.2" opacity="0.55"/><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#b45309" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost reported</span></div></div>
+</div>
+<div class="detail" id="gpt-ale-claw-detail" hidden><p class="record"><strong>ALE-Claw</strong> vs Codex across 1 study: 0 clear ALE-Claw leads, 0 clear Codex leads, 1 inside the noise, 0 direction-only.</p><svg width="1052" height="64"><line x1="78" y1="4" x2="78" y2="30" stroke="#e6e6e6"/><text x="78" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="30" stroke="#e6e6e6"/><text x="162" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="30" stroke="#505a5f"/><text x="246" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="30" stroke="#e6e6e6"/><text x="330" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="30" stroke="#e6e6e6"/><text x="414" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="157.548" y1="16" x2="317.652" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="237.6" cy="16" r="5" fill="#ffffff" stroke="#b45309" stroke-width="1.8"/><text x="498" y="20" font-size="11">Agents&#39; Last Exam · GPT-5.5 · default · full-pass rate <tspan fill="#505a5f">[A]</tspan></text><text x="36" y="60" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="60" font-size="10.5" text-anchor="end" fill="#505a5f">ALE-Claw leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://arxiv.org/abs/2606.05405">Agents&#39; Last Exam</a></p></div>
+<div class="row" id="gpt-claude-code">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-claude-code-detail">
+    <span class="chip" style="background:#6b7280">CC</span>
+    <span class="hname">Claude Code</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="WildClawBench (supporting)
+GPT-5.4 · effort default
+overall score
+Δ quality -8.4 pts vs native · interval ±17.8 (binomial, n=60 / binomial, n=60)
+cost 1.07× native" data-study="wildclawbench"><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#6b7280" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><svg width="404" height="24" class="lane"><line x1="28.707713388037522" y1="0" x2="28.707713388037522" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="80.60661147546072" y1="0" x2="80.60661147546072" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="132.50550956288396" y1="0" x2="132.50550956288396" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="184.40440765030715" y1="0" x2="184.40440765030715" y2="24" stroke="#9a9a9a" stroke-width="1.4"/><line x1="236.30330573773034" y1="0" x2="236.30330573773034" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="288.20220382515356" y1="0" x2="288.20220382515356" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="340.1011019125768" y1="0" x2="340.1011019125768" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="392" y1="0" x2="392" y2="24" stroke="#eeeeee" stroke-width="1"/><g class="mark" data-tip="WildClawBench (supporting)
+GPT-5.4 · effort default
+overall score
+Δ quality -8.4 pts vs native · interval ±17.8 (binomial, n=60 / binomial, n=60)
+cost 1.07× native" data-study="wildclawbench"><circle cx="189.4825759154746" cy="10" r="5" fill="#6b7280"/></g></svg></div>
+</div>
+<div class="detail" id="gpt-claude-code-detail" hidden><p class="record"><strong>Claude Code</strong> vs Codex across 1 study: 0 clear Claude Code leads, 0 clear Codex leads, 1 inside the noise, 0 direction-only.</p><svg width="1052" height="64"><line x1="78" y1="4" x2="78" y2="30" stroke="#e6e6e6"/><text x="78" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="30" stroke="#e6e6e6"/><text x="162" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="30" stroke="#505a5f"/><text x="246" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="30" stroke="#e6e6e6"/><text x="330" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="30" stroke="#e6e6e6"/><text x="414" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="36" y1="16" x2="324.96" y2="16" stroke="#9a9a9a" stroke-width="2" stroke-dasharray="3,2"/><circle cx="175.44" cy="16" r="5" fill="#ffffff" stroke="#6b7280" stroke-width="1.8"/><text x="498" y="20" font-size="11">WildClawBench · GPT-5.4 · default · overall score <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="60" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="60" font-size="10.5" text-anchor="end" fill="#505a5f">Claude Code leads &#8594;</text></svg><p class="record">Cost, Claude Code relative to Codex: 1.07&#215; <span class="dim">(WildClawBench, GPT-5.4, default)</span></p><p class="record dim">Sources: <a href="https://github.com/InternLM/WildClawBench">WildClawBench</a></p></div>
+<div class="row" id="gpt-droid">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-droid-detail">
+    <span class="chip" style="background:#dc2626">D</span>
+    <span class="hname">Droid</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Agents&#39; Last Exam (anchor)
+GPT-5.5 · effort default
+full-pass rate
+Δ quality -4.9 pts vs native · interval ±9.2 (binomial, n=152 / binomial, n=152)" data-study="agents-last-exam"><circle cx="144" cy="10" r="8" fill="none" stroke="#dc2626" stroke-width="1.2" opacity="0.55"/><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#dc2626" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost reported</span></div></div>
+</div>
+<div class="detail" id="gpt-droid-detail" hidden><p class="record"><strong>Droid</strong> vs Codex across 1 study: 0 clear Droid leads, 0 clear Codex leads, 1 inside the noise, 0 direction-only.</p><svg width="1052" height="64"><line x1="78" y1="4" x2="78" y2="30" stroke="#e6e6e6"/><text x="78" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="30" stroke="#e6e6e6"/><text x="162" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="30" stroke="#505a5f"/><text x="246" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="30" stroke="#e6e6e6"/><text x="330" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="30" stroke="#e6e6e6"/><text x="414" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="127.30799999999999" y1="16" x2="282.372" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="204.84" cy="16" r="5" fill="#ffffff" stroke="#dc2626" stroke-width="1.8"/><text x="498" y="20" font-size="11">Agents&#39; Last Exam · GPT-5.5 · default · full-pass rate <tspan fill="#505a5f">[A]</tspan></text><text x="36" y="60" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="60" font-size="10.5" text-anchor="end" fill="#505a5f">Droid leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://arxiv.org/abs/2606.05405">Agents&#39; Last Exam</a></p></div>
+<div class="row" id="gpt-hermes">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-hermes-detail">
+    <span class="chip" style="background:#ca8a04">H</span>
+    <span class="hname">Hermes</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="WildClawBench (supporting)
+GPT-5.4 · effort default
+overall score
+Δ quality -6.1 pts vs native · interval ±17.8 (binomial, n=60 / binomial, n=60)
+cost 0.77× native" data-study="wildclawbench"><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#ca8a04" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><svg width="404" height="24" class="lane"><line x1="28.707713388037522" y1="0" x2="28.707713388037522" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="80.60661147546072" y1="0" x2="80.60661147546072" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="132.50550956288396" y1="0" x2="132.50550956288396" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="184.40440765030715" y1="0" x2="184.40440765030715" y2="24" stroke="#9a9a9a" stroke-width="1.4"/><line x1="236.30330573773034" y1="0" x2="236.30330573773034" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="288.20220382515356" y1="0" x2="288.20220382515356" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="340.1011019125768" y1="0" x2="340.1011019125768" y2="24" stroke="#eeeeee" stroke-width="1"/><line x1="392" y1="0" x2="392" y2="24" stroke="#eeeeee" stroke-width="1"/><g class="mark" data-tip="WildClawBench (supporting)
+GPT-5.4 · effort default
+overall score
+Δ quality -6.1 pts vs native · interval ±17.8 (binomial, n=60 / binomial, n=60)
+cost 0.77× native" data-study="wildclawbench"><circle cx="165.02232844093572" cy="10" r="5" fill="#ca8a04"/></g></svg></div>
+</div>
+<div class="detail" id="gpt-hermes-detail" hidden><p class="record"><strong>Hermes</strong> vs Codex across 1 study: 0 clear Hermes leads, 0 clear Codex leads, 1 inside the noise, 0 direction-only.</p><svg width="1052" height="64"><line x1="78" y1="4" x2="78" y2="30" stroke="#e6e6e6"/><text x="78" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="30" stroke="#e6e6e6"/><text x="162" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="30" stroke="#505a5f"/><text x="246" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="30" stroke="#e6e6e6"/><text x="330" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="30" stroke="#e6e6e6"/><text x="414" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="45.15600000000003" y1="16" x2="344.364" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="194.76" cy="16" r="5" fill="#ffffff" stroke="#ca8a04" stroke-width="1.8"/><text x="498" y="20" font-size="11">WildClawBench · GPT-5.4 · default · overall score <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="60" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="60" font-size="10.5" text-anchor="end" fill="#505a5f">Hermes leads &#8594;</text></svg><p class="record">Cost, Hermes relative to Codex: 0.77&#215; <span class="dim">(WildClawBench, GPT-5.4, default)</span></p><p class="record dim">Sources: <a href="https://github.com/InternLM/WildClawBench">WildClawBench</a></p></div>
+<div class="row" id="gpt-mini-swe-agent">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-mini-swe-agent-detail">
+    <span class="chip" style="background:#4d7c0f">MS</span>
+    <span class="hname">mini-SWE-agent</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="DrugDiscoveryBench (supporting)
+GPT-5.5 · effort xhigh
+pass rate
+Δ quality +7.7 pts vs native · interval ±15.2 (binomial, n=82 / binomial, n=82)" data-study="drugdiscoverybench"><circle cx="144" cy="10" r="5" fill="#ffffff" stroke="#4d7c0f" stroke-width="1.8"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost reported</span></div></div>
+</div>
+<div class="detail" id="gpt-mini-swe-agent-detail" hidden><p class="record"><strong>mini-SWE-agent</strong> vs Codex across 1 study: 0 clear mini-SWE-agent leads, 0 clear Codex leads, 1 inside the noise, 0 direction-only.</p><svg width="1052" height="64"><line x1="78" y1="4" x2="78" y2="30" stroke="#e6e6e6"/><text x="78" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="30" stroke="#e6e6e6"/><text x="162" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="30" stroke="#505a5f"/><text x="246" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="30" stroke="#e6e6e6"/><text x="330" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="30" stroke="#e6e6e6"/><text x="414" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="182.66400000000002" y1="16" x2="438.69599999999997" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="310.68" cy="16" r="5" fill="#ffffff" stroke="#4d7c0f" stroke-width="1.8"/><text x="498" y="20" font-size="11">DrugDiscoveryBench · GPT-5.5 · xhigh · pass rate <tspan fill="#505a5f">[B]</tspan></text><text x="36" y="60" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="60" font-size="10.5" text-anchor="end" fill="#505a5f">mini-SWE-agent leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://github.com/scaleapi/DrugDiscoveryBench">DrugDiscoveryBench</a> (adjacent)</p></div>
+<div class="row" id="gpt-terminus">
+  <button class="rowhead" aria-expanded="false" data-target="gpt-terminus-detail">
+    <span class="chip" style="background:#64748b">T</span>
+    <span class="hname">Terminus</span>
+    <span class="caret">&#9656;</span>
+  </button>
+  <div class="qcell"><svg width="560" height="24" class="lane"><line x1="130" y1="0" x2="130" y2="24" stroke="#e6e6e6"/><line x1="300" y1="0" x2="300" y2="24" stroke="#e6e6e6"/><line x1="430" y1="0" x2="430" y2="24" stroke="#e6e6e6"/><g class="mark" data-tip="Terminal-Bench 2.1 (anchor)
+GPT-5.5 · effort default
+pass rate
+Δ quality -5.2 pts vs native · interval ±3.3 (published confidence interval / published confidence interval)" data-study="terminal-bench"><circle cx="14" cy="10" r="8" fill="none" stroke="#64748b" stroke-width="1.2" opacity="0.55"/><circle cx="14" cy="10" r="5.5" fill="#64748b"/></g></svg></div>
+  <div class="ccell"><div class="costnote" style="width:404px"><span class="nocost">no cost reported</span></div></div>
+</div>
+<div class="detail" id="gpt-terminus-detail" hidden><p class="record"><strong>Terminus</strong> vs Codex across 1 study: 0 clear Terminus leads, 1 clear Codex lead, 0 inside the noise, 0 direction-only.</p><svg width="1052" height="64"><line x1="78" y1="4" x2="78" y2="30" stroke="#e6e6e6"/><text x="78" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-20</text><line x1="162" y1="4" x2="162" y2="30" stroke="#e6e6e6"/><text x="162" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">-10</text><line x1="246" y1="4" x2="246" y2="30" stroke="#505a5f"/><text x="246" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">0</text><line x1="330" y1="4" x2="330" y2="30" stroke="#e6e6e6"/><text x="330" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+10</text><line x1="414" y1="4" x2="414" y2="30" stroke="#e6e6e6"/><text x="414" y="44" font-size="10.5" text-anchor="middle" fill="#505a5f">+20</text><line x1="174.93599999999998" y1="16" x2="229.704" y2="16" stroke="#9a9a9a" stroke-width="2"/><circle cx="202.32000000000002" cy="16" r="5" fill="#64748b" stroke="#64748b" stroke-width="1.8"/><text x="498" y="20" font-size="11">Terminal-Bench 2.1 · GPT-5.5 · default · pass rate <tspan fill="#505a5f">[A]</tspan></text><text x="36" y="60" font-size="10.5" fill="#505a5f">&#8592; Codex leads</text><text x="456" y="60" font-size="10.5" text-anchor="end" fill="#505a5f">Terminus leads &#8594;</text></svg><p class="record dim">Sources: <a href="https://www.tbench.ai/leaderboard/terminal-bench/2.1">Terminal-Bench 2.1</a></p></div>
+</section>
+<p class="dim" style="margin-top:28px">Comparisons that involve neither native harness, contextual-tier studies and open-weight model pools are in the <a href="pairs.html">full pairwise forest plots</a>. Method: <a href="https://github.com/tmustier/harness-benchmarks/blob/main/docs/method.md">how this review weights sources</a>.</p>
+</div>
+<div id="tip"></div>
+<script>
+(function () {
+  var tip = document.getElementById("tip");
+  document.addEventListener("mousemove", function (e) {
+    var g = e.target.closest("[data-tip]");
+    if (g) {
+      tip.textContent = g.getAttribute("data-tip");
+      tip.style.display = "block";
+      var x = Math.min(e.clientX + 14, window.innerWidth - 360);
+      tip.style.left = x + "px";
+      tip.style.top = (e.clientY + 16) + "px";
+    } else tip.style.display = "none";
+  });
+  document.querySelectorAll(".rowhead[data-target]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var d = document.getElementById(btn.getAttribute("data-target"));
+      var open = d.hidden;
+      d.hidden = !open;
+      btn.setAttribute("aria-expanded", String(open));
+      if (open) history.replaceState(null, "", "#" + btn.closest(".row").id);
+    });
+  });
+  var note = document.getElementById("studynote");
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-study]");
+    var body = document.body;
+    if (el && (e.target.classList.contains("capsule") || e.target.closest(".capsule"))) {
+      var sid = el.getAttribute("data-study");
+      var already = body.classList.contains("spot") && body.getAttribute("data-spot") === sid;
+      body.classList.toggle("spot", !already);
+      body.setAttribute("data-spot", already ? "" : sid);
+      document.querySelectorAll("[data-study]").forEach(function (m) {
+        m.classList.toggle("lit", !already && m.getAttribute("data-study") === sid);
+      });
+      note.textContent = already ? "" : "Spotlight: results from one study. Click the capsule again to clear.";
+    }
+  });
+  if (location.hash) {
+    var row = document.querySelector(location.hash);
+    if (row) { var b = row.querySelector(".rowhead[data-target]"); if (b) b.click(); row.scrollIntoView(); }
+  }
+})();
+</script>
+</body>
+</html>

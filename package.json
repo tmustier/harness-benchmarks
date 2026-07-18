@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node scripts/build-site.mjs && node scripts/build-pairs.mjs",
+    "build": "node scripts/build-site.mjs && node scripts/build-pairs.mjs && node scripts/build-evidence-map.mjs",
     "build:pdf": "bash scripts/build-pdf.sh",
     "test": "node scripts/validate-data.mjs"
   },
