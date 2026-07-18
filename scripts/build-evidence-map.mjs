@@ -1,9 +1,18 @@
 // Builds the aligned evidence map: the landing view that shows, per model
 // family, every anchor/supporting matched result against the native harness.
-// Quality is categorical (who leads, given each study's own winning interval);
-// cost is quantitative (log ratio, challenger over native). Same-study marks
-// share a capsule so one prolific source cannot masquerade as replication.
-// Reads site/data/pairs.json (run build-pairs.mjs first). Writes site/evidence-map.html.
+//
+// Reading direction is uniform across both lanes: LEFT favors the native
+// harness (it leads on quality / the challenger costs more), RIGHT favors the
+// challenger (it leads / it is cheaper). Quality is categorical (who leads,
+// given each study's own winning interval); cost is quantitative (log ratio,
+// challenger over native, axis flipped so cheaper is right).
+//
+// Marks from any study that contributes more than one mark to a panel get a
+// grey backing (capsule) in both lanes, so one prolific source cannot
+// masquerade as independent replication; clicking it spotlights the study.
+//
+// Reads site/data/pairs.json (run build-pairs.mjs first) and data/studies.json.
+// Writes site/evidence-map.html.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,6 +21,13 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const pairs = JSON.parse(fs.readFileSync(path.join(root, "site", "data", "pairs.json"), "utf8"));
 const studies = Object.fromEntries(
   JSON.parse(fs.readFileSync(path.join(root, "data", "studies.json"), "utf8")).map(s => [s.id, s]));
+
+// Generated hrefs must be http(s); anything else fails the build.
+for (const s of Object.values(studies)) {
+  if (!/^https?:\/\//.test(s.source_url)) {
+    throw new Error(`Study ${s.id} has non-http(s) source_url: ${s.source_url}`);
+  }
+}
 
 const PANELS = [
   { key: "claude", family: "Claude models", native: "Claude Code" },
@@ -30,6 +46,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
 // --- Orient every eligible pair row as challenger-vs-native ----------------
+// pairs.json convention: delta_pp = a - b, ratios = a / b.
 function orient(p, native) {
   if (p.weight_tier === "contextual") return null;
   let challenger, delta, cost, tokens;
@@ -44,9 +61,22 @@ function orient(p, native) {
     cost = p.cost_ratio;
     tokens = p.token_ratio;
   } else return null;
-  const cat = p.decisive === true ? (delta > 0 ? "challenger" : "native")
-    : p.decisive === false ? "unclear"
-    : p.delta_pp != null ? "direction" : null; // null cat = cost-only row
+  for (const [name, v] of [["cost", cost], ["token", tokens]]) {
+    if (v != null && (!Number.isFinite(v) || v <= 0)) {
+      throw new Error(`Bad ${name} ratio ${v} in ${p.study_id} (${p.model ?? "?"})`);
+    }
+  }
+  let cat = null; // null cat = cost-only row
+  if (delta != null) {
+    if (p.decisive === true) {
+      if (delta === 0) throw new Error(`Decisive result with zero delta in ${p.study_id} (${p.model ?? "?"})`);
+      cat = delta > 0 ? "challenger" : "native";
+    } else if (p.decisive === false || delta === 0) {
+      cat = "unclear"; // inside the interval, or exactly zero with none
+    } else {
+      cat = "direction"; // delta known, no interval computable
+    }
+  }
   return {
     challenger, delta, cost, tokens, cat,
     study_id: p.study_id, study_name: p.study_name, tier: p.weight_tier,
@@ -56,16 +86,22 @@ function orient(p, native) {
 }
 
 // --- Lane geometry ----------------------------------------------------------
+// Quality: three columns. "noclear" holds both inside-interval and
+// direction-only results; mark shape keeps them distinguishable.
 const QCOLS = [
-  { id: "native", w: 130 }, { id: "unclear", w: 170 },
-  { id: "challenger", w: 130 }, { id: "direction", w: 130 },
+  { id: "native", w: 150 }, { id: "noclear", w: 210 }, { id: "challenger", w: 150 },
 ];
 const QW = QCOLS.reduce((a, c) => a + c.w, 0);
+
+// Cost: log axis FLIPPED — expensive (favors native) left, cheap right.
 const CL = { min: Math.log2(1 / 10), max: Math.log2(16), w: 380, pad: 12 };
-const cx = v => CL.pad + ((Math.min(Math.max(Math.log2(v), CL.min), CL.max) - CL.min) / (CL.max - CL.min)) * CL.w;
+const cx = v => CL.pad + ((CL.max - Math.min(Math.max(Math.log2(v), CL.min), CL.max)) / (CL.max - CL.min)) * CL.w;
 const CW = CL.w + CL.pad * 2;
+const COST_TICKS = [16, 8, 4, 2, 1, 0.5, 0.25, 0.125];
+const tickLabel = t => t === 0.5 ? "&#189;&#215;" : t === 0.25 ? "&#188;&#215;" : t === 0.125 ? "&#8539;&#215;" : `${t}&#215;`;
 const MARK_STEP = 17;
 const LINE_H = 20;
+const NEUTRAL = "#64748b";
 
 function tipAttrs(r, extra = "") {
   const parts = [
@@ -80,8 +116,22 @@ function tipAttrs(r, extra = "") {
   return `data-tip="${esc(parts.join("\n"))}" data-study="${esc(r.study_id)}"`;
 }
 
-// Lay out marks in a column: grouped by study, wrapping lines; returns svg + lines used.
-function layoutColumn(results, colX, colW, rowColor) {
+function markShape(r, x, y, rowColor) {
+  const ring = r.tier === "anchor" ? `<circle cx="${x}" cy="${y}" r="8" fill="none" stroke="${rowColor}" stroke-width="1.2" opacity="0.55"/>` : "";
+  let m;
+  if (r.cat === "direction") {
+    m = `<rect x="${x - 4.4}" y="${y - 4.4}" width="8.8" height="8.8" transform="rotate(45 ${x} ${y})" fill="#ffffff" stroke="${rowColor}" stroke-width="1.6"/>`;
+  } else if (r.cat === "unclear") {
+    m = `<circle cx="${x}" cy="${y}" r="5" fill="#ffffff" stroke="${rowColor}" stroke-width="1.8"/>`;
+  } else {
+    m = `<circle cx="${x}" cy="${y}" r="5.5" fill="${rowColor}"/>`;
+  }
+  return ring + m;
+}
+
+// Lay out marks in a column, grouped by study, wrapping lines.
+// Any mark whose study repeats anywhere in the panel gets a grey backing.
+function layoutColumn(results, colX, colW, rowColor, isRepeated) {
   const perLine = Math.max(1, Math.floor((colW - 14) / MARK_STEP));
   let svg = "", i = 0;
   const groups = new Map();
@@ -96,65 +146,60 @@ function layoutColumn(results, colX, colW, rowColor) {
       cells.push({ r, line: Math.floor(i / perLine), col: i % perLine });
       i++;
     }
-    positions.push({ sid, cells, size: rs.length });
+    positions.push({ sid, cells });
   }
   const lines = Math.max(1, Math.ceil(i / perLine));
   for (const g of positions) {
-    // capsule bounding box per contiguous line segment of this study's marks
-    const byLine = new Map();
-    for (const c of g.cells) {
-      if (!byLine.has(c.line)) byLine.set(c.line, []);
-      byLine.get(c.line).push(c);
-    }
-    for (const cells of byLine.values()) {
-      const x0 = colX + 8 + cells[0].col * MARK_STEP;
-      const x1 = colX + 8 + cells[cells.length - 1].col * MARK_STEP + 12;
-      const y = 10 + cells[0].line * LINE_H;
-      if (g.size > 1) {
-        svg += `<rect class="capsule" data-study="${esc(g.sid)}" x="${x0 - 4}" y="${y - 9}" width="${x1 - x0 + 8}" height="18" rx="9" fill="#f0f0f0"/>`;
+    if (isRepeated(g.sid)) {
+      const byLine = new Map();
+      for (const c of g.cells) {
+        if (!byLine.has(c.line)) byLine.set(c.line, []);
+        byLine.get(c.line).push(c);
+      }
+      for (const cells of byLine.values()) {
+        const x0 = colX + 8 + cells[0].col * MARK_STEP;
+        const x1 = colX + 8 + cells[cells.length - 1].col * MARK_STEP + 12;
+        const y = 10 + cells[0].line * LINE_H;
+        svg += `<rect class="capsule" data-study="${esc(g.sid)}" x="${x0 - 4}" y="${y - 9}" width="${x1 - x0 + 8}" height="18" rx="9" fill="#e8e8e8" stroke="#cccccc" stroke-width="1"/>`;
       }
     }
     for (const c of g.cells) {
       const x = colX + 14 + c.col * MARK_STEP;
       const y = 10 + c.line * LINE_H;
-      const r = c.r;
-      const ring = r.tier === "anchor" ? `<circle cx="${x}" cy="${y}" r="8" fill="none" stroke="${rowColor}" stroke-width="1.2" opacity="0.55"/>` : "";
-      let mark;
-      if (r.cat === "direction") {
-        mark = `<rect x="${x - 4.4}" y="${y - 4.4}" width="8.8" height="8.8" transform="rotate(45 ${x} ${y})" fill="#ffffff" stroke="${rowColor}" stroke-width="1.6"/>`;
-      } else if (r.cat === "unclear") {
-        mark = `<circle cx="${x}" cy="${y}" r="5" fill="#ffffff" stroke="${rowColor}" stroke-width="1.8"/>`;
-      } else {
-        mark = `<circle cx="${x}" cy="${y}" r="5.5" fill="${rowColor}"/>`;
-      }
-      svg += `<g class="mark" ${tipAttrs(r)}>${ring}${mark}</g>`;
+      svg += `<g class="mark" ${tipAttrs(c.r)}>${markShape(c.r, x, y, rowColor)}</g>`;
     }
   }
   return { svg, lines };
 }
 
-function qualityLane(results, rowColor) {
-  const byCat = { native: [], unclear: [], challenger: [], direction: [] };
-  for (const r of results) if (r.cat) byCat[r.cat].push(r);
-  let svg = "", maxLines = 1, x = 0;
+function qualityLane(results, rowColor, challenger, isRepeated) {
+  const byCat = { native: [], noclear: [], challenger: [] };
+  for (const r of results) {
+    if (!r.cat) continue;
+    byCat[r.cat === "native" || r.cat === "challenger" ? r.cat : "noclear"].push(r);
+  }
   const colX = {};
+  let x = 0;
   for (const c of QCOLS) { colX[c.id] = x; x += c.w; }
+  let marks = "", maxLines = 1;
   for (const c of QCOLS) {
-    const out = layoutColumn(byCat[c.id], colX[c.id], c.w, rowColor);
-    svg += out.svg;
+    const out = layoutColumn(byCat[c.id], colX[c.id], c.w, rowColor, isRepeated);
+    marks += out.svg;
     maxLines = Math.max(maxLines, byCat[c.id].length ? out.lines : 1);
   }
   const h = maxLines * LINE_H + 4;
-  let grid = "";
+  // direction tints: native zone neutral, challenger zone in the row's color
+  let svg = `<rect x="0" y="0" width="${QCOLS[0].w}" height="${h}" fill="${NEUTRAL}" opacity="0.06"/>` +
+    `<rect x="${colX.challenger}" y="0" width="${QCOLS[2].w}" height="${h}" fill="${rowColor}" opacity="0.07"/>` +
+    `<text x="${colX.challenger + QCOLS[2].w - 8}" y="${h / 2 + 3.5}" text-anchor="end" font-size="9.5" letter-spacing="0.06em" fill="${rowColor}" opacity="0.5">${esc(challenger.toUpperCase())} &#8594;</text>`;
   let gx = 0;
-  for (const c of QCOLS.slice(0, -1)) { gx += c.w; grid += `<line x1="${gx}" y1="0" x2="${gx}" y2="${h}" stroke="#e6e6e6"/>`; }
-  return { svg: `<svg width="${QW}" height="${h}" class="lane">${grid}${svg}</svg>`, h };
+  for (const c of QCOLS.slice(0, -1)) { gx += c.w; svg += `<line x1="${gx}" y1="0" x2="${gx}" y2="${h}" stroke="#e6e6e6"/>`; }
+  return { svg: `<svg width="${QW}" height="${h}" class="lane">${svg}${marks}</svg>`, h };
 }
 
-function costLane(results, rowColor, challenger) {
+function costLane(results, rowColor, isRepeated) {
   const withCost = results.filter(r => r.cost != null);
   const tokenOnly = results.filter(r => r.cost == null && r.tokens != null);
-  const ticks = [0.125, 0.25, 0.5, 1, 2, 4, 8, 16];
   if (!withCost.length) {
     let note = `<span class="nocost">no cost reported</span>`;
     if (tokenOnly.length) {
@@ -163,7 +208,6 @@ function costLane(results, rowColor, challenger) {
     }
     return { html: `<div class="costnote" style="width:${CW}px">${note}</div>`, h: 24 };
   }
-  // sort so marks pile deterministically; wrap lines when overlapping same x region
   const sorted = [...withCost].sort((a, b) => a.cost - b.cost);
   const placed = [];
   for (const r of sorted) {
@@ -174,62 +218,119 @@ function costLane(results, rowColor, challenger) {
   }
   const lines = Math.max(1, ...placed.map(p => p.line + 1));
   const h = lines * LINE_H + 4;
-  let svg = "";
-  for (const t of ticks) {
-    svg += `<line x1="${cx(t)}" y1="0" x2="${cx(t)}" y2="${h}" stroke="${t === 1 ? "#9a9a9a" : "#eeeeee"}" stroke-width="${t === 1 ? 1.4 : 1}"/>`;
+  // tints mirror the quality lane: left of 1× favors native, right favors challenger
+  let svg = `<rect x="0" y="0" width="${cx(1)}" height="${h}" fill="${NEUTRAL}" opacity="0.06"/>` +
+    `<rect x="${cx(1)}" y="0" width="${CW - cx(1)}" height="${h}" fill="${rowColor}" opacity="0.07"/>`;
+  for (const t of COST_TICKS) {
+    svg += `<line x1="${cx(t)}" y1="0" x2="${cx(t)}" y2="${h}" stroke="${t === 1 ? "#8a8a8a" : "#e9e9e9"}" stroke-width="${t === 1 ? 1.4 : 1}"/>`;
+  }
+  for (const p of placed) {
+    if (isRepeated(p.r.study_id)) {
+      const y = 10 + p.line * LINE_H;
+      svg += `<rect class="capsule" data-study="${esc(p.r.study_id)}" x="${p.x - 9}" y="${y - 9}" width="18" height="18" rx="9" fill="#e8e8e8" stroke="#cccccc" stroke-width="1"/>`;
+    }
   }
   for (const p of placed) {
     const y = 10 + p.line * LINE_H;
-    const clipped = p.r.cost > 16 || p.r.cost < 1 / 10;
     const ring = p.r.tier === "anchor" ? `<circle cx="${p.x}" cy="${y}" r="8" fill="none" stroke="${rowColor}" stroke-width="1.2" opacity="0.55"/>` : "";
-    svg += `<g class="mark" ${tipAttrs(p.r)}>${ring}<circle cx="${p.x}" cy="${y}" r="5" fill="${rowColor}"/>` +
-      (clipped ? `<text x="${p.x - 10}" y="${y + 4}" font-size="10" text-anchor="end" fill="#505a5f">${p.r.cost.toFixed(1)}&#215;&#8594;</text>` : "") + `</g>`;
+    // flipped axis: >16× clips at the LEFT edge, <1/10× at the RIGHT edge
+    let clip = "";
+    if (p.r.cost > 16) clip = `<text x="${p.x + 10}" y="${y + 4}" font-size="10" text-anchor="start" fill="#505a5f">&#8592;${p.r.cost.toFixed(1)}&#215;</text>`;
+    else if (p.r.cost < 1 / 10) clip = `<text x="${p.x - 10}" y="${y + 4}" font-size="10" text-anchor="end" fill="#505a5f">${p.r.cost.toFixed(2)}&#215;&#8594;</text>`;
+    svg += `<g class="mark" ${tipAttrs(p.r)}>${ring}<circle cx="${p.x}" cy="${y}" r="5" fill="${rowColor}"/>${clip}</g>`;
   }
   return { html: `<svg width="${CW}" height="${h}" class="lane">${svg}</svg>`, h };
 }
 
-// Expanded detail: forest plot of quality deltas + cost list + study links.
-const F = { min: -25, max: 25, w: 420, pad: 36 };
-const fx = v => F.pad + ((Math.min(Math.max(v, F.min), F.max) - F.min) / (F.max - F.min)) * F.w;
+// --- Expanded detail: cost-vs-quality quadrant scatter ----------------------
+const SC = { ymin: -25, ymax: 25, h: 210, top: 16 };
+const LM = 40;                       // left margin for y labels
+const GUT = 88;                      // right gutter for quality-only points
+const sx = v => LM + cx(v);
+const sy = v => SC.top + ((SC.ymax - Math.min(Math.max(v, SC.ymin), SC.ymax)) / (SC.ymax - SC.ymin)) * SC.h;
+
 function detailBlock(native, challenger, results) {
-  const quality = results.filter(r => r.delta != null).sort((a, b) => (a.tier + a.published).localeCompare(b.tier + b.published));
-  const costs = results.filter(r => r.cost != null);
+  const c = color(challenger);
+  const quality = results.filter(r => r.delta != null);
+  const both = quality.filter(r => r.cost != null);
+  const qOnly = quality.filter(r => r.cost == null);
+  const cOnly = results.filter(r => r.delta == null && r.cost != null);
   const rec = {
     challenger: quality.filter(r => r.cat === "challenger").length,
     native: quality.filter(r => r.cat === "native").length,
     unclear: quality.filter(r => r.cat === "unclear").length,
     direction: quality.filter(r => r.cat === "direction").length,
   };
-  const nStudies = new Set(results.map(r => r.study_id));
+  const nStudies = new Set(results.filter(r => r.cat != null || r.cost != null).map(r => r.study_id));
   let html = `<p class="record"><strong>${esc(challenger)}</strong> vs ${esc(native)} across ${nStudies.size} ${nStudies.size === 1 ? "study" : "studies"}: ` +
     `${rec.challenger} clear ${esc(challenger)} lead${rec.challenger === 1 ? "" : "s"}, ${rec.native} clear ${esc(native)} lead${rec.native === 1 ? "" : "s"}, ` +
-    `${rec.unclear} inside the noise, ${rec.direction} direction-only.</p>`;
-  if (quality.length) {
-    const h = quality.length * 24 + 40;
-    let svg = `<svg width="${F.pad * 2 + F.w + 560}" height="${h}">`;
+    `${rec.unclear} with no clear lead, ${rec.direction} direction-only (no interval).</p>`;
+
+  if (quality.length || cOnly.length) {
+    const plotBottom = SC.top + SC.h;
+    const xLabelY = plotBottom + 16;
+    const stripY = xLabelY + 24;
+    const totalH = (cOnly.length ? stripY + 14 : xLabelY + 8) + 14;
+    const totalW = LM + CW + (qOnly.length ? GUT : 0) + 8;
+    let svg = `<svg width="${totalW}" height="${totalH}">`;
+    // quadrant tints: up = challenger better, right = cheaper
+    svg += `<rect x="${LM}" y="${SC.top}" width="${cx(1)}" height="${SC.h}" fill="${NEUTRAL}" opacity="0.05"/>`;
+    svg += `<rect x="${sx(1)}" y="${SC.top}" width="${LM + CW - sx(1)}" height="${SC.h / 2}" fill="${c}" opacity="0.06"/>`;
+    // grid
     for (const t of [-20, -10, 0, 10, 20]) {
-      svg += `<line x1="${fx(t)}" y1="4" x2="${fx(t)}" y2="${h - 34}" stroke="${t === 0 ? "#505a5f" : "#e6e6e6"}"/>` +
-        `<text x="${fx(t)}" y="${h - 20}" font-size="10.5" text-anchor="middle" fill="#505a5f">${t > 0 ? "+" + t : t}</text>`;
+      svg += `<line x1="${LM}" y1="${sy(t)}" x2="${LM + CW}" y2="${sy(t)}" stroke="${t === 0 ? "#8a8a8a" : "#ececec"}"/>` +
+        `<text x="${LM - 6}" y="${sy(t) + 3.5}" font-size="10" text-anchor="end" fill="#505a5f">${t > 0 ? "+" + t : t}</text>`;
     }
-    quality.forEach((r, i) => {
-      const y = 16 + i * 24;
+    for (const t of COST_TICKS) {
+      svg += `<line x1="${sx(t)}" y1="${SC.top}" x2="${sx(t)}" y2="${plotBottom}" stroke="${t === 1 ? "#8a8a8a" : "#ececec"}"/>` +
+        `<text x="${sx(t)}" y="${xLabelY}" font-size="10" text-anchor="middle" fill="#505a5f">${tickLabel(t)}</text>`;
+    }
+    // quadrant labels
+    const ql = (x, y, anchor, text) =>
+      `<text x="${x}" y="${y}" font-size="10" font-style="italic" text-anchor="${anchor}" fill="#9ca3af">${text}</text>`;
+    svg += ql(LM + 6, SC.top + 12, "start", `${esc(challenger)} better &#183; costs more`);
+    svg += ql(LM + CW - 6, SC.top + 12, "end", `${esc(challenger)} better &#183; cheaper`);
+    svg += ql(LM + 6, plotBottom - 6, "start", `worse &#183; costs more`);
+    svg += ql(LM + CW - 6, plotBottom - 6, "end", `worse &#183; cheaper`);
+    // points with both metrics
+    for (const r of both) {
+      const x = sx(r.cost), y = sy(r.delta);
       if (r.interval != null) {
-        svg += `<line x1="${fx(r.delta - r.interval)}" y1="${y}" x2="${fx(r.delta + r.interval)}" y2="${y}" stroke="#9a9a9a" stroke-width="2"${(r.delta - r.interval < F.min || r.delta + r.interval > F.max) ? ' stroke-dasharray="3,2"' : ""}/>`;
+        const lo = sy(r.delta - r.interval), hi = sy(r.delta + r.interval);
+        const clipped = r.delta - r.interval < SC.ymin || r.delta + r.interval > SC.ymax;
+        svg += `<line x1="${x}" y1="${hi}" x2="${x}" y2="${lo}" stroke="#9a9a9a" stroke-width="2"${clipped ? ' stroke-dasharray="3,2"' : ""}/>`;
       }
-      const c = color(r.challenger);
-      if (r.cat === "direction") {
-        const dx = fx(r.delta);
-        svg += `<rect x="${dx - 4.4}" y="${y - 4.4}" width="8.8" height="8.8" transform="rotate(45 ${dx} ${y})" fill="#ffffff" stroke="${c}" stroke-width="1.6"/>`;
-      } else {
-        svg += `<circle cx="${fx(r.delta)}" cy="${y}" r="5" fill="${r.cat === "unclear" ? "#ffffff" : c}" stroke="${c}" stroke-width="1.8"/>`;
+      svg += `<g class="mark" ${tipAttrs(r)}>${markShape(r, x, y, c)}</g>`;
+    }
+    // quality-only gutter (no cost reported)
+    if (qOnly.length) {
+      const gx0 = LM + CW + 10;
+      svg += `<line x1="${gx0 - 5}" y1="${SC.top}" x2="${gx0 - 5}" y2="${plotBottom}" stroke="#d9d9d9" stroke-dasharray="2,3"/>` +
+        `<text x="${gx0 + GUT / 2 - 10}" y="${SC.top - 4}" font-size="9.5" text-anchor="middle" fill="#767a7e">NO COST DATA</text>`;
+      qOnly.forEach((r, i) => {
+        const x = gx0 + 12 + (i % 4) * 16;
+        const y = sy(r.delta);
+        if (r.interval != null) {
+          svg += `<line x1="${x}" y1="${sy(r.delta + r.interval)}" x2="${x}" y2="${sy(r.delta - r.interval)}" stroke="#c9c9c9" stroke-width="1.6"/>`;
+        }
+        svg += `<g class="mark" ${tipAttrs(r)}>${markShape(r, x, y, c)}</g>`;
+      });
+    }
+    // cost-only strip (no matched quality)
+    if (cOnly.length) {
+      svg += `<text x="${LM - 6}" y="${stripY + 3.5}" font-size="9.5" text-anchor="end" fill="#767a7e">COST ONLY</text>`;
+      for (const r of cOnly) {
+        svg += `<g class="mark" ${tipAttrs(r)}><circle cx="${sx(r.cost)}" cy="${stripY}" r="5" fill="${c}"/></g>`;
       }
-      svg += `<text x="${F.pad * 2 + F.w + 6}" y="${y + 4}" font-size="11">${esc(`${r.study_name} · ${r.model}${r.effort ? " · " + r.effort : ""} · ${r.metric}`)} <tspan fill="#505a5f">[${r.tier === "anchor" ? "A" : "B"}]</tspan></text>`;
-    });
-    svg += `<text x="${fx(F.min)}" y="${h - 4}" font-size="10.5" fill="#505a5f">&#8592; ${esc(native)} leads</text>` +
-      `<text x="${fx(F.max)}" y="${h - 4}" font-size="10.5" text-anchor="end" fill="#505a5f">${esc(challenger)} leads &#8594;</text></svg>`;
+    }
+    // axis titles
+    svg += `<text x="${LM}" y="10" font-size="10" fill="#505a5f">quality &#916; pp vs ${esc(native)}</text>`;
+    svg += `<text x="${LM + CW / 2}" y="${xLabelY + (cOnly.length ? 38 : 14)}" font-size="10" text-anchor="middle" fill="#505a5f">cost, ${esc(challenger)} &#247; ${esc(native)} &#8212; costs more &#8592; &#183; &#8594; cheaper</text>`;
+    svg += `</svg>`;
     html += svg;
   }
-  if (costs.length) {
+  if (both.length || cOnly.length) {
+    const costs = [...both, ...cOnly];
     html += `<p class="record">Cost, ${esc(challenger)} relative to ${esc(native)}: ` +
       costs.map(r => `${r.cost.toFixed(2)}&#215; <span class="dim">(${esc(r.study_name)}, ${esc(r.model ?? "")}${r.effort ? ", " + esc(r.effort) : ""})</span>`).join(" · ") + `</p>`;
   }
@@ -246,29 +347,41 @@ for (const panel of PANELS) {
     .filter(p => p.model_family === panel.family)
     .map(p => orient(p, panel.native))
     .filter(Boolean);
+  // A result is hero-plottable if it draws at least one mark. Token-only rows
+  // feed the textual token note but must not inflate ranking or coverage.
+  const isPlottable = r => r.cat != null || r.cost != null;
+  const plottable = oriented.filter(isPlottable);
+  // Panel-scope mark counts per study drive the same-study backing.
+  const markCount = new Map();
+  for (const r of oriented) {
+    const n = (r.cat ? 1 : 0) + (r.cost != null ? 1 : 0);
+    if (n) markCount.set(r.study_id, (markCount.get(r.study_id) ?? 0) + n);
+  }
+  const isRepeated = sid => (markCount.get(sid) ?? 0) > 1;
+
   const byChallenger = new Map();
   for (const r of oriented) {
     if (!byChallenger.has(r.challenger)) byChallenger.set(r.challenger, []);
     byChallenger.get(r.challenger).push(r);
   }
   // Rank by breadth of evidence (distinct studies) before volume, so one
-  // prolific source cannot claim the top row.
-  const nStud = rs => new Set(rs.map(r => r.study_id)).size;
+  // prolific source cannot claim the top row; count only plottable results.
+  const nStud = rs => new Set(rs.filter(isPlottable).map(r => r.study_id)).size;
+  const nPlot = rs => rs.filter(isPlottable).length;
   const rows = [...byChallenger.entries()].sort((a, b) =>
-    nStud(b[1]) - nStud(a[1]) || b[1].length - a[1].length);
-  const nResults = oriented.length;
-  const nStudies = new Set(oriented.map(r => r.study_id)).size;
-  const nCostStudies = new Set(oriented.filter(r => r.cost != null).map(r => r.study_id)).size;
+    nStud(b[1]) - nStud(a[1]) || nPlot(b[1]) - nPlot(a[1]));
+  const nResults = plottable.length;
+  const nStudies = new Set(plottable.map(r => r.study_id)).size;
+  const nCostStudies = new Set(plottable.filter(r => r.cost != null).map(r => r.study_id)).size;
 
-  const ticks = [0.125, 0.25, 0.5, 1, 2, 4, 8, 16];
-  const axis = `<svg width="${CW}" height="22" class="lane">` + ticks.map(t =>
-    `<text x="${cx(t)}" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">${t < 1 ? "&#8539;&#188;&#189;".charAt(0) && (t === 0.125 ? "&#8539;" : t === 0.25 ? "&#188;" : "&#189;") : t}&#215;</text>`).join("") + `</svg>`;
+  const axis = `<svg width="${CW}" height="22" class="lane">` + COST_TICKS.map(t =>
+    `<text x="${cx(t)}" y="14" font-size="10.5" text-anchor="middle" fill="#505a5f">${tickLabel(t)}</text>`).join("") + `</svg>`;
 
   let rowsHtml = "";
   for (const [challenger, results] of rows) {
     const rowColor = color(challenger);
-    const q = qualityLane(results, rowColor);
-    const c = costLane(results, rowColor, challenger);
+    const q = qualityLane(results, rowColor, challenger, isRepeated);
+    const cl = costLane(results, rowColor, isRepeated);
     const id = `${panel.key}-${slug(challenger)}`;
     rowsHtml += `
 <div class="row" id="${id}">
@@ -278,23 +391,27 @@ for (const panel of PANELS) {
     <span class="caret">&#9656;</span>
   </button>
   <div class="qcell">${q.svg}</div>
-  <div class="ccell">${c.html}</div>
+  <div class="ccell">${cl.html}</div>
 </div>
 <div class="detail" id="${id}-detail" hidden>${detailBlock(panel.native, challenger, results)}</div>`;
   }
 
   body += `
 <section class="panel">
-  <h2>Using ${esc(panel.family)} <span class="vs">&mdash; compared with ${esc(panel.native)}</span></h2>
+  <h2>Using ${esc(panel.family)} <span class="vs">&mdash; every harness compared with ${esc(panel.native)}</span></h2>
   <p class="coverage">${nResults} matched results &#183; ${nStudies} studies &#183; ${nCostStudies} report cost. Anchor and supporting studies only; each mark is one published matched result.</p>
   <div class="row lanehead">
     <div class="rowhead"></div>
     <div class="qcell">
-      <div class="qheads">${QCOLS.map(c => `<span style="width:${c.w}px">${{
-        native: `${esc(panel.native)} leads`, unclear: "unclear", challenger: "challenger leads", direction: "no interval",
-      }[c.id]}</span>`).join("")}</div>
+      <div class="lanetitle">Quality &#8212; who leads?</div>
+      <div class="qheads">${QCOLS.map(col => `<span style="width:${col.w}px">${{
+        native: `&#8592; ${esc(panel.native)} leads`, noclear: "no clear lead", challenger: "harness leads &#8594;",
+      }[col.id]}</span>`).join("")}</div>
     </div>
-    <div class="ccell"><div class="chead">cost, challenger &#247; ${esc(panel.native)} (log)</div>${axis}</div>
+    <div class="ccell">
+      <div class="lanetitle">Cost &#8212; harness &#247; ${esc(panel.native)} <span class="dirhint">costs more &#8592; &#183; &#8594; cheaper</span></div>
+      ${axis}
+    </div>
   </div>
   ${rowsHtml}
 </section>`;
@@ -329,12 +446,14 @@ const html = `<!doctype html>
   .hname { font-weight: 600; font-size: 0.95rem; white-space: nowrap; }
   .caret { color: #909396; transition: transform 0.15s; }
   .rowhead[aria-expanded="true"] .caret { transform: rotate(90deg); }
-  .qcell { width: ${QW}px; flex: none; border-right: 1px solid #e6e6e6; }
-  .ccell { width: ${CW}px; flex: none; padding-left: 4px; }
+  .qcell { width: ${QW}px; flex: none; }
+  .ccell { width: ${CW}px; flex: none; margin-left: 26px; padding-left: 14px; border-left: 3px solid #e5e7eb; }
+  .lanetitle { font-size: 0.8rem; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+  .lanetitle .dirhint { font-weight: 400; color: #767a7e; font-size: 0.9em; margin-left: 6px; }
   .qheads { display: flex; }
-  .qheads span, .chead { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.04em; color: #505a5f; }
-  .qheads span { display: inline-block; padding-left: 8px; }
-  .chead { padding-left: 12px; }
+  .qheads span { display: inline-block; font-size: 0.72rem; text-transform: uppercase;
+                 letter-spacing: 0.04em; color: #505a5f; padding-left: 8px; }
+  .qheads span:last-child { text-align: right; padding-right: 8px; padding-left: 0; }
   .lane { display: block; }
   .costnote { padding: 2px 0 0 12px; }
   .nocost { color: #767a7e; font-size: 0.85rem; font-style: italic; }
@@ -355,13 +474,13 @@ const html = `<!doctype html>
 <body>
 <div class="map-wrap">
 <h1>Which harness should I run?</h1>
-<p class="lede2">Every published matched comparison against the harness you would use by default. Quality on the left: does the study's own dispersion let the challenger and the native harness be told apart? Cost on the right: what the same studies measured, as a ratio. Hover any mark for the study behind it; click a harness for the full detail; click a grey capsule to spotlight one study's results.</p>
+<p class="lede2">Every published matched comparison against the harness you would use by default. One rule for reading it: <strong>left favors the default harness, right favors the challenger</strong> &mdash; on quality (who leads, given each study's own dispersion) and on cost (how much the same runs cost, cheaper to the right). Hover any mark for the study behind it; click a harness for its cost&ndash;quality detail; click any mark to spotlight its study everywhere it appears.</p>
 <p class="legend">
-  <svg class="sw" width="14" height="14"><circle cx="7" cy="7" r="5.5" fill="#505a5f"/></svg> clears the study's winning interval
+  <svg class="sw" width="14" height="14"><circle cx="7" cy="7" r="5.5" fill="#505a5f"/></svg> clear lead (outside the study's winning interval)
   <svg class="sw" width="14" height="14"><circle cx="7" cy="7" r="5" fill="#fff" stroke="#505a5f" stroke-width="1.8"/></svg> inside it
   <svg class="sw" width="14" height="14"><rect x="2.6" y="2.6" width="8.8" height="8.8" transform="rotate(45 7 7)" fill="#fff" stroke="#505a5f" stroke-width="1.6"/></svg> direction only, no interval
   <svg class="sw" width="18" height="14"><circle cx="9" cy="7" r="8" fill="none" stroke="#505a5f" opacity="0.55"/><circle cx="9" cy="7" r="4" fill="#505a5f"/></svg> ringed = anchor study
-  <svg class="sw" width="26" height="14"><rect x="1" y="1" width="24" height="12" rx="6" fill="#f0f0f0"/><circle cx="8" cy="7" r="3.6" fill="#505a5f"/><circle cx="17" cy="7" r="3.6" fill="#505a5f"/></svg> same study
+  <svg class="sw" width="26" height="14"><rect x="1" y="1" width="24" height="12" rx="6" fill="#ececec"/><circle cx="8" cy="7" r="3.6" fill="#505a5f"/><circle cx="17" cy="7" r="3.6" fill="#505a5f"/></svg> grey backing = same study
 </p>
 <p class="studynote" id="studynote"></p>
 ${body}
@@ -378,7 +497,9 @@ ${body}
       tip.style.display = "block";
       var x = Math.min(e.clientX + 14, window.innerWidth - 360);
       tip.style.left = x + "px";
-      tip.style.top = (e.clientY + 16) + "px";
+      var y = e.clientY + 16;
+      if (y + tip.offsetHeight > window.innerHeight - 8) y = e.clientY - tip.offsetHeight - 12;
+      tip.style.top = y + "px";
     } else tip.style.display = "none";
   });
   document.querySelectorAll(".rowhead[data-target]").forEach(function (btn) {
@@ -387,26 +508,27 @@ ${body}
       var open = d.hidden;
       d.hidden = !open;
       btn.setAttribute("aria-expanded", String(open));
-      if (open) history.replaceState(null, "", "#" + btn.closest(".row").id);
+      var rowId = btn.closest(".row").id;
+      if (open) history.replaceState(null, "", "#" + rowId);
+      else if (location.hash === "#" + rowId) history.replaceState(null, "", location.pathname + location.search);
     });
   });
   var note = document.getElementById("studynote");
   document.addEventListener("click", function (e) {
     var el = e.target.closest("[data-study]");
+    if (!el) return;
+    var sid = el.getAttribute("data-study");
     var body = document.body;
-    if (el && (e.target.classList.contains("capsule") || e.target.closest(".capsule"))) {
-      var sid = el.getAttribute("data-study");
-      var already = body.classList.contains("spot") && body.getAttribute("data-spot") === sid;
-      body.classList.toggle("spot", !already);
-      body.setAttribute("data-spot", already ? "" : sid);
-      document.querySelectorAll("[data-study]").forEach(function (m) {
-        m.classList.toggle("lit", !already && m.getAttribute("data-study") === sid);
-      });
-      note.textContent = already ? "" : "Spotlight: results from one study. Click the capsule again to clear.";
-    }
+    var already = body.classList.contains("spot") && body.getAttribute("data-spot") === sid;
+    body.classList.toggle("spot", !already);
+    body.setAttribute("data-spot", already ? "" : sid);
+    document.querySelectorAll("[data-study]").forEach(function (m) {
+      m.classList.toggle("lit", !already && m.getAttribute("data-study") === sid);
+    });
+    note.textContent = already ? "" : "Spotlight: results from one study, across every row and both lanes. Click it again to clear.";
   });
   if (location.hash) {
-    var row = document.querySelector(location.hash);
+    var row = document.getElementById(decodeURIComponent(location.hash.slice(1)));
     if (row) { var b = row.querySelector(".rowhead[data-target]"); if (b) b.click(); row.scrollIntoView(); }
   }
 })();
@@ -417,7 +539,8 @@ ${body}
 fs.writeFileSync(path.join(root, "site", "evidence-map.html"), html);
 
 const eligible = PANELS.map(panel => {
-  const o = pairs.filter(p => p.model_family === panel.family).map(p => orient(p, panel.native)).filter(Boolean);
-  return `${panel.family}: ${o.length} results, ${new Set(o.map(r => r.study_id)).size} studies, ${new Set(o.map(r => r.challenger)).size} challengers`;
+  const o = pairs.filter(p => p.model_family === panel.family).map(p => orient(p, panel.native))
+    .filter(r => r && (r.cat != null || r.cost != null));
+  return `${panel.family}: ${o.length} plottable results, ${new Set(o.map(r => r.study_id)).size} studies, ${new Set(o.map(r => r.challenger)).size} challengers`;
 });
 console.log(`Built site/evidence-map.html. ${eligible.join(" | ")}`);
