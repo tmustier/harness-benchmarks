@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Orbs do not inherit the developer's local Git identity.
+git config --local user.name "Thomas Mustier"
+git config --local user.email "6326440+tmustier@users.noreply.github.com"
