@@ -86,7 +86,7 @@ for executable in node npm npx; do
 done
 hash -r
 
-pi_version=0.81.0
+pi_version=0.81.1
 if [[ "$(pi --version 2>/dev/null || true)" != "$pi_version" ]]; then
   npm install --global --prefix "$HOME/.local" --ignore-scripts --no-audit --no-fund \
     "@earendil-works/pi-coding-agent@$pi_version"
