@@ -4,9 +4,10 @@
 // A pair is two harnesses measured in the same study with the same model,
 // effort and metric. The quality delta carries a winning interval derived
 // from the study itself: a published confidence interval or error range
-// where one exists, otherwise a binomial interval from the study's task
-// count. A result is decisive only when the delta exceeds the combined
-// interval. Rows without any interval are direction-only.
+// where one exists, otherwise a binomial interval for eligible Bernoulli
+// rates with a task count. Continuous and composite metrics opt out. A result
+// is decisive only when the delta exceeds the combined interval. Rows without
+// any interval are direction-only.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -39,8 +40,8 @@ function modelFamily(model) {
 }
 
 // 95% half-width for one observation, from the study's own dispersion.
-// Ladder: published CI > published error range > binomial from the study's
-// task count > study-level dispersion. The last rung covers studies that
+// Ladder: published CI > published error range > binomial for eligible
+// Bernoulli rates with a task count > study-level dispersion. The last rung covers studies that
 // publish neither uncertainty nor task counts but whose own results or
 // statements reveal a noise scale (see docs/method.md); it is recorded per
 // study as dispersion_pp / dispersion_note so the basis is always auditable.
@@ -51,7 +52,7 @@ function halfWidth(row, study) {
   if (row.error_low != null && row.error_high != null) {
     return { hw: (row.error_high - row.error_low) / 2, basis: "published error value" };
   }
-  if (Number.isFinite(row.sample_count) && row.sample_count > 0) {
+  if (row.binomial_interval !== false && Number.isFinite(row.sample_count) && row.sample_count > 0) {
     const p = Math.min(Math.max(row.performance_value / 100, 0.01), 0.99);
     return { hw: 1.96 * Math.sqrt((p * (1 - p)) / row.sample_count) * 100, basis: `binomial, n=${row.sample_count}` };
   }
@@ -66,7 +67,8 @@ const ratio = (a, b) => (a != null && b != null && b !== 0 ? a / b : null);
 // --- Pairs from observations ---------------------------------------------
 const groups = new Map();
 for (const row of observations) {
-  const key = [row.study_id, row.model, row.effort ?? "", row.performance_metric].join("|");
+  if (row.pair_eligible === false) continue;
+  const key = [row.study_id, row.model, row.effort ?? "", row.performance_metric, row.comparison_group ?? ""].join("|");
   if (!groups.has(key)) groups.set(key, []);
   groups.get(key).push(row);
 }
@@ -94,6 +96,9 @@ for (const rows of groups.values()) {
         model_family: modelFamily(a.model),
         effort: a.effort ?? null,
         metric: a.performance_metric,
+        comparison_type: a.comparison_type ?? null,
+        comparison_group: a.comparison_group ?? null,
+        provider_route: a.provider_route ?? null,
         harness_a: canonical(a.harness),
         harness_b: canonical(b.harness),
         value_a: a.performance_value,

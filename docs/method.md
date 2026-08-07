@@ -4,6 +4,13 @@ The strongest comparison changes the harness while keeping the model, task and b
 
 This review does not require a study to include Pi. It excludes rows that pair each harness with a different model, even when the source calls the result an agent leaderboard.
 
+The review includes 2 narrower forms of evidence when the source labels them clearly:
+
+- runtime-component ablations that change one named part of the harness, such as output delivery
+- comparisons that use the same model and effort label through different provider routes
+
+The second form is weaker than a shared model endpoint. The provider may use a different model snapshot or routing configuration.
+
 ## Check what stayed the same
 
 Check whether the study fixes:
@@ -15,7 +22,7 @@ Check whether the study fixes:
 - the tool and permission environment
 - the grader
 
-A shared model name is not enough. Provider routing and model snapshots can still differ.
+A shared model name does not prove that the model execution was identical. Provider routing and model snapshots can still differ, so the report records this as a limitation.
 
 ## Check what the outcome measures
 
@@ -29,7 +36,7 @@ Repeated trials show whether an observed difference is stable. A one-task or one
 
 Do not treat overlapping confidence intervals as proof that 2 systems are equal. Treat them as evidence that the study has not separated them clearly.
 
-Every matched pair gets a winning interval from the study's own dispersion, on a fixed ladder: a published confidence interval, else a published error range, else a binomial interval from the study's task count, else a study-level dispersion recorded in `studies.json` as `dispersion_pp` with a mandatory `dispersion_note`. The last rung exists for studies that publish neither uncertainty nor task counts: it encodes the noise scale the study itself reveals — the publisher's own statements about which differences it considers equivalent, and the observed wiggle between near-equivalent configurations inside the study. The aim is that a pair is called decisive only where a careful reader of the original study would call the gap material. A pair is direction-only when no rung applies.
+Matched pairs get a winning interval from the study's own dispersion, on a fixed ladder: a published confidence interval, else a published error range, else a binomial interval from the study's task count when the metric is an eligible Bernoulli rate, else a study-level dispersion recorded in `studies.json` as `dispersion_pp` with a mandatory `dispersion_note`. Continuous and composite metrics are marked `binomial_interval: false`; their task counts are retained but do not imply binomial uncertainty. The final rung exists for studies that publish neither suitable uncertainty nor task counts: it encodes the noise scale the study itself reveals — the publisher's own statements about which differences it considers equivalent, and the observed wiggle between near-equivalent configurations inside the study. The aim is that a pair is called decisive only where a careful reader of the original study would call the gap material. A pair is direction-only when no rung applies.
 
 ## Check cost and token definitions
 

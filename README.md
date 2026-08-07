@@ -35,7 +35,9 @@ Then open `http://localhost:8000/site/`.
 
 We include derived observations when the source publishes exact values. Each row names its source and capture date.
 
-Pi is not an inclusion requirement. A quality comparison counts only when the published model and effort setting stay fixed while the harness or runtime changes.
+Pi is not an inclusion requirement. A quality comparison counts only when the published model and effort setting stay fixed while the harness, runtime or a named runtime component changes.
+
+We label component ablations separately from whole-harness comparisons. We also record when 2 systems use the same model label through different provider routes, because the model snapshot may still differ.
 
 We reference an external dataset when:
 

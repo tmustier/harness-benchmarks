@@ -67,8 +67,11 @@ for (const row of observations) {
   if ((row.ci_low === null) !== (row.ci_high === null)) errors.push(`Confidence interval must have both bounds: ${JSON.stringify(row)}`);
   if (row.ci_low !== null && (row.ci_low > row.performance_value || row.ci_high < row.performance_value)) errors.push(`Confidence interval does not contain the estimate: ${JSON.stringify(row)}`);
   if ((row.error_low === undefined) !== (row.error_high === undefined)) errors.push(`Published error range must have both bounds: ${JSON.stringify(row)}`);
+  if (row.binomial_interval !== undefined && typeof row.binomial_interval !== "boolean") errors.push(`binomial_interval must be boolean when present: ${JSON.stringify(row)}`);
+  if (row.pair_eligible !== undefined && typeof row.pair_eligible !== "boolean") errors.push(`pair_eligible must be boolean when present: ${JSON.stringify(row)}`);
+  if (row.comparison_group !== undefined && typeof row.comparison_group !== "string") errors.push(`comparison_group must be a string when present: ${JSON.stringify(row)}`);
   if (row.error_low !== undefined && (row.error_low > row.performance_value || row.error_high < row.performance_value)) errors.push(`Published error range does not contain the estimate: ${JSON.stringify(row)}`);
-  const key = [row.study_id, row.model, row.harness, row.effort, row.performance_metric].join("|");
+  const key = [row.study_id, row.model, row.harness, row.effort, row.performance_metric, row.comparison_group ?? ""].join("|");
   if (observationKeys.has(key)) errors.push(`Duplicate observation: ${key}`);
   observationKeys.add(key);
 }

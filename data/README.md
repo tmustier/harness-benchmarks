@@ -55,6 +55,12 @@ Some sources report total benchmark cost. We divide by the published number of t
 
 `total_cost_usd`, `total_wall_time_hours`, `total_tokens` and `tokens_per_solved_task` preserve source measures that do not fit the per-task columns. Charts label these measures directly rather than treating them as interchangeable.
 
+When a source reports input and output tokens separately, rows can use `input_tokens_per_task` and `output_tokens_per_task`. We do not combine them when their accounting may differ.
+
+`comparison_type`, `provider_route` and `comparison_group` distinguish same-label cross-route system comparisons from within-route component ablations. `pair_eligible: false` keeps confounded rows out of matched-pair derivation.
+
+`binomial_interval: false` prevents task counts from being treated as Bernoulli trials for continuous or composite scores. Published confidence or error intervals still take precedence.
+
 ## Capture date
 
 Live result pages can change. Every observation includes the date on which we captured it.

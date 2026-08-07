@@ -63,6 +63,15 @@
     "stored_here": false
   },
   {
+    "source_id": "wandr",
+    "title": "WANDR benchmark and output-delivery ablation",
+    "result_url": "https://research.perplexity.ai/articles/wandr-benchmark-evaluating-research-agents-that-must-search-wide-and-deep",
+    "dataset_url": "https://github.com/perplexityai/wandr",
+    "access": "Public paper, 500 task packages, evaluation code and aggregate tables; evaluated run artefacts are not included",
+    "licence": "Apache 2.0 repository and CC BY 4.0 paper; third-party task sources retain their own terms",
+    "stored_here": false
+  },
+  {
     "source_id": "xor",
     "title": "Vulnerability-Agent-Bench",
     "result_url": "https://www.xor.tech/resources/benchmarks/agents",

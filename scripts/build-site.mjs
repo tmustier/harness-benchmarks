@@ -318,6 +318,55 @@ function scaffoldEffectCharts(rows) {
   return `<div class="paired-charts"><section><h3>Pass rate</h3>${barChart(rows, "Pass rate", "performance_value", 100, "%")}</section><section><h3>Reported tokens per solved task</h3>${barChart(tokenRows, "Reported tokens per solved task", "tokens_millions", 1.6, "m")}</section></div><p class="chart-caption">Both scales start at zero. Token accounting is harness-reported and incomplete, so treat the efficiency contrast as diagnostic.</p>`;
 }
 
+function wandrChart(rows) {
+  const sweep = rows.filter(row => row.performance_metric === "soft F1");
+  const systems = [
+    { harness: "Perplexity Search as Code", label: "Perplexity Search as Code", colour: "#1d70b8", shape: "circle" },
+    { harness: "OpenAI Responses", label: "OpenAI Responses", colour: "#00703c", shape: "square" }
+  ];
+  const efforts = ["low", "medium", "high", "xhigh"];
+  const W = 900, H = 465, L = 78, R = 28, panelH = 140;
+  const plotW = W - L - R;
+  const xMax = 8, yMax = 50;
+  const x = value => L + value / xMax * plotW;
+  const y = (value, top) => top + panelH - value / yMax * panelH;
+  const xTicks = [0, 2, 4, 6, 8];
+  const yTicks = [0, 10, 20, 30, 40, 50];
+  const panels = [
+    { title: "Soft F1", field: "performance_value", top: 45 },
+    { title: "Hard F1", field: "secondary_value", top: 250 }
+  ].map(panel => {
+    const grid = [
+      ...xTicks.map(tick => `<line x1="${x(tick)}" y1="${panel.top}" x2="${x(tick)}" y2="${panel.top + panelH}" /><text x="${x(tick)}" y="${panel.top + panelH + 20}" text-anchor="middle">$${format(tick, 0)}</text>`),
+      ...yTicks.map(tick => `<line x1="${L}" y1="${y(tick, panel.top)}" x2="${L + plotW}" y2="${y(tick, panel.top)}" /><text x="${L - 10}" y="${y(tick, panel.top) + 4}" text-anchor="end">${tick}%</text>`)
+    ].join("");
+    const series = systems.map(system => {
+      const systemRows = sweep
+        .filter(row => row.harness === system.harness)
+        .sort((a, b) => efforts.indexOf(a.effort) - efforts.indexOf(b.effort));
+      const path = systemRows.map(row => `${x(row.cost_usd_per_task)},${y(row[panel.field], panel.top)}`).join(" ");
+      const marks = systemRows.map((row, index) => {
+        const pointX = x(row.cost_usd_per_task);
+        const pointY = y(row[panel.field], panel.top);
+        const mark = system.shape === "circle"
+          ? `<circle cx="${pointX}" cy="${pointY}" r="9" fill="${system.colour}" stroke="#ffffff" stroke-width="2" />`
+          : `<rect x="${pointX - 9}" y="${pointY - 9}" width="18" height="18" fill="${system.colour}" stroke="#ffffff" stroke-width="2" />`;
+        return `<g>${mark}<text x="${pointX}" y="${pointY + 4}" text-anchor="middle" class="point-number">${index + 1}</text></g>`;
+      }).join("");
+      return `<g><polyline points="${path}" fill="none" stroke="${system.colour}" stroke-width="3" />${marks}</g>`;
+    }).join("");
+    return `<g><text x="${L}" y="${panel.top - 13}" class="panel-title">${panel.title} against solver cost</text><g class="chart-grid">${grid}</g>${series}</g>`;
+  }).join("");
+  return `<figure class="chart-block"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="wandr-title wandr-desc">
+    <title id="wandr-title">WANDR GPT-5.5 effort sweep</title>
+    <desc id="wandr-desc">Two zero-based scatter plots show soft and hard F1 against cost per task for Perplexity Search as Code and OpenAI Responses on the same 45 tasks at four effort settings.</desc>
+    <g><circle cx="522" cy="17" r="7" fill="#1d70b8" /><text x="534" y="22" class="point-label">Perplexity Search as Code</text><rect x="722" y="10" width="14" height="14" fill="#00703c" /><text x="744" y="22" class="point-label">OpenAI Responses</text></g>
+    ${panels}
+    <text x="${L + plotW / 2}" y="457" text-anchor="middle" class="axis-title">Solver cost per task in US dollars · 1 low · 2 medium · 3 high · 4 xhigh</text>
+  </svg></div><p class="chart-caption">Both axes start at zero. In the separate 500-task high-effort run, Search as Code scored 36.3% soft F1 at $5.20 per task; OpenAI Responses scored 12.1% at $0.50. A delivery ablation also favoured file or share delivery in all 3 systems, but used independent rollouts.</p></figure>`;
+}
+
+
 function harnessBenchPaperCharts(rows) {
   const tokenRows = rows.map(row => ({ ...row, tokens_thousands: row.tokens_per_task / 1000 }));
   return `<div class="paired-charts"><section><h3>Combined score</h3>${barChart(rows, "Harness-average combined score", "performance_value", 100, "")}</section><section><h3>Tokens per task</h3>${barChart(tokenRows, "Harness-average tokens per task", "tokens_thousands", 200, "k")}</section></div><p class="chart-caption">Each bar averages the same 8-model pool. Combined score includes process judging as well as task completion.</p>`;
@@ -361,6 +410,7 @@ function chartFor(study) {
   if (study.id === "agents-last-exam") return agentsLastExamChart(rows);
   if (study.id === "claw-swe-bench") return clawSweChart(rows);
   if (study.id === "harness-bench-paper") return harnessBenchPaperCharts(rows);
+  if (study.id === "wandr") return wandrChart(rows);
   if (study.id === "scaffold-effect") return scaffoldEffectCharts(rows);
   if (study.id === "hal-swe-mini") return halChart(rows);
   if (study.id === "portkey-harness-tax") return claimChart(study.id);
@@ -457,11 +507,11 @@ const html = `<!doctype html>
     <section class="current-observations"><div class="wrap">
       <header class="current-observations-header"><p class="eyebrow">Executive summary</p><h2>Current observations</h2></header>
       <ul class="current-observations-list">
-        <li><strong>Harness choice can materially change results.</strong> Claw-SWE-Bench found 12.5- to 27.4-point spreads; Harvey's intervention ranged from 0.9 points worse to 23 points better.</li>
+        <li><strong>Harness and runtime choices can materially change results.</strong> Claw-SWE-Bench found 12.5- to 27.4-point spreads; Harvey's intervention ranged from 0.9 points worse to 23 points better.</li>
         <li><strong>No harness wins across all models and tasks.</strong> Native CLIs led 4 of 6 current Terminal-Bench pairs, while alternative harnesses led elsewhere.</li>
         <li><strong>Efficiency differences are often clearer than quality differences.</strong> Databricks, GitHub and several smaller studies found large cost, context or token gaps beside modest quality changes.</li>
-        <li><strong>The count is not 22 independent replications.</strong> Some studies reuse benchmark families or live leaderboards, and many rely on a single attempt per task.</li>
-        <li><strong>We only count model-fixed comparisons as harness evidence.</strong> FrontierSWE and model-only leaderboards remain on the watchlist until they expose a matched harness comparator.</li>
+        <li><strong>The count is not ${studies.length} independent replications.</strong> Some studies reuse benchmark families or live leaderboards, and many rely on a single attempt per task.</li>
+        <li><strong>We separate matched harness evidence from same-label system comparisons.</strong> Provider routing and model snapshots can still differ even when the published model label matches.</li>
         <li><strong>Teams should test harnesses on their own work.</strong> Compare at least 2 harnesses with the same model, effort and budget. Measure quality, cost and time.</li>
       </ul>
     </div></section>

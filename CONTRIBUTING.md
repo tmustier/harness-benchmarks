@@ -6,11 +6,13 @@ Add evidence that helps isolate the effect of an agent harness.
 
 A main comparison must:
 
-- vary the harness or scaffold
+- vary the harness, scaffold, runtime or a named runtime component
 - keep the underlying model fixed for at least one comparison
 - use the same task state and grader for the matched comparison
 - report an outcome that does not rely on the agent's own claim
 - provide a stable public source
+
+Provider-routed comparisons must publish the same model and effort label. Record the missing model snapshot as a limitation when the source does not provide it.
 
 Efficiency-only diagnostics can be included if they are clearly labelled and do not claim to measure quality.
 
