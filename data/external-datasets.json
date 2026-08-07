@@ -19,11 +19,23 @@
   },
   {
     "source_id": "latchbio-scbench-long",
-    "title": "scBench-Long",
-    "result_url": "https://benchmarks.bio/scbench-long",
-    "dataset_url": "https://benchmarks.bio/data/scbench-long/index.json",
-    "access": "Public JSON summary and public trajectories",
-    "licence": "Check the linked benchmark repository and dataset terms",
+    "title": "LatchBio behavioural-prior study",
+    "result_url": "https://blog.latch.bio/p/why-an-open-source-harness-outperforms",
+    "access": "Public TxBench-PP and scBench-Long JSON summaries and trajectories; aggregate prompt-ablation table in the article",
+    "licence": "Check the linked benchmark repositories and dataset terms",
+    "stored_here": false,
+    "dataset_urls": [
+      "https://benchmarks.bio/data/txbench/index.json",
+      "https://benchmarks.bio/data/scbench-long/index.json"
+    ]
+  },
+  {
+    "source_id": "harness-optimization-lab",
+    "title": "Harness optimization on the Legal Agent Benchmark",
+    "result_url": "https://huggingface.co/spaces/joelniklaus/harness-optimization",
+    "dataset_url": "https://huggingface.co/buckets/joelniklaus/LAB-results",
+    "access": "Public article source, harness code, frozen split, dev and test results, and proposer traces",
+    "licence": "Article text and diagrams are CC BY 4.0; check the linked code and benchmark terms",
     "stored_here": false
   },
   {

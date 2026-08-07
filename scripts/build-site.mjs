@@ -154,7 +154,8 @@ function artificialAnalysisChart(rows) {
 }
 
 function barChart(rows, title, valueField = "performance_value", max = 100, unit = "%") {
-  const W = 900, rowH = 44, H = 58 + rows.length * rowH, L = 255, R = 80, T = 18, B = 34;
+  const showMetric = valueField === "performance_value" && new Set(rows.map(row => row.performance_metric)).size > 1;
+  const W = 900, rowH = 44, H = 58 + rows.length * rowH, L = showMetric ? 330 : 255, R = 80, T = 18, B = 34;
   const plotW = W - L - R;
   const x = value => L + value / max * plotW;
   const ticks = Array.from({ length: 6 }, (_, index) => max / 5 * index);
@@ -168,7 +169,9 @@ function barChart(rows, title, valueField = "performance_value", max = 100, unit
       ? `<line class="ci" x1="${x(low)}" y1="${y + 8}" x2="${x(high)}" y2="${y + 8}" /><line class="ci" x1="${x(low)}" y1="${y + 2}" x2="${x(low)}" y2="${y + 14}" /><line class="ci" x1="${x(high)}" y1="${y + 2}" x2="${x(high)}" y2="${y + 14}" />`
       : "";
     const labelStart = high !== null ? x(high) + 9 : x(value) + 9;
-    return `<g><text x="${L - 12}" y="${y + 12}" text-anchor="end" class="bar-label">${escapeHtml(`${row.model} · ${row.harness}`)}</text><rect x="${L}" y="${y}" width="${Math.max(0, x(value) - L)}" height="16" fill="${colourFor(row.harness)}" />${ci}<text x="${Math.min(W - R + 8, labelStart)}" y="${y + 12}" class="bar-value">${format(value, value < 10 ? 2 : 1)}${unit}</text></g>`;
+    const metric = showMetric ? row.performance_metric.replace(/ pass rate$/, "") : "";
+    const label = showMetric ? `${metric} · ${row.model} · ${row.harness}` : `${row.model} · ${row.harness}`;
+    return `<g><text x="${L - 12}" y="${y + 12}" text-anchor="end" class="bar-label">${escapeHtml(label)}</text><rect x="${L}" y="${y}" width="${Math.max(0, x(value) - L)}" height="16" fill="${colourFor(row.harness)}" />${ci}<text x="${Math.min(W - R + 8, labelStart)}" y="${y + 12}" class="bar-value">${format(value, value < 10 ? 2 : 1)}${unit}</text></g>`;
   }).join("");
   return `<figure class="chart-block"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(title)}"><g class="chart-grid">${grid}</g>${marks}</svg></div></figure>`;
 }
@@ -423,6 +426,11 @@ function chartFor(study) {
   return barChart(rows, `${study.name}: ${rows[0].performance_metric}`);
 }
 
+function datasetLinks(source, separator = "<br>") {
+  const urls = source?.dataset_urls ?? (source?.dataset_url ? [source.dataset_url] : []);
+  return urls.map((url, index) => `<a href="${escapeHtml(url)}">${urls.length > 1 ? `Dataset ${index + 1}` : "Dataset or repository"}</a>`).join(separator);
+}
+
 function studySection(study) {
   const source = external.find(item => item.source_id === study.id);
   const repeatText = study.repeated_trials === true ? "yes" : study.repeated_trials === false ? "no" : "not clear";
@@ -441,7 +449,7 @@ function studySection(study) {
         </dl>
         <section><h3>What we observe</h3><p>${escapeHtml(study.conclusion)}</p></section>
         <section class="study-limit"><h3>Limit</h3><p>${escapeHtml(study.limitation)}</p></section>
-        <p class="source-line"><a href="${escapeHtml(study.source_url)}">${escapeHtml(study.publisher)} results</a>${source?.dataset_url ? `<br><a href="${escapeHtml(source.dataset_url)}">Dataset or repository</a>` : ""}</p>
+        <p class="source-line"><a href="${escapeHtml(study.source_url)}">${escapeHtml(study.publisher)} results</a>${datasetLinks(source) ? `<br>${datasetLinks(source)}` : ""}</p>
       </aside>
       <section class="study-result" aria-label="Published results"><h3>Published results</h3><p class="chart-scroll-hint">Swipe charts horizontally to see every label and value.</p>${chartFor(study)}</section>
     </div>
@@ -470,7 +478,7 @@ const summaryOverviewGroups = Object.keys(sectionNotes).map((section, index) => 
   return `<section class="summary-overview-group"><p class="overview-number">${index + 1}</p><h3>${escapeHtml(section)}</h3><ol>${items}</ol></section>`;
 }).join("");
 
-const sourceRows = external.map(item => `<tr><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.access)}</td><td>${escapeHtml(item.licence)}</td><td><a href="${escapeHtml(item.result_url)}">Results</a>${item.dataset_url ? ` · <a href="${escapeHtml(item.dataset_url)}">Data</a>` : ""}</td></tr>`).join("");
+const sourceRows = external.map(item => `<tr><td>${escapeHtml(item.title)}</td><td>${escapeHtml(item.access)}</td><td>${escapeHtml(item.licence)}</td><td><a href="${escapeHtml(item.result_url)}">Results</a>${datasetLinks(item, " · ") ? ` · ${datasetLinks(item, " · ")}` : ""}</td></tr>`).join("");
 const formatScreenedDate = value => {
   if (!value) return "Not dated";
   if (value.length === 7) {

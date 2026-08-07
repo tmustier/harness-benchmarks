@@ -10,6 +10,8 @@ This directory separates exact observations from source claims.
 - `external-datasets.json` links to raw data, repositories and access notes
 - `screened-sources.json` records relevant sources that do not yet isolate a harness effect or duplicate an included family
 
+External source records may use `dataset_urls` when one study publishes multiple suite datasets.
+
 The `section`, `section_order`, `slide_lead` and `method_summary` fields in
 `studies.json` control the report sequence and give each benchmark page enough
 context to stand alone.

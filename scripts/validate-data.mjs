@@ -42,6 +42,10 @@ for (const study of studies) {
   sectionOrders.add(study.section_order);
 }
 
+for (const item of external) {
+  if (item.dataset_urls !== undefined && (!Array.isArray(item.dataset_urls) || item.dataset_urls.length === 0 || item.dataset_urls.some(url => typeof url !== "string"))) errors.push(`dataset_urls must be a non-empty string array: ${item.source_id}`);
+}
+
 const sourceIds = new Set(external.map(item => item.source_id));
 for (const study of studies) {
   if (!sourceIds.has(study.id)) errors.push(`Study has no external source record: ${study.id}`);

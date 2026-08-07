@@ -9,33 +9,9 @@
   {"study_id":"databricks","claim":"Claude Code re-fed a median 742,000 context tokens per Opus 4.8 task.","measure":"median context tokens per task","value":742000,"model":"Claude Opus 4.8","harness":"Claude Code","source_id":"databricks","captured_at":"2026-07-13"},
   {"study_id":"databricks","claim":"Pi re-fed a median 665,000 context tokens per GPT-5.5 task.","measure":"median context tokens per task","value":665000,"model":"GPT-5.5","harness":"Pi","source_id":"databricks","captured_at":"2026-07-13"},
   {"study_id":"databricks","claim":"Codex re-fed a median 1,235,000 context tokens per GPT-5.5 task.","measure":"median context tokens per task","value":1235000,"model":"GPT-5.5","harness":"Codex","source_id":"databricks","captured_at":"2026-07-13"},
-  {
-    "study_id": "portkey-harness-tax",
-    "claim": "Pi sent about 2,600 input tokens for the test request.",
-    "measure": "input tokens per request",
-    "value": 2600,
-    "comparison": "about",
-    "source_id": "portkey-harness-tax",
-    "captured_at": "2026-07-12"
-  },
-  {
-    "study_id": "portkey-harness-tax",
-    "claim": "Codex sent about 15,000 input tokens for the test request.",
-    "measure": "input tokens per request",
-    "value": 15000,
-    "comparison": "about",
-    "source_id": "portkey-harness-tax",
-    "captured_at": "2026-07-12"
-  },
-  {
-    "study_id": "portkey-harness-tax",
-    "claim": "Claude Code sent about 27,000 input tokens for the test request.",
-    "measure": "input tokens per request",
-    "value": 27000,
-    "comparison": "about",
-    "source_id": "portkey-harness-tax",
-    "captured_at": "2026-07-12"
-  },
+  {"study_id":"portkey-harness-tax","claim":"Pi sent about 2,600 input tokens for the test request.","measure":"input tokens per request","value":2600,"comparison":"about","source_id":"portkey-harness-tax","captured_at":"2026-07-12"},
+  {"study_id":"portkey-harness-tax","claim":"Codex sent about 15,000 input tokens for the test request.","measure":"input tokens per request","value":15000,"comparison":"about","source_id":"portkey-harness-tax","captured_at":"2026-07-12"},
+  {"study_id":"portkey-harness-tax","claim":"Claude Code sent about 27,000 input tokens for the test request.","measure":"input tokens per request","value":27000,"comparison":"about","source_id":"portkey-harness-tax","captured_at":"2026-07-12"},
   {"study_id":"github-copilot","claim":"Copilot CLI resolved 3.1 percentage points more SWE-bench Verified tasks than Claude Code with Sonnet 4.6.","measure":"Copilot minus native task-resolution points","value":3.1,"model":"Claude Sonnet 4.6","benchmark":"SWE-bench Verified","reference_harness":"Claude Code","source_id":"github-copilot","captured_at":"2026-07-13"},
   {"study_id":"github-copilot","claim":"Copilot CLI resolved 2.2 percentage points more SWE-bench Verified tasks than Claude Code with Opus 4.7.","measure":"Copilot minus native task-resolution points","value":2.2,"model":"Claude Opus 4.7","benchmark":"SWE-bench Verified","reference_harness":"Claude Code","source_id":"github-copilot","captured_at":"2026-07-13"},
   {"study_id":"github-copilot","claim":"Copilot CLI resolved 1.1 percentage points fewer SWE-bench Verified tasks than Codex CLI with GPT-5.4.","measure":"Copilot minus native task-resolution points","value":-1.1,"model":"GPT-5.4","benchmark":"SWE-bench Verified","reference_harness":"Codex CLI","source_id":"github-copilot","captured_at":"2026-07-13"},
@@ -75,5 +51,17 @@
   {"study_id":"github-copilot","claim":"Copilot CLI used 29% fewer median tokens than Codex CLI on SWE-bench Pro with GPT-5.5.","measure":"Copilot median token change percent","value":-29,"model":"GPT-5.5","benchmark":"SWE-bench Pro","reference_harness":"Codex CLI","source_id":"github-copilot","captured_at":"2026-07-13"},
   {"study_id":"github-copilot","claim":"Copilot CLI used 26% fewer median tokens than Codex CLI on SkillsBench with GPT-5.5.","measure":"Copilot median token change percent","value":-26,"model":"GPT-5.5","benchmark":"SkillsBench","reference_harness":"Codex CLI","source_id":"github-copilot","captured_at":"2026-07-13"},
   {"study_id":"github-copilot","claim":"Copilot CLI used 9% fewer median tokens than Codex CLI on Win-Hill with GPT-5.5.","measure":"Copilot median token change percent","value":-9,"model":"GPT-5.5","benchmark":"Win-Hill","reference_harness":"Codex CLI","source_id":"github-copilot","captured_at":"2026-07-13"},
-  {"study_id":"github-copilot","claim":"Copilot CLI used 5% fewer median tokens than Codex CLI on Terminal-Bench 2 with GPT-5.5.","measure":"Copilot median token change percent","value":-5,"model":"GPT-5.5","benchmark":"Terminal-Bench 2","reference_harness":"Codex CLI","source_id":"github-copilot","captured_at":"2026-07-13"}
+  {"study_id":"github-copilot","claim":"Copilot CLI used 5% fewer median tokens than Codex CLI on Terminal-Bench 2 with GPT-5.5.","measure":"Copilot median token change percent","value":-5,"model":"GPT-5.5","benchmark":"Terminal-Bench 2","reference_harness":"Codex CLI","source_id":"github-copilot","captured_at":"2026-07-13"},
+  {"study_id":"latchbio-scbench-long","claim":"The calibration prompt reduced Pi pass@1 by 2 percentage points on TxBench-PP.","measure":"prompt arm minus Pi baseline pass@1 points","value":-2.0,"model":"Claude Opus 4.8","benchmark":"TxBench-PP","harness":"Pi + calibration prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The calibration prompt did not change Pi accuracy@3 on TxBench-PP.","measure":"prompt arm minus Pi baseline accuracy@3 points","value":0.0,"model":"Claude Opus 4.8","benchmark":"TxBench-PP","harness":"Pi + calibration prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The orchestration prompt reduced Pi pass@1 by 4.7 percentage points on TxBench-PP.","measure":"prompt arm minus Pi baseline pass@1 points","value":-4.7,"model":"Claude Opus 4.8","benchmark":"TxBench-PP","harness":"Pi + orchestration prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The orchestration prompt reduced Pi accuracy@3 by 2 percentage points on TxBench-PP.","measure":"prompt arm minus Pi baseline accuracy@3 points","value":-2.0,"model":"Claude Opus 4.8","benchmark":"TxBench-PP","harness":"Pi + orchestration prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The full transplant prompt reduced Pi pass@1 by 2.4 percentage points on TxBench-PP.","measure":"prompt arm minus Pi baseline pass@1 points","value":-2.4,"model":"Claude Opus 4.8","benchmark":"TxBench-PP","harness":"Pi + full transplant prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The full transplant prompt reduced Pi accuracy@3 by 2 percentage points on TxBench-PP.","measure":"prompt arm minus Pi baseline accuracy@3 points","value":-2.0,"model":"Claude Opus 4.8","benchmark":"TxBench-PP","harness":"Pi + full transplant prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The calibration prompt reduced Pi pass@1 by 1.6 percentage points on scBench-Long.","measure":"prompt arm minus Pi baseline pass@1 points","value":-1.6,"model":"Claude Opus 4.8","benchmark":"scBench-Long","harness":"Pi + calibration prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The calibration prompt reduced Pi accuracy@3 by 4.8 percentage points on scBench-Long.","measure":"prompt arm minus Pi baseline accuracy@3 points","value":-4.8,"model":"Claude Opus 4.8","benchmark":"scBench-Long","harness":"Pi + calibration prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The orchestration prompt increased Pi pass@1 by 3.2 percentage points on scBench-Long.","measure":"prompt arm minus Pi baseline pass@1 points","value":3.2,"model":"Claude Opus 4.8","benchmark":"scBench-Long","harness":"Pi + orchestration prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The orchestration prompt did not change Pi accuracy@3 on scBench-Long.","measure":"prompt arm minus Pi baseline accuracy@3 points","value":0.0,"model":"Claude Opus 4.8","benchmark":"scBench-Long","harness":"Pi + orchestration prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The full transplant prompt increased Pi pass@1 by 3.2 percentage points on scBench-Long.","measure":"prompt arm minus Pi baseline pass@1 points","value":3.2,"model":"Claude Opus 4.8","benchmark":"scBench-Long","harness":"Pi + full transplant prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"},
+  {"study_id":"latchbio-scbench-long","claim":"The full transplant prompt reduced Pi accuracy@3 by 4.8 percentage points on scBench-Long.","measure":"prompt arm minus Pi baseline accuracy@3 points","value":-4.8,"model":"Claude Opus 4.8","benchmark":"scBench-Long","harness":"Pi + full transplant prompt","reference_harness":"Pi","source_id":"latchbio-scbench-long","captured_at":"2026-08-07"}
 ]

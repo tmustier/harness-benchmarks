@@ -33,5 +33,12 @@
     "url": "https://artificialanalysis.ai/agents",
     "disposition": "Excluded",
     "reason": "This is a product catalogue, not a benchmark. Alternate Coding Agent Index URLs are merged into the single included study."
+  },
+  {
+    "name": "SWE-bench Pro harness-model pairing comparison",
+    "published": "2026-08-07",
+    "url": "https://x.com/joelniklaus/status/2085725862142623875",
+    "disposition": "Watchlist",
+    "reason": "The 10-harness, 2-model comparison isolates harness effects across 250 tasks, but the post links no raw table or repository and publishes only selected exact values. Add observation rows when the underlying data is public."
   }
 ]
