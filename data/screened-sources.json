@@ -40,5 +40,33 @@
     "url": "https://x.com/joelniklaus/status/2085725862142623875",
     "disposition": "Watchlist",
     "reason": "The 10-harness, 2-model comparison isolates harness effects across 250 tasks, but the post links no raw table or repository and publishes only selected exact values. Add observation rows when the underlying data is public."
+  },
+  {
+    "name": "FrontierHarness Eval v1",
+    "published": "2026-09-01",
+    "url": "https://frontierharness.org/",
+    "disposition": "Watchlist",
+    "reason": "The study holds Kimi K3 and 30 task identities fixed across 12 configurations, but it does not publish a shared reasoning effort, temperature, context limit or complete invocation manifest. Its effective cost per pass divides total known task cost by successful tasks, despite repeated median labelling, and 17 failed cells lack normalized cost."
+  },
+  {
+    "name": "Prime Agent ARC-AGI-3 comparison",
+    "published": "2026-08-24",
+    "url": "https://arxiv.org/abs/2608.23552",
+    "disposition": "Context only",
+    "reason": "Prime Agent's 95.5% RHAE result is reproducible from public runner artefacts, but the 30.2%, 38.3% and other comparison points come from external runs with unmatched prompts, budgets, effort settings and protocols. They cannot isolate a harness effect."
+  },
+  {
+    "name": "Browser Use Pi historical cross-harness comparisons",
+    "published": "2026-09-09",
+    "url": "https://github.com/browser-use/browser-use-pi/blob/416b9906f0dbb5784ea4aa162345453842c260c3/docs/benchmark-overview.md",
+    "disposition": "Context only",
+    "reason": "The historical BrowserCode and Python Browser Harness cohorts share task IDs, model labels and effort labels with Browser Use Pi, but they ran on different dates, runners, browser dimensions and live website states. The included study uses the stronger concurrent revision pair instead."
+  },
+  {
+    "name": "OpenAI ARC-AGI-3 harness ablation",
+    "published": "2026-07-30",
+    "url": "https://x.com/OpenAI/status/2082616636989952217",
+    "disposition": "Watchlist",
+    "reason": "OpenAI reports that retained reasoning and context compaction raised GPT-5.6 Sol's public-set score from about 13.3% to 38.3% while reducing output tokens, but the thread does not publish enough shared effort, budget and run-level data for strict inclusion."
   }
 ]

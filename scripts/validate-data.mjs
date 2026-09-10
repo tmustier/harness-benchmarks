@@ -29,6 +29,7 @@ for (const study of studies) {
   if (!conflictValues.has(study.conflict)) errors.push(`Study needs a conflict value of none, adjacent or compared vendor: ${study.id}`);
   if (!weightTiers.has(study.weight_tier)) errors.push(`Study needs a weight tier of anchor, supporting or contextual: ${study.id}`);
   if (!study.weight_rationale) errors.push(`Study is missing a weight rationale: ${study.id}`);
+  if (study.binomial_interval !== undefined && typeof study.binomial_interval !== "boolean") errors.push(`Study binomial_interval must be boolean when present: ${study.id}`);
   if (study.conflict === "compared vendor" && study.weight_tier === "anchor") errors.push(`A compared-vendor study cannot be an anchor: ${study.id}`);
   if (study.component_suites !== undefined) {
     for (const suite of study.component_suites) {
@@ -74,6 +75,10 @@ for (const row of observations) {
   if (row.binomial_interval !== undefined && typeof row.binomial_interval !== "boolean") errors.push(`binomial_interval must be boolean when present: ${JSON.stringify(row)}`);
   if (row.pair_eligible !== undefined && typeof row.pair_eligible !== "boolean") errors.push(`pair_eligible must be boolean when present: ${JSON.stringify(row)}`);
   if (row.comparison_group !== undefined && typeof row.comparison_group !== "string") errors.push(`comparison_group must be a string when present: ${JSON.stringify(row)}`);
+  const pairedFields = [row.paired_reference_harness, row.paired_delta_ci_low, row.paired_delta_ci_high];
+  if (pairedFields.some(value => value !== undefined) && pairedFields.some(value => value === undefined)) errors.push(`Paired confidence interval needs a reference and both bounds: ${JSON.stringify(row)}`);
+  if (row.paired_reference_harness !== undefined && (typeof row.paired_reference_harness !== "string" || !Number.isFinite(row.paired_delta_ci_low) || !Number.isFinite(row.paired_delta_ci_high) || row.paired_delta_ci_low > row.paired_delta_ci_high)) errors.push(`Invalid paired confidence interval: ${JSON.stringify(row)}`);
+  if (row.paired_reference_harness !== undefined && !observations.some(other => other.study_id === row.study_id && other.model === row.model && other.effort === row.effort && other.performance_metric === row.performance_metric && (other.comparison_group ?? "") === (row.comparison_group ?? "") && other.harness === row.paired_reference_harness)) errors.push(`Paired confidence interval references a missing observation: ${JSON.stringify(row)}`);
   if (row.error_low !== undefined && (row.error_low > row.performance_value || row.error_high < row.performance_value)) errors.push(`Published error range does not contain the estimate: ${JSON.stringify(row)}`);
   const key = [row.study_id, row.model, row.harness, row.effort, row.performance_metric, row.comparison_group ?? ""].join("|");
   if (observationKeys.has(key)) errors.push(`Duplicate observation: ${key}`);

@@ -52,7 +52,7 @@ function halfWidth(row, study) {
   if (row.error_low != null && row.error_high != null) {
     return { hw: (row.error_high - row.error_low) / 2, basis: "published error value" };
   }
-  if (row.binomial_interval !== false && Number.isFinite(row.sample_count) && row.sample_count > 0) {
+  if (row.binomial_interval !== false && study?.binomial_interval !== false && Number.isFinite(row.sample_count) && row.sample_count > 0) {
     const p = Math.min(Math.max(row.performance_value / 100, 0.01), 0.99);
     return { hw: 1.96 * Math.sqrt((p * (1 - p)) / row.sample_count) * 100, basis: `binomial, n=${row.sample_count}` };
   }
@@ -84,8 +84,21 @@ for (const rows of groups.values()) {
       const study = studies[a.study_id];
       const wa = halfWidth(a, study);
       const wb = halfWidth(b, study);
-      const interval = wa.hw != null && wb.hw != null ? Math.sqrt(wa.hw ** 2 + wb.hw ** 2) : null;
       const delta = a.performance_value - b.performance_value;
+      const pairedSource = a.paired_reference_harness === b.harness
+        ? { row: a, orientation: 1 }
+        : b.paired_reference_harness === a.harness
+          ? { row: b, orientation: -1 }
+          : null;
+      const pairedLow = pairedSource
+        ? (pairedSource.orientation === 1 ? pairedSource.row.paired_delta_ci_low : -pairedSource.row.paired_delta_ci_high)
+        : null;
+      const pairedHigh = pairedSource
+        ? (pairedSource.orientation === 1 ? pairedSource.row.paired_delta_ci_high : -pairedSource.row.paired_delta_ci_low)
+        : null;
+      const interval = pairedSource
+        ? Math.max(Math.abs(delta - pairedLow), Math.abs(pairedHigh - delta))
+        : wa.hw != null && wb.hw != null ? Math.sqrt(wa.hw ** 2 + wb.hw ** 2) : null;
       pairs.push({
         source: "observations",
         study_id: a.study_id,
@@ -104,9 +117,11 @@ for (const rows of groups.values()) {
         value_a: a.performance_value,
         value_b: b.performance_value,
         delta_pp: Number(delta.toFixed(2)),
+        delta_ci_low: pairedLow != null ? Number(pairedLow.toFixed(2)) : null,
+        delta_ci_high: pairedHigh != null ? Number(pairedHigh.toFixed(2)) : null,
         interval_pp: interval != null ? Number(interval.toFixed(2)) : null,
-        interval_basis: interval != null ? `${wa.basis} / ${wb.basis}` : null,
-        decisive: interval != null ? Math.abs(delta) > interval : null,
+        interval_basis: pairedSource ? "published paired confidence interval" : interval != null ? `${wa.basis} / ${wb.basis}` : null,
+        decisive: pairedSource ? pairedLow > 0 || pairedHigh < 0 : interval != null ? Math.abs(delta) > interval : null,
         cost_ratio: ratio(a.cost_usd_per_task, b.cost_usd_per_task),
         token_ratio: ratio(a.tokens_per_task, b.tokens_per_task),
         time_ratio: ratio(a.wall_time_seconds, b.wall_time_seconds),
@@ -216,10 +231,12 @@ const cx = v => C.pad + ((Math.min(Math.max(Math.log2(v), C.min), C.max) - C.min
 
 function qualityRowSvg(p, y) {
   const parts = [];
-  const clippedLo = p.delta_pp - (p.interval_pp ?? 0) < Q.min;
-  const clippedHi = p.delta_pp + (p.interval_pp ?? 0) > Q.max;
+  const low = p.delta_ci_low ?? p.delta_pp - (p.interval_pp ?? 0);
+  const high = p.delta_ci_high ?? p.delta_pp + (p.interval_pp ?? 0);
+  const clippedLo = low < Q.min;
+  const clippedHi = high > Q.max;
   if (p.interval_pp != null) {
-    parts.push(`<line x1="${qx(p.delta_pp - p.interval_pp)}" y1="${y}" x2="${qx(p.delta_pp + p.interval_pp)}" y2="${y}" stroke="#9a9a9a" stroke-width="2"${clippedLo || clippedHi ? ' stroke-dasharray="3,2"' : ""}/>`);
+    parts.push(`<line x1="${qx(low)}" y1="${y}" x2="${qx(high)}" y2="${y}" stroke="#9a9a9a" stroke-width="2"${clippedLo || clippedHi ? ' stroke-dasharray="3,2"' : ""}/>`);
   }
   const fill = p.decisive === true ? "#1d70b8" : p.decisive === false ? "#ffffff" : "#b1b4b6";
   const stroke = p.decisive === true ? "#1d70b8" : p.decisive === false ? "#505a5f" : "#b1b4b6";

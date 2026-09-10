@@ -217,5 +217,39 @@
     "access": "Public leaderboard and downloadable traces",
     "licence": "Archived trace repository has no licence file as captured",
     "stored_here": false
+  },
+  {
+    "source_id": "deepseek-v4-1-flash",
+    "title": "DeepSeek V4.1 Flash scaffold evaluation",
+    "result_url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash/blob/main/DeepSeek_V41_Tech_Report.pdf",
+    "access": "Public model card, technical report, evaluation guide and selected scaffold code; no task-level evaluated results or trajectories",
+    "licence": "Check the model, harness and benchmark repositories for their separate terms",
+    "stored_here": false,
+    "dataset_urls": [
+      "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash/blob/main/evaluation/README.md",
+      "https://github.com/deepseek-ai/DeepSeek-Harness"
+    ]
+  },
+  {
+    "source_id": "prime-agent-long-context",
+    "title": "Prime Agent technical report",
+    "result_url": "https://arxiv.org/abs/2608.23552",
+    "access": "Public paper and open-source harness; included long-context values are aggregate-only",
+    "licence": "MIT for Prime Agent code; check each benchmark for its data terms",
+    "stored_here": false,
+    "dataset_urls": [
+      "https://github.com/PrimeIntellect-ai/prime-agent",
+      "https://github.com/PrimeIntellect-ai/prime-envs",
+      "https://github.com/PrimeIntellect-ai/arc-agi-3-prime-agent"
+    ]
+  },
+  {
+    "source_id": "browser-use-pi-revisions",
+    "title": "Browser Use Pi benchmark evidence",
+    "result_url": "https://github.com/browser-use/browser-use-pi/blob/416b9906f0dbb5784ea4aa162345453842c260c3/docs/benchmark-overview.md",
+    "dataset_url": "https://github.com/browser-use/browser-use-pi/tree/416b9906f0dbb5784ea4aa162345453842c260c3/evidence",
+    "access": "Public aggregate reports, configuration manifests, task-level scores, costs and selected audits; tasks and most traces need organization access",
+    "licence": "MIT repository; private benchmark tasks retain their own access terms",
+    "stored_here": false
   }
 ]

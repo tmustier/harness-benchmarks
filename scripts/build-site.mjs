@@ -70,7 +70,13 @@ const harnessColours = {
   "ZeroClaw": "#6f72af",
   "GenericAgent": "#f47738",
   "Moltis": "#912b88",
-  "NullClaw": "#28a197"
+  "NullClaw": "#28a197",
+  "DeepSeek Harness Minimal": "#12436d",
+  "DeepSeek Harness Standard": "#505a5f",
+  "DeepSeek Harness PTC": "#b58840",
+  "Browser Use Pi candidate 29e2b5e": "#1d70b8",
+  "Browser Use Pi reference c3f7fac": "#505a5f",
+  "Browser Use Pi reference 769ea14": "#505a5f"
 };
 
 function colourFor(harness) {
@@ -153,9 +159,9 @@ function artificialAnalysisChart(rows) {
   return `<figure class="chart-block"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="aa-title aa-desc"><title id="aa-title">Artificial Analysis performance against cost per task</title><desc id="aa-desc">Two zero-based scatter plots compare Coding Agent Index performance and API cost while holding Claude Opus 4.7 or GPT-5.5 fixed.</desc>${panels}<text transform="translate(18 214) rotate(-90)" text-anchor="middle" class="axis-title">Coding Agent Index, 0 to 100</text><text x="${L + plotW / 2}" y="447" text-anchor="middle" class="axis-title">API cost per task in US dollars</text></svg></div><p class="chart-caption">The live page also has a GPT-5.4 pair with only 2 of the current 3 component benchmarks. It is in the downloadable observations but excluded from these full-suite panels.</p></figure>`;
 }
 
-function barChart(rows, title, valueField = "performance_value", max = 100, unit = "%") {
+function barChart(rows, title, valueField = "performance_value", max = 100, unit = "%", labelFor = null, rowH = 44) {
   const showMetric = valueField === "performance_value" && new Set(rows.map(row => row.performance_metric)).size > 1;
-  const W = 900, rowH = 44, H = 58 + rows.length * rowH, L = showMetric ? 330 : 255, R = 80, T = 18, B = 34;
+  const W = 900, H = 58 + rows.length * rowH, L = showMetric ? 330 : 255, R = 80, T = 18, B = 34;
   const plotW = W - L - R;
   const x = value => L + value / max * plotW;
   const ticks = Array.from({ length: 6 }, (_, index) => max / 5 * index);
@@ -170,10 +176,49 @@ function barChart(rows, title, valueField = "performance_value", max = 100, unit
       : "";
     const labelStart = high !== null ? x(high) + 9 : x(value) + 9;
     const metric = showMetric ? row.performance_metric.replace(/ pass rate$/, "") : "";
-    const label = showMetric ? `${metric} · ${row.model} · ${row.harness}` : `${row.model} · ${row.harness}`;
+    const label = labelFor ? labelFor(row) : showMetric ? `${metric} · ${row.model} · ${row.harness}` : `${row.model} · ${row.harness}`;
     return `<g><text x="${L - 12}" y="${y + 12}" text-anchor="end" class="bar-label">${escapeHtml(label)}</text><rect x="${L}" y="${y}" width="${Math.max(0, x(value) - L)}" height="16" fill="${colourFor(row.harness)}" />${ci}<text x="${Math.min(W - R + 8, labelStart)}" y="${y + 12}" class="bar-value">${format(value, value < 10 ? 2 : 1)}${unit}</text></g>`;
   }).join("");
   return `<figure class="chart-block"><div class="chart-scroll"><svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeHtml(title)}"><g class="chart-grid">${grid}</g>${marks}</svg></div></figure>`;
+}
+
+function deepSeekV41Chart(rows) {
+  const suites = [
+    ["DeepSWE v1.1 resolved rate", "DeepSWE v1.1"],
+    ["Terminal-Bench 2.1 pass@1", "Terminal-Bench 2.1"]
+  ];
+  return suites.map(([metric, heading]) => {
+    const suiteRows = rows.filter(row => row.performance_metric === metric);
+    return `<section><h3>${heading}</h3>${barChart(suiteRows, metric, "performance_value", 100, "%", row => row.harness, 32)}</section>`;
+  }).join("");
+}
+
+function primeAgentTable(rows) {
+  const metrics = [...new Set(rows.map(row => row.performance_metric))];
+  const columns = [
+    ["GLM-5.2", "Prime Agent", "Prime · GLM-5.2"],
+    ["GLM-5.2", "Pi-mono with subagents", "Pi-mono · GLM-5.2"],
+    ["Claude Opus 5", "Prime Agent", "Prime · Opus 5"],
+    ["Claude Opus 5", "Claude Code", "Claude Code · Opus 5"],
+    ["GPT-5.6 Sol", "Prime Agent", "Prime · GPT-5.6 Sol"],
+    ["GPT-5.6 Sol", "Codex", "Codex · GPT-5.6 Sol"]
+  ];
+  const body = metrics.map(metric => {
+    const values = columns.map(([model, harness]) => rows.find(row => row.performance_metric === metric && row.model === model && row.harness === harness));
+    return `<tr><th scope="row">${escapeHtml(metric.replace(/ score$/, ""))}</th>${values.map(row => `<td>${format(row.performance_value, 1)}%</td>`).join("")}</tr>`;
+  }).join("");
+  return `<figure class="chart-block"><div class="table-wrap"><table class="chart-key"><thead><tr><th>Evaluation</th>${columns.map(([, , label]) => `<th>${escapeHtml(label)}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table></div><p class="chart-caption">All columns use the source's high reasoning label. Values are shown on a 0 to 100 scale. Metrics differ by row, and the source publishes no uncertainty intervals.</p></figure>`;
+}
+
+function browserUsePiChart(rows) {
+  const label = row => row.harness
+    .replace("Browser Use Pi candidate ", "Candidate ")
+    .replace("Browser Use Pi reference ", "Reference ");
+  const luna = rows.filter(row => row.performance_metric === "BU Bench V2 mean score");
+  const hard = rows.filter(row => row.performance_metric === "Internal Bench Hard pass rate");
+  return `<section><h3>BU Bench V2</h3>${barChart(luna, "BU Bench V2 mean score", "performance_value", 100, "%", label)}</section>
+    <section><h3>Internal Bench Hard</h3>${barChart(hard, "Internal Bench Hard pass rate", "performance_value", 100, "%", label)}</section>
+    <p class="chart-caption">The Luna candidate-reference difference has a published paired 95% bootstrap interval of +0.10 to +15.42 points. The Hard reference has 105 actual judgments for 106 assigned tasks, so that pair is excluded from matched-pair counts.</p>`;
 }
 
 function openBenchCharts(rows) {
@@ -417,6 +462,9 @@ function chartFor(study) {
   if (study.id === "scaffold-effect") return scaffoldEffectCharts(rows);
   if (study.id === "hal-swe-mini") return halChart(rows);
   if (study.id === "portkey-harness-tax") return claimChart(study.id);
+  if (study.id === "deepseek-v4-1-flash") return deepSeekV41Chart(rows);
+  if (study.id === "prime-agent-long-context") return primeAgentTable(rows);
+  if (study.id === "browser-use-pi-revisions") return browserUsePiChart(rows);
   if (!rows.length) return "";
   if (study.id === "terminal-bench") return `${barChart(rows, "Terminal-Bench 2.1 pass rate")}<p class="chart-caption">Whiskers reproduce the leaderboard's published 95% confidence intervals. The scale runs from 0 to 100%.</p>`;
   if (study.id === "harvey-lab") return `${barChart(rows, "Harvey rubric pass rate")}<p class="chart-caption">Whiskers reproduce the source's published error values. Harvey does not define them as confidence intervals. The scale runs from 0 to 100%.</p>`;

@@ -49,6 +49,8 @@ The confidence interval fields reproduce the source unless a note says otherwise
 
 Some sources publish an error value without defining it as a confidence interval. Those rows use `error_low` and `error_high`, and the report labels the whiskers as published error values.
 
+When a source publishes a confidence interval for a paired difference, the treatment row uses `paired_reference_harness`, `paired_delta_ci_low` and `paired_delta_ci_high`. These bounds describe the treatment value minus the named reference value.
+
 ## Cost
 
 `cost_usd_per_task` uses the source's reported provider or API cost. It excludes subscriptions, labour, infrastructure and supervision unless the source says otherwise.
@@ -61,7 +63,7 @@ When a source reports input and output tokens separately, rows can use `input_to
 
 `comparison_type`, `provider_route` and `comparison_group` distinguish same-label cross-route system comparisons from within-route component ablations. `pair_eligible: false` keeps confounded rows out of matched-pair derivation.
 
-`binomial_interval: false` prevents task counts from being treated as Bernoulli trials for continuous or composite scores. Published confidence or error intervals still take precedence.
+`binomial_interval: false` on a row or study prevents task counts from being treated as Bernoulli trials for continuous, composite or repeated-sample aggregate scores. Published confidence or error intervals still take precedence.
 
 ## Capture date
 
